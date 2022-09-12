@@ -25,8 +25,8 @@ part:
           value: 4000
       partId: Throttle
     - pos:
-        x: 336.7058575439453
-        y: 543.0730596923828
+        x: 325.7201397705078
+        y: 581.0312506103515
       id: Inline-value-Value was thro-555
       inputConfig: {}
       part:
@@ -87,6 +87,68 @@ part:
         templateType: value
         completionOutputs:
           - r
+    - pos:
+        x: 1034.3768809509277
+        y: 237.6327508544922
+      id: Debounce-888
+      inputConfig:
+        i:
+          mode: static
+          value: "42"
+      visibleInputs:
+        - ms
+        - i
+      partId: Debounce
+    - pos:
+        x: 843.5221026611327
+        y: 403.3149255371094
+      id: Inline-value-Result is ${in60
+      inputConfig: {}
+      part:
+        id: Inline-value-Result is ${in
+        inputs:
+          a:
+            type: any
+            mode: required
+          b:
+            type: any
+            mode: required
+        outputs:
+          r:
+            type: any
+            delayed: false
+            optional: false
+        fnCode: outputs.r.next((`Result is ${inputs.a + inputs.b}`))
+        customViewCode: "`Result is ${inputs.a + inputs.b}`"
+        dataBuilderSource: YFJlc3VsdCBpcyAke2lucHV0cy5hICsgaW5wdXRzLmJ9YA==
+        templateType: value
+        completionOutputs:
+          - r
+    - pos:
+        x: 609.0957330322266
+        y: 669.2628442382812
+      id: Inline-value-Result is ${in50
+      inputConfig: {}
+      part:
+        id: Inline-value-Result is ${in
+        inputs:
+          a:
+            type: any
+            mode: required
+          b:
+            type: any
+            mode: required
+        outputs:
+          r:
+            type: any
+            delayed: false
+            optional: false
+        fnCode: outputs.r.next((`Result is ${inputs.a + inputs.b}`))
+        customViewCode: "`Result is ${inputs.a + inputs.b}`"
+        dataBuilderSource: YFJlc3VsdCBpcyAke2lucHV0cy5hICsgaW5wdXRzLmJ9YA==
+        templateType: value
+        completionOutputs:
+          - r
   connections:
     - from:
         insId: __this
@@ -136,6 +198,18 @@ part:
       to:
         insId: __this
         pinId: result
+    - from:
+        insId: Debounce-888
+        pinId: r
+      to:
+        insId: Inline-value-Result is ${in60
+        pinId: __trigger
+    - from:
+        insId: Inline-value-Debounce out-720
+        pinId: r
+      to:
+        insId: Inline-value-Result is ${in50
+        pinId: __trigger
   id: Main
   inputs:
     value:

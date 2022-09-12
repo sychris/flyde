@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 
-import { Loader } from "@flyde/flow-editor";
 import { DynamicOutput, dynamicOutput } from "@site/../core/dist";
 
 import {

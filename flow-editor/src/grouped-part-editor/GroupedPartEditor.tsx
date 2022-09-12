@@ -17,8 +17,6 @@ import {
   connectionDataEquals,
   ConnectionNode,
   staticInputPinConfig,
-  toEnvValue,
-  randomInt,
   PartInstanceConfig,
   delay,
   noop,
@@ -32,6 +30,7 @@ import {
   isCodePart,
   InlinePartInstance,
   ResolvedFlydeFlowDefinition,
+  connectionNode,
 } from "@flyde/core";
 import { InstanceView } from "./instance-view/InstanceView";
 import { ConnectionView } from "./connection-view";
@@ -65,7 +64,7 @@ import useComponentSize from "@rehooks/component-size";
 import { Slider, Menu, MenuItem, ContextMenu, Button } from "@blueprintjs/core";
 import { PartIoView, PartIoType } from "./part-io-view";
 
-import { vec, vSub } from "../physics";
+import { rnd, vAdd, vec, vSub } from "../physics";
 import { QuickAddMenu, QuickAddMenuData, QuickMenuMatch } from "./quick-add-menu";
 import { queueInputPinConfig } from "@flyde/core";
 import { HistoryPayload } from "@flyde/remote-debugger";
@@ -140,15 +139,6 @@ export type GroupedPartEditorProps = {
   onInspectPin: (insId: string, pinId: string, type: PinType) => void;
 
   onEditPart: (partId: string) => void;
-  // editOrCreateConstValue: (
-  //   ins: PartInstance,
-  //   pinId: string,
-  //   type: string,
-  //   pos: Pos,
-  //   useInlineCode?: boolean
-  // ) => void;
-  // requestNewConstValue: (pos: Pos) => void;
-  onNewEnvVar?: (name: string, value: any) => void;
 
   // onGroupSelected: () => void;
   onRequestHistory: (insId: string, pinId: string, pinType: PinType) => Promise<HistoryPayload>;
@@ -159,8 +149,26 @@ export type GroupedPartEditorProps = {
   onCommand: (command: EditorCommand) => void;
 };
 
-type InlineValueTarget = 
-    {insId: string, value: string, templateType: CodePartTemplateTypeInline}
+type InlineValueTargetExisting = {
+  insId: string;
+  value: string;
+  templateType: CodePartTemplateTypeInline;
+  type: "existing";
+};
+type InlineValueTargetNewStatic = {
+  insId: string;
+  pinId: string;
+  value?: string;
+  type: "static-input";
+};
+type InlineValueTargetNewFloating = { pos: Pos; type: "new-floating"; value?: string };
+type InlineValueTargetNewOutput = { insId: string; pinId: string, type: "new-output"; value?: string };
+
+type InlineValueTarget =
+  | InlineValueTargetExisting
+  | InlineValueTargetNewStatic
+  | InlineValueTargetNewFloating
+  | InlineValueTargetNewOutput;
 
 export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }> = React.memo(
   React.forwardRef((props, ref) => {
@@ -176,22 +184,22 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       // requestNewConstValue,
       onRequestHistory,
       onInspectPin,
-      onNewEnvVar,
       boardData,
       onChangeBoardData,
       insId: thisInsId,
       part,
       onShowOmnibar,
-      resolvedFlow
+      resolvedFlow,
     } = props;
 
-    const [repo, setRepo] = useState({...resolvedFlow.dependencies, [resolvedFlow.main.id]: resolvedFlow.main});
+    const [repo, setRepo] = useState({
+      ...resolvedFlow.dependencies,
+      [resolvedFlow.main.id]: resolvedFlow.main,
+    });
 
     useEffect(() => {
-      setRepo({...resolvedFlow.dependencies, [resolvedFlow.main.id]: resolvedFlow.main});
-    }, [resolvedFlow])
-    
-
+      setRepo({ ...resolvedFlow.dependencies, [resolvedFlow.main.id]: resolvedFlow.main });
+    }, [resolvedFlow]);
 
     const { selected, from, to } = boardData;
     const { instances, connections, inputsPosition, outputsPosition, inputs, outputs } = part;
@@ -250,11 +258,11 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     );
 
     const onGroupSelectedInternal = React.useCallback(async () => {
-      const name = await _prompt('Part name?');
-      const { currentPart } = groupSelected(boardData.selected, part, name, 'inline');
-      onChange(currentPart, functionalChange('group part'));
+      const name = await _prompt("Part name?");
+      const { currentPart } = groupSelected(boardData.selected, part, name, "inline");
+      onChange(currentPart, functionalChange("group part"));
 
-      toastMsg('Part grouped!');
+      toastMsg("Part grouped!");
     }, [_prompt, boardData.selected, onChange, part]);
 
     useEffect(() => {
@@ -710,7 +718,18 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
         lastMousePos.current = posInBoard;
         onChangeBoardData({ lastMousePos: lastMousePos.current });
       },
-      [boardPos, viewPort, selectionBox, part, repo, vpSize, thisInsId, closestPin, onChangeBoardData, setViewPort]
+      [
+        boardPos,
+        viewPort,
+        selectionBox,
+        part,
+        repo,
+        vpSize,
+        thisInsId,
+        closestPin,
+        onChangeBoardData,
+        setViewPort,
+      ]
     );
 
     const onMouseLeave: React.MouseEventHandler = React.useCallback(() => {
@@ -722,7 +741,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     const onDblClickInstance = React.useCallback(
       (ins: PartInstance, shift: boolean) => {
         if (shift) {
-          const part = isInlinePartInstance(ins) ? ins.part : getPartDef(ins.partId, repo)
+          const part = isInlinePartInstance(ins) ? ins.part : getPartDef(ins.partId, repo);
           if (!part) {
             throw new Error(`Impossible state inspecting inexisting part`);
           }
@@ -737,14 +756,19 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           if (isRefPartInstance(ins)) {
             onEditPart(ins.partId);
           } else {
-            const part  = ins.part;
+            const part = ins.part;
             if (!isCodePart(part)) {
-              toastMsg('Editing non code inline part is not supported');
+              toastMsg("Editing non code inline part is not supported");
               return;
             }
             const value = atob(part.dataBuilderSource);
-            setInlineCodeTarget({insId: ins.id, templateType: part.templateType, value})
-            toastMsg('Editing inline grouped part not supported yet');
+            setInlineCodeTarget({
+              insId: ins.id,
+              templateType: part.templateType,
+              value,
+              type: "existing",
+            });
+            toastMsg("Editing inline grouped part not supported yet");
           }
         }
       },
@@ -798,37 +822,10 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       [part, onChange, copiedConstValue]
     );
 
-    const onConvertConstToEnv = React.useCallback(
-      async (ins: PartInstance, pinId: string) => {
-        if (!onNewEnvVar) {
-          throw new Error("Impossible state");
-        }
-
-        const currConfig = ins.inputConfig[pinId];
-        if (!isStaticInputPinConfig(currConfig)) {
-          throw new Error(`Impossible state converting non const input to env var`);
-        }
-        const name = await _prompt("Env variable name?", `myVar${randomInt(9999)}`);
-        if (name) {
-          const newValue = produce(part, (draft) => {
-            draft.instances.forEach((_ins) => {
-              if (ins.id === _ins.id) {
-                _ins.inputConfig[pinId] = staticInputPinConfig(toEnvValue(name));
-              }
-            });
-          });
-          // todo - fix below actions to be atomic, this is a source for bugs
-          onChange(newValue, functionalChange("convert const to env"));
-          onNewEnvVar(name, currConfig.value);
-        }
-      },
-      [_prompt, onChange, onNewEnvVar, part]
-    );
-
     const onAddIoPin = React.useCallback(
       async (type: PartIoType) => {
-        const newPinId = await _prompt("New name?") || "na";
-        const newPinType = await _prompt("type?") || "any";
+        const newPinId = (await _prompt("New name?")) || "na";
+        const newPinType = (await _prompt("type?")) || "any";
 
         const newValue = produce(part, (draft) => {
           if (type === "input") {
@@ -991,13 +988,11 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     const onPinDblClick = React.useCallback(
       async (ins: PartInstance, pinId: string, type: PinType, e: React.MouseEvent) => {
         if (type === "input") {
-          const part = getPartDef(ins, repo);
+          const inputConfig = ins.inputConfig[pinId];
+          const value = isStaticInputPinConfig(inputConfig) ? `${inputConfig.value}` : undefined;
 
-          const partInput = part.inputs[pinId];
-          const type = partInput ? partInput.type : "any";
+          setInlineCodeTarget({ type: "static-input", insId: ins.id, pinId, value });
 
-          toastMsg('TODO');
-          // editOrCreateConstValue(ins, pinId, type, lastMousePos.current, true);
         } else {
           const part = getPartDef(ins, repo);
           const pin = part.outputs[pinId];
@@ -1006,7 +1001,10 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             throw new Error("Dbl clicked on un-existing pin");
           }
 
-          const matches = values({...resolvedFlow.dependencies, [resolvedFlow.main.id]: resolvedFlow.main}).reduce<QuickMenuMatch[]>(
+          const matches = values({
+            ...resolvedFlow.dependencies,
+            [resolvedFlow.main.id]: resolvedFlow.main,
+          }).reduce<QuickMenuMatch[]>(
             (acc, curr) => {
               const matches: QuickMenuMatch[] = entries(curr.inputs).map(([id, val]) => ({
                 pinId: id,
@@ -1029,7 +1027,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           });
         }
       },
-      [repo]
+      [repo, resolvedFlow.dependencies, resolvedFlow.main]
     );
 
     const onMainInputDblClick = React.useCallback(
@@ -1061,7 +1059,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           pinType: pin.type,
         });
       },
-      [part, resolvedFlow]
+      [part.inputs, repo]
     );
 
     const onMaybeZoom = React.useCallback(
@@ -1188,11 +1186,10 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             toastMsg("Cannot add value to main input");
             return;
           }
-          toastMsg('TODO');
-          // editOrCreateConstValue(ins, pinId, "n/a", pos, true);
+          setInlineCodeTarget({type: 'new-output', insId: ins.id, pinId})
         }
       },
-      [quickAddMenuVisible, resolvedFlow, part, onChange, onCloseQuickAdd]
+      [quickAddMenuVisible, repo, part, onChange, onCloseQuickAdd]
     );
 
     const copyPartToClipboard = React.useCallback(async () => {
@@ -1210,7 +1207,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             <MenuItem
               onMouseDown={(e) => e.stopPropagation()}
               label={"New Value"}
-              onClick={preventDefaultAnd(() => toastMsg('TODO') /*requestNewConstValue(pos)*/)}
+              onClick={preventDefaultAnd(() => setInlineCodeTarget({type: 'new-floating', pos: lastMousePos.current}))}
             />
             <MenuItem
               label={`New input ${maybeDisabledLabel}`}
@@ -1228,11 +1225,6 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
               onMouseDown={(e) => e.stopPropagation()}
               label={"Copy part to clipboard"}
               onClick={preventDefaultAnd(copyPartToClipboard)}
-            />
-            <MenuItem
-              onMouseDown={(e) => e.stopPropagation()}
-              label={"New Value"}
-              onClick={preventDefaultAnd(() => toastMsg('TODO') /*requestNewConstValue(pos)*/)}
             />
             <MenuItem
               onMouseDown={(e) => e.stopPropagation()}
@@ -1321,13 +1313,9 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
               onInspectPin={props.onInspectPin}
               onEditPart={props.onEditPart}
               partIoEditable={props.partIoEditable}
-              // requestNewConstValue={props.requestNewConstValue}
-              // onGroupSelected={noop}
               onRequestHistory={onRequestHistory}
-              // editOrCreateConstValue={props.editOrCreateConstValue}
               part={inspectedInstance.part}
               onChangePart={onChangeInspected}
-              onNewEnvVar={props.onNewEnvVar}
               onCommand={noop}
               onShowOmnibar={onShowOmnibar}
             />
@@ -1498,46 +1486,102 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       return null;
     };
 
-    const onSaveInlineCodePart = React.useCallback((type: CodePartTemplateTypeInline, code: string) => {
-      const [existingInlinePart] = part.instances
-        .filter(ins => ins.id === inlineCodeTarget.insId)
-        .filter(ins => isInlinePartInstance(ins))
-        .map((ins: InlinePartInstance) => ins.part);
-      
-      if (!existingInlinePart) {
-        throw new Error(`Unable to find inline part to save to`);
-      }
+    const onSaveInlineCodePart = React.useCallback(
+      (type: CodePartTemplateTypeInline, code: string) => {
+        const customView = code.trim().substr(0, 100);
+        const partId = `Inline-value-${customView.substr(0, 15).replace(/["'`]/g, "")}`;
 
-      const customView = code.trim().substr(0, 100);
-      const partId = `Inline-value-${customView.substr(0, 15).replace(/["'`]/g, '')}`
-
-      const newPart = createInlineCodePart({
-        code,
-        customView,
-        partId,
-        type,
-      });
-
-      const oldInputs = keys(existingInlinePart.inputs);
-      const newInputs = keys(newPart.inputs);
-
-      const removedInputs = new Set(_.difference(oldInputs, newInputs));
-
-      const newVal = produce(part, draft => {
-        draft.instances = draft.instances.map(i => {
-          return i.id === inlineCodeTarget.insId ? inlinePartInstance(i.id, newPart, i.inputConfig, i.pos) : i;
+        const newPart = createInlineCodePart({
+          code,
+          customView,
+          partId,
+          type,
         });
-        draft.connections = draft.connections.filter((conn) => {
-          const wasRemoved = conn.to.insId === inlineCodeTarget.insId && removedInputs.has(conn.to.pinId);
-          return !wasRemoved;
-        })
-      });
 
-      onChange(newVal, functionalChange('change inline value'));
+        switch (inlineCodeTarget.type) {
+          case "existing": {
+            const [existingInlinePart] = part.instances
+              .filter((ins) => ins.id === inlineCodeTarget.insId)
+              .filter((ins) => isInlinePartInstance(ins))
+              .map((ins: InlinePartInstance) => ins.part);
 
-      setInlineCodeTarget(undefined);
-        
-    }, [inlineCodeTarget, onChange, part])
+            if (!existingInlinePart) {
+              throw new Error(`Unable to find inline part to save to`);
+            }
+
+            const oldInputs = keys(existingInlinePart.inputs);
+            const newInputs = keys(newPart.inputs);
+
+            const removedInputs = new Set(_.difference(oldInputs, newInputs));
+
+            const newVal = produce(part, (draft) => {
+              draft.instances = draft.instances.map((i) => {
+                return i.id === inlineCodeTarget.insId
+                  ? inlinePartInstance(i.id, newPart, i.inputConfig, i.pos)
+                  : i;
+              });
+              draft.connections = draft.connections.filter((conn) => {
+                const wasRemoved =
+                  conn.to.insId === inlineCodeTarget.insId && removedInputs.has(conn.to.pinId);
+                return !wasRemoved;
+              });
+            });
+
+            onChange(newVal, functionalChange("change inline value"));
+
+            setInlineCodeTarget(undefined);
+            break;
+          }
+          case "static-input": {
+            let val: any;
+            try {
+              const normalizeString = code
+                .replace(/^'/, '"')
+                .replace(/'$/, '"')
+              val = JSON.parse(normalizeString);
+            } catch (e) {
+              toastMsg('Input values must not be formulas or code');
+              return;
+            }
+
+            const newVal = produce(part, (draft) => {
+              const ins = draft.instances.find(i => i.id === inlineCodeTarget.insId);
+              ins.inputConfig[inlineCodeTarget.pinId] = staticInputPinConfig(val);
+            });
+
+            onChange(newVal, functionalChange("set static input value"));
+
+            setInlineCodeTarget(undefined);
+            break;
+          }
+          case "new-floating": {
+            const ins = inlinePartInstance(partId + rnd(100), newPart, {}, inlineCodeTarget.pos);
+            const newVal = produce(part, (draft) => {
+              draft.instances.push(ins)
+            });
+            onChange(newVal, functionalChange("new floating value"));
+            setInlineCodeTarget(undefined);
+            break;
+          }
+          case "new-output": {
+            const {insId, pinId} = inlineCodeTarget;
+            const existingIns = part.instances.find(i => i.id === insId);
+            if (!existingIns) {
+              throw new Error(`Impossible state`);
+            }
+            const newIns = inlinePartInstance(partId + rnd(100), newPart, {}, vAdd(existingIns.pos, {x: -50, y: 150}));
+            const newVal = produce(part, (draft) => {
+              draft.instances.push(newIns);
+              draft.connections.push({from: connectionNode(insId, pinId), to: connectionNode(newIns.id, TRIGGER_PIN_ID)});
+            });
+            onChange(newVal, functionalChange("new value connected to output"));
+            setInlineCodeTarget(undefined);
+          }
+        }
+
+      },
+      [inlineCodeTarget, onChange, part]
+    );
 
     try {
       return (
@@ -1612,7 +1656,6 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
                 selected={selected.indexOf(v.id) !== -1}
                 dragged={draggingId === v.id}
                 onInspectPin={_onInspectPin}
-                onConvertConstToEnv={props.onNewEnvVar ? onConvertConstToEnv : undefined}
                 selectedInput={
                   to && isInternalConnectionNode(to) && to.insId === v.id ? to.pinId : undefined
                 }
@@ -1658,7 +1701,9 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
               <InlineCodeModal
                 env={emptyObj}
                 initialValue={inlineCodeTarget.value}
-                initialType={inlineCodeTarget.templateType}
+                initialType={
+                  inlineCodeTarget.type === "existing" ? inlineCodeTarget.templateType : undefined
+                }
                 onCancel={() => setInlineCodeTarget(undefined)}
                 onSubmit={onSaveInlineCodePart}
               />
