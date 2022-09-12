@@ -1,6 +1,7 @@
 import { CustomPart, FlydeFlow, flydeFlowSchema } from '@flyde/core';
 import * as yaml from 'yaml';
 import * as rfs from 'require-from-string';
+import _ = require('lodash');
 
 
 export const deserializeCodeFlow = (contents: string, fileName: string): FlydeFlow => {
@@ -8,59 +9,35 @@ export const deserializeCodeFlow = (contents: string, fileName: string): FlydeFl
 
   // TODO - validate part
 
-  part.__importFrom = fileName; // TODO - remove this when all flows come with imported from
-
   return {
-    exports: [part.id],
-    parts: {[part.id]: part},
-    mainId: part.id,
+    part,
     imports: {}
   }
 }
 
-export const deserializVisualFlow = (flowContents: string): FlydeFlow => {
+export const deserializeVisualFlow = (flowContents: string, path: string): FlydeFlow => {
 
   const unsafeflow = yaml.parse(flowContents);
 
   const result = flydeFlowSchema.safeParse(unsafeflow);
   if (result.success === false) {
-    throw new Error(`Error parsing Flyde flow ${result.error}`);
+    throw new Error(`Error parsing Flyde flow ${result.error} from ${path}`);
   }
 
   const data = result.data;
 
-  const imports = data.imports || {};
-
-  for (const importPath in imports) {
-    const importedData = imports[importPath] || [];
-
-    const fixed = importedData.map((importDef) => {
-      if (typeof importDef === 'string') {
-        return {
-          name: importDef,
-          alias: importDef
-        };
-      } else {
-        return importDef
-      }
-    });
-
-    imports[importPath] = fixed;
-  }
+  const imports = _.mapValues(data.imports || {}, (value) => {
+    return typeof value === 'string' ? [value] : value;
+  });
 
   data.imports = imports;
-
-  // add ids
-  for (const partId in data.parts) {
-    const part = data.parts[partId] as CustomPart; 
-    part.id = partId;
-  }
-  return {imports: {}, exports: [], ...data as any};
+  
+  return data as FlydeFlow;
 }
 
 export const deserializeFlow = (flowContents: string, fileName: string): FlydeFlow => {
   if (fileName.endsWith('.flyde')) {
-    return deserializVisualFlow(flowContents);
+    return deserializeVisualFlow(flowContents, fileName);
   } else {
     return deserializeCodeFlow(flowContents, fileName);
   }

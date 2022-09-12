@@ -1,6 +1,6 @@
 ---
 bob: "2"
-main:
+part:
   inputs:
     n1:
       type: number
