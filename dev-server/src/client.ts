@@ -21,3 +21,5 @@ export const createDevServerClient = (baseUrl: string)  => {
         }
     }
 }
+
+export type DevServerClient = ReturnType<typeof createDevServerClient>;

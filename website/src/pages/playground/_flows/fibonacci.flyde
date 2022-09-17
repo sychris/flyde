@@ -3,11 +3,13 @@ imports:
     - Equals
     - Subtract
     - Add
+    - Merge
+    - HtmlH1
 part:
   instances:
     - pos:
-        x: -179.03373046875004
-        y: -98.1199594116211
+        x: -249.1657495117188
+        y: -105.87720733642578
       id: Equals-364
       inputConfig:
         compare:
@@ -22,6 +24,9 @@ part:
         compare:
           mode: static
           value: 1
+      visibleInputs:
+        - val
+        - compare
       partId: Equals
     - pos:
         x: 29.675939941406256
@@ -31,12 +36,15 @@ part:
       partId: Add
     - pos:
         x: -34.96145751953125
-        y: 160.11758544921872
+        y: 161.11758544921872
       id: Subtract-210
       inputConfig:
         n2:
           mode: static
           value: 1
+      visibleInputs:
+        - n1
+        - n2
       partId: Subtract
     - pos:
         x: 109.47726318359378
@@ -139,8 +147,8 @@ part:
       type: any
   inputsPosition:
     n:
-      x: -143.86010604896114
-      y: -152.48753764734144
+      x: -205.84801890123222
+      y: -182.4127543301569
   outputsPosition:
     result:
       x: -135.1549331794976

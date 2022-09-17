@@ -14,11 +14,14 @@ declare module '@flyde/runtime' {
     * @deprecated Path "src/pages/playground/_flows/fibonacci.flyde"" is corrupt. Please fix it."mainId" is missing.    */
     export function executeFlow(path: 'fibonacci.flyde', args: never): never;
     /**
-    * @deprecated Path "src/pages/playground/_flows/hello-world.flyde"" is corrupt. Please fix it."mainId" is missing.    */
-    export function executeFlow(path: 'hello-world.flyde', args: never): never;
-    /**
     * @deprecated Path "src/pages/playground/_flows/react-counter/react-counter.flyde"" is corrupt. Please fix it."mainId" is missing.    */
     export function executeFlow(path: 'react-counter.flyde', args: never): never;
+    /**
+    * @deprecated Path "src/pages/playground/Bob1.flyde"" is corrupt. Please fix it."mainId" is missing.    */
+    export function executeFlow(path: 'Bob1.flyde', args: never): never;
+    /**
+    * @deprecated Path "src/pages/playground/_flows/hello-world.flyde"" is corrupt. Please fix it."mainId" is missing.    */
+    export function executeFlow(path: 'hello-world.flyde', args: never): never;
 
     // repeating static function typings.. TODO - find a way to avoid needing this
     export const expose: (func: Function, name: string, inputs?: string[]) => void;

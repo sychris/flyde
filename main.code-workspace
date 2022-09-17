@@ -13,9 +13,6 @@
 			"path": "runtime"
 		},
 		{
-			"path": "flyde-vscode-extension"
-		},
-		{
 			"path": "website"
 		},
 		{
@@ -26,9 +23,6 @@
 		},
 		{
 			"path": "examples/invoices-example"
-		},
-		{
-			"path": "../flyde-vscode-extension"
 		},
 		{
 			"path": "../flyde-vscode"

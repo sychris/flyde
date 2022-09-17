@@ -206,15 +206,15 @@ export const createNewInlinePartInstance = (
 };
 
 export const createNewPartInstance = (
-  partId: string,
+  partIdOrPart: string | PartDefinition,
   offset: number = -1 * PART_HEIGHT * 1.5,
   lastMousePos: Pos,
   repo: PartDefRepo
 ): PartInstance => {
-  const part = getPartDef(partId, repo);
+  const part = typeof partIdOrPart === 'string' ? getPartDef(partIdOrPart, repo) : partIdOrPart;
 
   if (!part) {
-    throw new Error(`${partId} part not found in repo`);
+    throw new Error(`${partIdOrPart} part not found in repo`);
   }
 
   const ins = partInstance(`${part.id}-${randomInt(999)}`, part.id, {}, { x: 0, y: 0 });

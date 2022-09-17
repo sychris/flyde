@@ -11,11 +11,12 @@ import { deserializeFlow, serializeFlow } from '@flyde/runtime';
 export const createService = (root: string) => {
 
     const readFile = (filename: string) => {
-        const path = join(root, filename);
 
-        const contents = readFileSync(path, 'utf-8');
+        console.log({filename});
+        
+        const contents = readFileSync(filename, 'utf-8');
         try {
-            return deserializeFlow(contents, path);
+            return deserializeFlow(contents, filename);
         } catch (e) {
             console.log('ERROR', e);
             return JSON.parse(contents);

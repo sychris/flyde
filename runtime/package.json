@@ -6,7 +6,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "tsc -p . -w --incremental",
+    "dev": "tsc -p . -w --incremental",
     "build": "rm -rf dist && tsc -p .",
     "prod": "node dist/index.js",
     "start": "concurrently 'ts-node-dev src/index.ts' 'npm run watch'"

@@ -5,13 +5,14 @@ import {
   FlydeFlow,
   ResolvedFlydeFlowDefinition,
   ImportablePart,
+  hashFlow,
 } from "@flyde/core";
 
 import classNames from "classnames";
 import { createEditorClient, EditorDebuggerClient } from "@flyde/remote-debugger/dist/client";
 
 import produce from "immer";
-import { createNewPartInstance } from "@flyde/flow-editor"; // ../../common/grouped-part-editor/utils
+import { createNewPartInstance, usePorts } from "@flyde/flow-editor"; // ../../common/grouped-part-editor/utils
 import { vAdd } from "@flyde/flow-editor"; // ../../common/physics
 
 import { FlowEditor } from "@flyde/flow-editor"; // ../../common/flow-editor/FlowEditor
@@ -32,13 +33,15 @@ import { values } from "@flyde/flow-editor"; // ../../common/utils
 import { PinType } from "@flyde/core";
 import { createRuntimePlayer, RuntimePlayer } from "@flyde/flow-editor"; // ../../common/grouped-part-editor/runtime-player
 
-import { useDevServerApi } from "../api/apis-context";
+// import { useDevServerApi } from "../api/dev-server-api";
 import { FlydeFlowChangeType, functionalChange } from "@flyde/flow-editor"; // ../../common/flow-editor/flyde-flow-change-type
-import { useHotkeys, FlowEditorState } from "@flyde/flow-editor"; // ../../common/lib/react-utils/use-hotkeys
+import { FlowEditorState } from "@flyde/flow-editor"; // ../../common/lib/react-utils/use-hotkeys
 import { defaultViewPort } from "@flyde/flow-editor/dist/grouped-part-editor/GroupedPartEditor";
-import { vscodePromptHandler } from "../vscode-prompt-handler";
+// import { vscodePromptHandler } from "../vscode-ports";
 import { useState } from "react";
 import { useEffect } from "react";
+import _ from "lodash";
+import { useHotkeysPropagationVsCode } from "./use-hotkeys-propagation-vscode";
 
 export const PIECE_HEIGHT = 28;
 
@@ -54,13 +57,20 @@ export type IntegratedFlowManagerProps = {
 export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (props) => {
   const { flow: initialFlow, resolvedDefinitions } = props;
   const boardRef = React.useRef<any>();
+
+  const ports = usePorts();
+
+  useHotkeysPropagationVsCode();
+
   // const searchParams = useSearchParams();
 
-  const [isEmbeddedMode] = useQueryParam("embedded", BooleanParam);
+  const [isEmbedded] = useQueryParam("embedded", BooleanParam);
 
   const [currentResolvedDefs, setCurrentResolvedDefs] = useState(resolvedDefinitions);
 
-  const [state, setState] = React.useState<FlowEditorState>({
+  const lastChangeReason = React.useRef('');
+
+  const [editorState, setEditorState] = React.useState<FlowEditorState>({
     flow: initialFlow,
     boardData: {
       viewPort: defaultViewPort,
@@ -69,7 +79,7 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
     },
   });
 
-  const { flow } = state;
+  const { flow } = editorState;
 
   const [debuggerClient, setDebuggerClient] = React.useState<EditorDebuggerClient>();
 
@@ -86,14 +96,27 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
   // to avoid re-resolving imported flows, this holds parts that were imported in the current session
   const [importedParts, setImportedParts] = React.useState<ImportablePart[]>([]);
 
-  const devServerClient = useDevServerApi();
-
-
   const [repo, setRepo] = useState({...currentResolvedDefs.dependencies, [currentResolvedDefs.main.id]: currentResolvedDefs.main});
+
+  const didMount = React.useRef(false);
 
   useEffect(() => {
     setRepo({...currentResolvedDefs.dependencies, [currentResolvedDefs.main.id]: currentResolvedDefs.main});
   }, [currentResolvedDefs])
+
+  useEffect(() => {
+    return ports.onFlowChange(({flow, deps}) => {
+      /*
+       this is triggered from either vscode or in the future from  filesystem watcher when outside of an IDE
+      */
+      if (_.isEqual(flow, editorState.flow) === false) {
+        setCurrentResolvedDefs(deps);
+        setEditorState(state => ({...state, flow}));
+
+        lastChangeReason.current = 'external-changes';
+      }
+    })
+  }, [editorState.flow, ports])
 
   const connectToRemoteDebugger = React.useCallback(
     (url: string) => {
@@ -129,15 +152,6 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useHotkeys(
-    "cmd+s",
-    (e) => {
-      toastMsg("Flows are auto saved to disk");
-      e.preventDefault();
-    },
-    []
-  );
-
   React.useEffect(() => {
     if (debuggerClient) {
       return debuggerClient.onBatchedEvents((events) => {
@@ -151,22 +165,30 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
     }
   }, [debuggerClient]);
 
-  const debouncedSaveFile = useDebouncedCallback((flow, src: string) => {
-    devServerClient.saveFile(src, flow);
+  const debouncedSaveFile = useDebouncedCallback((flow, src: string) => {    
+    ports.saveFlow({absPath: src, flow});
   }, 500);
 
   const onChangeFlow = React.useCallback(
     (changedFlow: FlydeFlow, type: FlydeFlowChangeType) => {
-      // console.log("project change", type);
-      setState((state) => ({ ...state, flow: changedFlow }));
+      console.log("project change", type);
+      lastChangeReason.current = type.message;
+      setEditorState((state) => ({ ...state, flow: changedFlow }));
       debouncedSaveFile(changedFlow, props.integratedSource);
     },
     [props.integratedSource, debouncedSaveFile]
   );
 
   React.useEffect(() => {
-    onChangeFlow(state.flow, functionalChange('unknown'));
-  }, [onChangeFlow, state.flow]);
+    if (!didMount.current) {
+      didMount.current = true;
+    } else {
+      if (lastChangeReason.current !== 'external-changes') {
+        debouncedSaveFile(editorState.flow, props.integratedSource);
+        lastChangeReason.current = 'n/a';
+      }
+    }
+  }, [onChangeFlow, editorState.flow, debouncedSaveFile, props.integratedSource]);
 
   const onInspectPin = React.useCallback((insId: string, pinId: string, pinType: PinType) => {
     setMenuSelectedItem("analytics");
@@ -174,7 +196,7 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
   }, []);
 
   const onAddPartToStage = (part: PartDefinition) => {
-    const finalPos = vAdd({ x: 100, y: 0 }, state.boardData.lastMousePos);
+    const finalPos = vAdd({ x: 100, y: 0 }, editorState.boardData.lastMousePos);
     const newPartIns = createNewPartInstance(part.id, 0, finalPos, repo);
     if (newPartIns) {
       const valueChanged = produce(flow, (draft) => {
@@ -209,8 +231,8 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
 
   const queryImportables = React.useCallback(
     async (query): Promise<ImportablePart[]> => {
-      const importables = await devServerClient
-        .getImportables(props.integratedSource)
+      const importables = await ports
+        .getImportables({rootFolder: props.integratedSource, flowPath: props.integratedSource})
         .then((imps) => {
           return Object.entries(imps).reduce<any[]>((acc, [module, partsMap]) => {
             const parts = values(partsMap);
@@ -228,7 +250,7 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
 
       return [...importables];
     },
-    [devServerClient, flow.imports, props.integratedSource]
+    [ports, flow.imports, props.integratedSource]
   );
 
   const onImportPart = React.useCallback(
@@ -240,8 +262,8 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
         return;
       }
 
-      const finalPos = vAdd({ x: 0, y: 0 }, state.boardData.lastMousePos);
-      const newPartIns = createNewPartInstance(importedPart.id, 0, finalPos, repo);
+      const finalPos = vAdd({ x: 0, y: 0 }, editorState.boardData.lastMousePos);
+      const newPartIns = createNewPartInstance(importedPart, 0, finalPos, repo);
 
       setImportedParts((parts) => [...parts, { part: importedPart, module }]);
 
@@ -260,10 +282,8 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
       setTimeout(() => {
         onChangeFlow(newFlow, functionalChange("imported-part"));
       }, 10);
-
-      // onEditPart(part);
     },
-    [flow, onChangeFlow, repo, state.boardData.lastMousePos]
+    [flow, onChangeFlow, repo, editorState.boardData.lastMousePos]
   );
 
   React.useEffect(() => {
@@ -277,7 +297,7 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
   }, [importedParts]);
 
   return (
-    <div className={classNames("app", {embedded: isEmbeddedMode})}>
+    <div className={classNames("app", {embedded: isEmbedded})}>
       <main>
         <IntegratedFlowSideMenu
           flowPath={props.integratedSource}
@@ -298,10 +318,9 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
         />
         <div className={classNames("stage-wrapper", { running: false })}>
           <FlowEditor
-            promptHandler={isEmbeddedMode ? vscodePromptHandler : undefined}
             key={props.integratedSource}
-            state={state}
-            onChangeState={setState}
+            state={editorState}
+            onChangeEditorState={setEditorState}
             hideTemplatingTips={false}
             onInspectPin={onInspectPin}
             onRequestHistory={_onRequestHistory}

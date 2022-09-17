@@ -11,10 +11,11 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "tsc -p . -w --incremental",
+    "watch-ts": "tsc -p . -w --incremental",
+    "watch-flyde": "ts-node-dev src/cli.ts --root=../website",
+    "dev": "concurrently 'ts-node-dev src/cli.ts --root=../website --port=8545' 'npm run watch-ts'",
     "build": "rm -rf dist && tsc -p .",
-    "prod": "node dist/index.js",
-    "start": "concurrently 'ts-node-dev src/cli.ts' 'npm run watch'"
+    "prod": "node dist/index.js"
   },
   "bin": {
     "flyde": "dist/cli.js"

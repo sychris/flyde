@@ -32,7 +32,7 @@ export type ResolveMode = "implementation" | "definition" | "bundle";
 const _resolveFlow = (
   fullFlowPath: string,
   mode: ResolveMode = "definition",
-  namespaceIds = ""
+  originalFlowPath: string = fullFlowPath
 ): ResolvedFlydeFlow => {
   const flow = deserializeFlow(readFileSync(fullFlowPath, "utf8"), fullFlowPath);
 
@@ -101,7 +101,7 @@ const _resolveFlow = (
         );
       }
 
-      const resolvedImport = resolveFlow(path, mode);
+      const resolvedImport = resolveFlow(path, mode, originalFlowPath);
       
       const namespacedImport = namespaceFlowImports(resolvedImport, `${refPartId}__`);
 
@@ -118,11 +118,12 @@ const _resolveFlow = (
         TODO - check if this is really required
       */
 
+     const originalFlowFolder = dirname(originalFlowPath);
       deps = _.mapValues(deps, (val: ImportedPart, key) => {
         const part = val as NativePart;
         if (typeof part.fn === 'function' && mode === 'bundle') {
-          const flowFolder = dirname(fullFlowPath);
-          const requirePath = relative(flowFolder, val.importPath);
+          const requirePath = relative(originalFlowFolder, val.importPath);
+          
           part.fn = `__BUNDLE_FN:[[${requirePath}]]` as any;
           return {...val, part}
         }

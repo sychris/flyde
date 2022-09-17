@@ -13,7 +13,7 @@ import React, { useCallback, useEffect } from "react";
 import "./styles.scss";
 
 import { FolderStructure, FileOrFolder } from "@flyde/dev-server";
-import { useDevServerApi } from "../../../api/apis-context";
+import { useDevServerApi } from "../../../api/dev-server-api";
 import { Loader } from "@flyde/flow-editor"; // ../../../../common/lib/loader
 import { toastMsg } from "@flyde/flow-editor"; // ../../../../common/toaster
 import { useHistory } from "react-router-dom";

@@ -5,6 +5,7 @@ import * as glob from "glob";
 import * as resolveFrom from "resolve-from";
 
 export const resolveImportablePaths = (rootPath: string, importPath: string): string[] => {
+  
   const resolvedModulePath = resolveFrom(rootPath, importPath + "/package.json");
 
   const { flyde } = require(resolvedModulePath);

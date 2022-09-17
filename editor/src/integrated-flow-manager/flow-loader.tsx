@@ -1,15 +1,18 @@
-import { FlydeFlow, keys, ResolvedFlydeFlowDefinition } from "@flyde/core";
+import { FlydeFlow, ResolvedFlydeFlowDefinition } from "@flyde/core";
 import { File, FolderStructure } from "@flyde/dev-server";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 import { useHistory, useLocation } from "react-router-dom";
-import { useQueryParam } from "use-query-params";
-import { useDevServerApi } from "../api/apis-context";
-import { Loader } from "@flyde/flow-editor"; // ../../common/lib/loader
+import { BooleanParam, useQueryParam } from "use-query-params";
+import { useDevServerApi } from "../api/dev-server-api";
+import { Loader, PortsContext } from "@flyde/flow-editor"; // ../../common/lib/loader
 import { IntegratedFlowManager } from "./IntegratedFlowManager";
+import { createVsCodePorts } from "../vscode-ports";
+import { createWebPorts } from "../web-ports";
 
 export const FlowLoader: React.FC = (props) => {
   const [fileName, setFileName] = useQueryParam<string>("fileName");
+  const [isEmbedded] = useQueryParam("embedded", BooleanParam);
 
   const [flow, setFlow] = React.useState<FlydeFlow>();
   const [resolvedDefinitions, setResolvedDefinitions] =
@@ -20,40 +23,54 @@ export const FlowLoader: React.FC = (props) => {
 
   const devServerClient = useDevServerApi();
 
+  const ports = useRef(isEmbedded ? createVsCodePorts() : createWebPorts({devServerClient, history}));
+
   const loadData = useCallback(async () => {
-    const structure = await devServerClient.fileStructure();
 
-    const findFlydeFile = (structure: FolderStructure, fileName: string): File | undefined => {
-      const exists = structure.find(
-        (f) => !f.isFolder && f.isFlyde && (fileName === f.relativePath || !fileName)
-      ) as File;
+    if (isEmbedded) {
+      const resolvedDefinitions = await ports.current.resolveDeps({absPath: 'n/a'});
+      setResolvedDefinitions(resolvedDefinitions);
+  
+      const flow = await ports.current.readFlow({absPath: 'n/a'});
+      setFlow(flow);
+      setFileName('n/a');
+    } else {
+      const structure = await devServerClient.fileStructure();
 
-      if (exists) {
-        return exists;
+      const findFlydeFile = (structure: FolderStructure, fileName: string): File | undefined => {
+        const exists = structure.find(
+          (f) => !f.isFolder && f.isFlyde && (fileName === f.relativePath || !fileName)
+        ) as File;
+  
+        if (exists) {
+          return exists;
+        }
+        return structure.reduce<File | undefined>((acc, curr) => {
+          if (acc) {
+            return acc;
+          }
+          if (curr.isFolder) {
+            return findFlydeFile(curr.children, fileName);
+          }
+          return undefined;
+        }, undefined);
+      };
+  
+      const file = findFlydeFile(structure, fileName);
+  
+      if (!file) {
+        throw new Error("No .flyde file found in project");
       }
-      return structure.reduce<File | undefined>((acc, curr) => {
-        if (acc) {
-          return acc;
-        }
-        if (curr.isFolder) {
-          return findFlydeFile(curr.children, fileName);
-        }
-        return undefined;
-      }, undefined);
-    };
-
-    const file = findFlydeFile(structure, fileName);
-
-    if (!file) {
-      throw new Error("No .flyde file found in project");
+      const resolvedDefinitions = await ports.current.resolveDeps({absPath: file.fullPath});
+      setResolvedDefinitions(resolvedDefinitions);
+  
+      const flow = await ports.current.readFlow({absPath: file.fullPath});
+      setFlow(flow);
+      setFileName(file.relativePath);
     }
-    const resolvedDefinitions = await devServerClient.resolveDefinitions(file.relativePath);
-    setResolvedDefinitions(resolvedDefinitions);
-
-    const flow = await devServerClient.readFile(file.relativePath);
-    setFlow(flow);
-    setFileName(file.relativePath);
-  }, [devServerClient, fileName, setFileName]);
+    
+    
+  }, [devServerClient, fileName, isEmbedded, setFileName]);
 
   React.useEffect(() => {}, [history, devServerClient, fileName, setFileName, search]);
 
@@ -72,7 +89,8 @@ export const FlowLoader: React.FC = (props) => {
     console.log("Rendering", fileName, flow.part);
 
     return (
-      <IntegratedFlowManager
+      <PortsContext.Provider value={ports.current}>
+      <IntegratedFlowManager 
         key={fileName}
         flow={flow}
         resolvedDefinitions={resolvedDefinitions}
@@ -80,6 +98,7 @@ export const FlowLoader: React.FC = (props) => {
         integratedSource={fileName}
         port={port}
       />
+      </PortsContext.Provider>
     );
   } else {
     return <Loader />;

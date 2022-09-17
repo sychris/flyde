@@ -74,8 +74,7 @@ export const runDevServer = (port: number, rootDir: string, editorStaticRoot: st
         res.status(400).send("missing filename");
         return;
       }
-      const path = join(rootDir, filename);
-      const data = await resolveFlow(path);
+      const data = await resolveFlow(filename);
       res.send({ ...data });
     } catch (e) {
       console.error(e);

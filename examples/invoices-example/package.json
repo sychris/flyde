@@ -7,12 +7,11 @@
   "flyde": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "tsc -p . -w --incremental",
+    "dev": "concurrently 'ts-node-dev --respawn src/index.ts' 'npm run watch'",
     "build": "rm -rf dist && tsc -p .",
     "prod": "node dist/index.js",
     "bob": "flyde",
-    "start": "concurrently 'ts-node-dev --respawn src/index.ts' 'npm run watch'",
-    "dev": "concurrently 'ts-node-dev --respawn src/index.ts' 'npm run watch'"
+    "start": "concurrently 'ts-node-dev --respawn src/index.ts' 'npm run watch'"
   },
   "author": "",
   "license": "ISC",

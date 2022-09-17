@@ -1,0 +1,153 @@
+imports: {}
+part:
+  instances:
+    - pos:
+        x: 525
+        y: 250
+      id: ins1
+      inputConfig: {}
+      part:
+        id: Bob1
+        inputs:
+          a:
+            type: any
+            mode: required
+          b:
+            type: any
+            mode: required
+          c:
+            type: any
+            mode: required
+          r1:
+            type: any
+            mode: required
+          r2:
+            type: any
+            mode: required
+        outputs:
+          r3:
+            type: any
+            delayed: false
+            optional: false
+          r4:
+            type: any
+            delayed: false
+            optional: false
+        instances: []
+        connections: []
+        outputsPosition:
+          r3:
+            x: -50
+            y: 500
+          r4:
+            x: 150
+            y: 500
+        inputsPosition:
+          a:
+            x: 50
+            y: 0
+          b:
+            x: 250
+            y: 0
+          c:
+            x: 450
+            y: 0
+          r1:
+            x: 650
+            y: 0
+          r2:
+            x: 850
+            y: 0
+        customViewCode: Your Logic Here 🕺🏼
+  connections:
+    - from:
+        insId: __this
+        pinId: a
+      to:
+        insId: ins1
+        pinId: a
+    - from:
+        insId: __this
+        pinId: b
+      to:
+        insId: ins1
+        pinId: b
+    - from:
+        insId: __this
+        pinId: c
+      to:
+        insId: ins1
+        pinId: c
+    - from:
+        insId: __this
+        pinId: r1
+      to:
+        insId: ins1
+        pinId: r1
+    - from:
+        insId: __this
+        pinId: r2
+      to:
+        insId: ins1
+        pinId: r2
+    - from:
+        insId: ins1
+        pinId: r3
+      to:
+        insId: __this
+        pinId: r3
+    - from:
+        insId: ins1
+        pinId: r4
+      to:
+        insId: __this
+        pinId: r4
+  id: Bob1
+  inputs:
+    a:
+      mode: required
+      type: any
+    b:
+      mode: required
+      type: any
+    c:
+      mode: required
+      type: any
+    r1:
+      mode: required
+      type: any
+    r2:
+      mode: required
+      type: any
+  outputs:
+    r3:
+      type: any
+      optional: false
+      delayed: false
+    r4:
+      type: any
+      optional: false
+      delayed: false
+  inputsPosition:
+    a:
+      x: 50
+      y: 0
+    b:
+      x: 250
+      y: 0
+    c:
+      x: 450
+      y: 0
+    r1:
+      x: 650
+      y: 0
+    r2:
+      x: 850
+      y: 0
+  outputsPosition:
+    r3:
+      x: -50
+      y: 500
+    r4:
+      x: 150
+      y: 500

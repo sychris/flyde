@@ -40,7 +40,7 @@ describe('ssg/ssr support', () => {
                     lastMousePos: {x: 0, y: 0}
                 }
             },
-            onChangeState: noop,
+            onChangeEditorState: noop,
             onImportPart: noop,
             resolvedRepoWithDeps: {main: part, dependencies: {[part.id]: part as any}},
             onInspectPin: noop,

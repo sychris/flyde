@@ -45,7 +45,9 @@ const RoutedApp = () => {
 
   return (
     <BrowserRouter basename={baseName}>
-      <QueryParamProvider ReactRouterRoute={Route}>{renderInnerApp()}</QueryParamProvider>
+      <QueryParamProvider ReactRouterRoute={Route}>
+        {renderInnerApp()}
+      </QueryParamProvider>
     </BrowserRouter>
   );
 };

@@ -10,18 +10,6 @@ imports:
   ./Span.flyde.js:
     - Span
 part:
-  id: Main
-  inputs: {}
-  outputs:
-    result:
-      type: any
-  inputsPosition: {}
-  outputsPosition:
-    result:
-      x: -321.3338928563413
-      y: 690.4970809936208
-  completionOutputs:
-    - result
   instances:
     - pos:
         x: -112.55849853515622
@@ -257,3 +245,15 @@ part:
       to:
         insId: Inline-value-Value is ${inp-308
         pinId: count
+  id: Main
+  inputs: {}
+  outputs:
+    result:
+      type: any
+  inputsPosition: {}
+  outputsPosition:
+    result:
+      x: -321.3338928563413
+      y: 690.4970809936208
+  completionOutputs:
+    - result

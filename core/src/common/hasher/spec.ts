@@ -4,7 +4,9 @@ import { concisePart } from "../../test-utils"
 import { produce}  from 'immer';
 import { randomInt, randomPos, shuffle } from "..";
 import { assert } from "chai";
-import { hashPart } from ".";
+import { hashFlow, hashPart } from ".";
+import { groupedPart } from "../../part";
+import { FlydeFlow } from "../../flow-schema";
 
 const somePart: GroupedPart = {
     id: 'bob',
@@ -79,7 +81,7 @@ describe('parts hasher', () => {
             assert.equal(h1, h2);
         })
     
-        it('hashes parts disregarding instance position', () => {
+        it('hashes parts disregarding instance position when ignore enabled', () => {
             const part2 = produce(somePart, draft => {
                 draft.instances[0].pos = randomPos();
             });
@@ -184,4 +186,46 @@ describe('parts hasher', () => {
 
     
 
+})
+
+describe('flow hasher', () => {
+    it('emits same hash for same flow', () => {
+        const f1: FlydeFlow = {
+            imports: {
+                'a': ['b'],
+                'c': ['d']
+            },
+            part: groupedPart({id: 'bob'})
+        }
+
+        const f2: FlydeFlow = {
+            imports: {
+                'c': ['d'],
+                'a': ['b'],
+            },
+            part: groupedPart({id: 'bob'})
+        }
+
+        assert.equal(hashFlow(f1), hashFlow(f2));
+    })
+
+    it('emits different hash for different part', () => {
+        const f1: FlydeFlow = {
+            imports: {
+                'a': ['b'],
+                'c': ['d']
+            },
+            part: groupedPart({id: 'bob'})
+        }
+
+        const f2: FlydeFlow = {
+            imports: {
+                'c': ['d'],
+                'a': ['b'],
+            },
+            part: groupedPart({id: 'bob2'})
+        }
+
+        assert.notEqual(hashFlow(f1), hashFlow(f2));
+    })
 })

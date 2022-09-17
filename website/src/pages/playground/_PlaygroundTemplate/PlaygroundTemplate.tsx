@@ -125,7 +125,7 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
   const flowEditorProps: FlydeFlowEditorProps = {
     state: editorState,
     resolvedRepoWithDeps: resolvedFlow,
-    onChangeState: setFlowEditorState,
+    onChangeEditorState: setFlowEditorState,
     onInspectPin: noop,
     onRequestHistory: historyPlayer.requestHistory,
     hideTemplatingTips: true,

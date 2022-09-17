@@ -7,7 +7,7 @@
   "scripts": {
     "test": "mocha src/spec.ts src/execute/spec.ts src/**/spec.ts --require ts-node/register --require test-setup.js",
     "start": "tsc -p . -w --incremental",
-    "watch": "tsc -p . -w --incremental",
+    "dev": "tsc -p . -w --incremental",
     "bts": "tsc -p .",
     "build": "rm -rf dist && (tsc -p . || true)"
   },

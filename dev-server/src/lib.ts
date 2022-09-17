@@ -28,7 +28,6 @@ export const initFlydeDevServer = (options: InitFlydeDevServerOptions) => {
     }));
     const typings = generateTypings(flowsArr);
 
-    console.log("writing types");
     writeFileSync(join(root, TYPINGS_TARGET), typings);
   });
 };

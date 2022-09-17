@@ -6,7 +6,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "mocha src/**/*.spec.tsx --require ts-node/register",
-    "watch": "tsc -p . -w --incremental",
+    "dev": "tsc -p . -w --incremental",
     "build": "rm -rf dist && tsc -p .",
     "start": "npm run watch",
     "storybook": "start-storybook"

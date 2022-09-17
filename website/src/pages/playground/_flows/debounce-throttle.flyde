@@ -2,11 +2,12 @@ imports:
   "@flyde/stdlib":
     - Debounce
     - Throttle
+    - Merge
 part:
   instances:
     - pos:
-        x: 696.9777572631835
-        y: 419.17749755859376
+        x: 675.1110580444335
+        y: 367.3388706970215
       id: Debounce-194-d108
       inputConfig:
         ms:
@@ -16,8 +17,8 @@ part:
         - i
       partId: Debounce
     - pos:
-        x: 272.8030520629883
-        y: 345.68007293701174
+        x: 310.59608947753907
+        y: 293.4767009353638
       id: Throttle-652
       inputConfig:
         threshold:
@@ -25,8 +26,8 @@ part:
           value: 4000
       partId: Throttle
     - pos:
-        x: 325.7201397705078
-        y: 581.0312506103515
+        x: 378.7415020751953
+        y: 512.8180014038086
       id: Inline-value-Value was thro-555
       inputConfig: {}
       part:
@@ -44,8 +45,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -136.90137451171876
-        y: 566.2627435302734
+        x: -98.51334350585938
+        y: 516.9917474365234
       id: Inline-value-Throttle out-817
       inputConfig: {}
       part:
@@ -84,68 +85,6 @@ part:
         fnCode: outputs.r.next((`"Debounce" output - ${inputs.val}`))
         customViewCode: '`"Debounce" output - ${inputs.val}`'
         dataBuilderSource: YCJEZWJvdW5jZSIgb3V0cHV0IC0gJHtpbnB1dHMudmFsfWA=
-        templateType: value
-        completionOutputs:
-          - r
-    - pos:
-        x: 1034.3768809509277
-        y: 237.6327508544922
-      id: Debounce-888
-      inputConfig:
-        i:
-          mode: static
-          value: "42"
-      visibleInputs:
-        - ms
-        - i
-      partId: Debounce
-    - pos:
-        x: 843.5221026611327
-        y: 403.3149255371094
-      id: Inline-value-Result is ${in60
-      inputConfig: {}
-      part:
-        id: Inline-value-Result is ${in
-        inputs:
-          a:
-            type: any
-            mode: required
-          b:
-            type: any
-            mode: required
-        outputs:
-          r:
-            type: any
-            delayed: false
-            optional: false
-        fnCode: outputs.r.next((`Result is ${inputs.a + inputs.b}`))
-        customViewCode: "`Result is ${inputs.a + inputs.b}`"
-        dataBuilderSource: YFJlc3VsdCBpcyAke2lucHV0cy5hICsgaW5wdXRzLmJ9YA==
-        templateType: value
-        completionOutputs:
-          - r
-    - pos:
-        x: 609.0957330322266
-        y: 669.2628442382812
-      id: Inline-value-Result is ${in50
-      inputConfig: {}
-      part:
-        id: Inline-value-Result is ${in
-        inputs:
-          a:
-            type: any
-            mode: required
-          b:
-            type: any
-            mode: required
-        outputs:
-          r:
-            type: any
-            delayed: false
-            optional: false
-        fnCode: outputs.r.next((`Result is ${inputs.a + inputs.b}`))
-        customViewCode: "`Result is ${inputs.a + inputs.b}`"
-        dataBuilderSource: YFJlc3VsdCBpcyAke2lucHV0cy5hICsgaW5wdXRzLmJ9YA==
         templateType: value
         completionOutputs:
           - r
@@ -198,18 +137,6 @@ part:
       to:
         insId: __this
         pinId: result
-    - from:
-        insId: Debounce-888
-        pinId: r
-      to:
-        insId: Inline-value-Result is ${in60
-        pinId: __trigger
-    - from:
-        insId: Inline-value-Debounce out-720
-        pinId: r
-      to:
-        insId: Inline-value-Result is ${in50
-        pinId: __trigger
   id: Main
   inputs:
     value:
@@ -220,8 +147,8 @@ part:
       type: any
   inputsPosition:
     value:
-      x: 568.0241762040988
-      y: 208.94923588243964
+      x: 557.2304746217809
+      y: 135.19220059669954
     ggg:
       x: 8.112505244875974
       y: 489.6946435546802

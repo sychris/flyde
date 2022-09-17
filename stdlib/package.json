@@ -17,7 +17,7 @@
         "build": "echo 'no build'",
         "prod": "node dist/index.js",
         "start": "concurrently 'flyde --port=8383'",
-        "watch": "yarn run start"
+        "dev": "yarn run start"
     },
     "author": "Flyde",
     "license": "ISC",

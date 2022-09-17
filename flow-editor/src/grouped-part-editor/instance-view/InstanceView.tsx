@@ -24,7 +24,7 @@ import { getInstanceDomId } from "../dom-ids";
 import { HistoryPayload } from "@flyde/remote-debugger";
 import { toastMsg } from "../../toaster";
 import { ClosestPinData } from "../GroupedPartEditor";
-import { usePrompt } from "../../lib/react-utils/prompt";
+import { usePrompt } from "../..";
 
 export const PIECE_HORIZONTAL_PADDING = 25;
 export const PIECE_CHAR_WIDTH = 11;

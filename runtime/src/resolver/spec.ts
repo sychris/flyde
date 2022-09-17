@@ -1,4 +1,4 @@
-import { dynamicPartInput, execute, PartRepo, randomInt, values } from "@flyde/core";
+import { dynamicPartInput, execute, ImportedPart, PartRepo, PreBundleNativePart, randomInt, values } from "@flyde/core";
 import { assert } from "chai";
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
@@ -121,6 +121,7 @@ describe("resolver", () => {
     );
 
     const repo = data.dependencies as PartRepo;
+    
     const res = await simplifiedExecute(data.main, repo, {n: 2});
     assert.equal(res, 3);
     assert.match(data.dependencies.Add1Wrapped.importPath, /@acme\/add1-wrapped\/src\/add1-wrapped\.flyde$/);
@@ -211,5 +212,22 @@ describe("resolver", () => {
       resolveFlow(path); 
     })
   }, 20);
+
+  it("bundles a .flyde code dependencies from packages relative to the original flow", async  () => {
+    /* this originated from the following bug: Fib playground example depended on "Merge" which depended on "Id"
+    Id's reference was bundled in relation to Merge, (i.e. "./Id.flyde.js") instead of the original flow ('../../../node_modules..) 
+    Causing webpack not to be able to load it
+    */
+    const data = resolveFlow(
+      getFixturePath("a-imports-b-grouped-from-package/a.flyde"),
+      "bundle"
+    );
+
+    const repo = data.dependencies as PartRepo;
+    const Add1 = repo.Add1Wrapped__Add1 as (ImportedPart & PreBundleNativePart);
+
+    assert.match(Add1.importPath, /@acme\/add1-wrapped\/src\/Add1\.flyde\.js$/);
+    assert.equal(Add1.fn, '__BUNDLE_FN:[[../node_modules/@acme/add1-wrapped/src/Add1.flyde.js]]');
+  });
 
 });

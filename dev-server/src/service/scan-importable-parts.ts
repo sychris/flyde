@@ -21,12 +21,18 @@ export const getFlydeDependencies = async (rootPath: string) => {
 };
 
 export const resolveDependentPackages = async (rootPath: string, flydeDependencies: string[]) => {
+  
   return flydeDependencies.reduce<Record<string, PartDefRepo>>((acc, dep) => {
     const paths = resolveImportablePaths(rootPath, dep);
 
     const parts = paths.reduce((acc, filePath) => {
-      const flow = resolveFlow(filePath, "definition");
-      return (acc = { ...acc, ...flow });
+      try {
+        const {main} = resolveFlow(filePath, "definition");
+        return { ...acc, [main.id]: main };
+      } catch (e) {
+        console.error(`Skipping corrupt flow at ${filePath}, error: ${e}`);
+        return acc;
+      }
     }, {});
     return { ...acc, [dep]: parts };
 
@@ -56,8 +62,9 @@ export const scanImportableParts = async (rootPath: string, filename: string) =>
 
   const localFiles = getLocalFlydeFiles(rootPath);
   const depsNames = await getFlydeDependencies(rootPath);
+
   const depsParts = await resolveDependentPackages(rootPath, depsNames);
-  
+
 
   const localParts = localFiles
     .filter((file) => !file.relativePath.endsWith(filename))

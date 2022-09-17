@@ -5286,6 +5286,7 @@ __metadata:
     "@flyde/flow-editor": ^1.0.0
     "@flyde/remote-debugger": ^1.0.0
     "@monaco-editor/react": ^4.0.10
+    "@simbathesailor/use-what-changed": ^2.0.0
     "@testing-library/jest-dom": ^5.11.4
     "@types/jest": ^26.0.15
     "@types/lodash": ^4.14.168
@@ -6184,6 +6185,15 @@ __metadata:
   version: 2.0.0
   resolution: "@sideway/pinpoint@npm:2.0.0"
   checksum: 0f4491e5897fcf5bf02c46f5c359c56a314e90ba243f42f0c100437935daa2488f20482f0f77186bd6bf43345095a95d8143ecf8b1f4d876a7bc0806aba9c3d2
+  languageName: node
+  linkType: hard
+
+"@simbathesailor/use-what-changed@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@simbathesailor/use-what-changed@npm:2.0.0"
+  peerDependencies:
+    react: ">=16"
+  checksum: a90e5b7388584749d19b138e0ab50fc69d9af69bee7beaa7616fa287122577f027877e0bd622ec1149057adb2f5bd3f27691dae5723c6a7c93d044bfb96e77ec
   languageName: node
   linkType: hard
 

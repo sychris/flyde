@@ -31,6 +31,7 @@ import {
   InlinePartInstance,
   ResolvedFlydeFlowDefinition,
   connectionNode,
+  ImportedPartDef
 } from "@flyde/core";
 import { InstanceView } from "./instance-view/InstanceView";
 import { ConnectionView } from "./connection-view";
@@ -80,11 +81,11 @@ import {
 } from "../flow-editor/flyde-flow-change-type";
 import { createEditorCommand } from "../flow-editor/commands/commands";
 import { EditorCommand } from "../flow-editor/commands/definition";
-import { usePrompt } from "../lib/react-utils/prompt";
 import { InlineCodeModal } from "../flow-editor/inline-code-modal";
 import { createInlineCodePart } from "../flow-editor/inline-code-modal/inline-code-to-part";
 import _ from "lodash";
 import { groupSelected } from "../group-selected";
+import { usePrompt } from "../flow-editor/ports";
 
 const MemodSlider = React.memo(Slider);
 
@@ -138,7 +139,7 @@ export type GroupedPartEditorProps = {
   onCopy: (data: ClipboardData) => void;
   onInspectPin: (insId: string, pinId: string, type: PinType) => void;
 
-  onEditPart: (partId: string) => void;
+  onGoToPartDef: (part: ImportedPartDef) => void;
 
   // onGroupSelected: () => void;
   onRequestHistory: (insId: string, pinId: string, pinType: PinType) => Promise<HistoryPayload>;
@@ -179,7 +180,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       onCopy,
       // onToggleLog,
       // onToggleBreakpoint,
-      onEditPart,
+      onGoToPartDef: onEditPart,
       // editOrCreateConstValue,
       // requestNewConstValue,
       onRequestHistory,
@@ -754,7 +755,9 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           setInspectedInstance({ insId: `${thisInsId}.${ins.id}`, part });
         } else {
           if (isRefPartInstance(ins)) {
-            onEditPart(ins.partId);
+            const part = getPartDef(ins, repo);
+            
+            onEditPart(part as ImportedPartDef);
           } else {
             const part = ins.part;
             if (!isCodePart(part)) {
@@ -1311,7 +1314,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
               onCopy={onCopy}
               clipboardData={props.clipboardData}
               onInspectPin={props.onInspectPin}
-              onEditPart={props.onEditPart}
+              onGoToPartDef={props.onGoToPartDef}
               partIoEditable={props.partIoEditable}
               onRequestHistory={onRequestHistory}
               part={inspectedInstance.part}

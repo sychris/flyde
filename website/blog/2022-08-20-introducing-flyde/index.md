@@ -25,7 +25,7 @@ Flyde's visual flow editor allows software to be built by connecting parts toget
 It comes with:
 - a *visual editor* (VSCode extension and stand-alone)
 - a runtime library and 
-- a robust standard library of ready-made components. Install or publish more Flyde components easily via known and loved NPM ecosystem
+- a robust standard library of ready-made components. Install or publish more Flyde components easily via the known and loved NPM ecosystem
 
 Using the visual editor, you can build flows that use standard library parts alongside your own parts (more on that below). After flows are created, execute them back from your own code using Flyde's runtime libary.
 

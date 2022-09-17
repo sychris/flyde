@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PartDefRepo } from ".";
-import { CustomPart, GroupedPart, Part, PartDefinition } from "./part";
+import { CustomPart, GroupedPart, NativePart, Part, PartDefinition } from "./part";
 
 const importSchema = z.record(z.string(), z.string().or(z.array(z.string())));
 const position = z.strictObject({ x: z.number(), y: z.number() });
@@ -39,7 +39,7 @@ const flydeBasePart = z.object({
       }),
     ])
   ),
-  outputs: z.record(z.string(), z.union([z.string(), z.object({ type: z.string() })])),
+  outputs: z.record(z.string(), z.union([z.string(), z.object({ type: z.string(), optional: z.optional(z.boolean()), delayed: z.optional(z.boolean()) })])),
   inputsPosition: z.optional(z.record(z.string(), position)),
   outputsPosition: z.optional(z.record(z.string(), position)),
   customViewCode: z.optional(z.string()),
@@ -56,6 +56,7 @@ const groupedPart = z.object({
     z.strictObject({
       from: z.strictObject({ insId: z.string(), pinId: z.string() }),
       to: z.strictObject({ insId: z.string(), pinId: z.string() }),
+      delayed: z.optional(z.boolean())
     })
   ),
 }).and(flydeBasePart);
@@ -70,6 +71,14 @@ export type ImportedPartDefinition  = PartDefinition & {
 }
 
 export type ImportedPart  = Part & {
+  importPath: string;
+}
+
+export type PreBundleNativePart  = NativePart & {
+  fn: string;
+}
+
+export type ImportedPartDef  = PartDefinition & {
   importPath: string;
 }
 

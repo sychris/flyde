@@ -11,6 +11,7 @@ import {
   ResolvedFlydeFlowDefinition,
   ImportablePart,
   PartDefRepo,
+  ImportedPartDef,
 } from "@flyde/core";
 import {
   GroupedPartEditor,
@@ -35,19 +36,18 @@ import { FlydeFlowChangeType, functionalChange } from "./flyde-flow-change-type"
 import { handleCommand } from "./commands/commands";
 import { EditorCommand } from "./commands/definition";
 import { Omnibar, OmniBarCmd, OmniBarCmdType } from "./omnibar/Omnibar";
-import { PromptContextProvider, PromptFunction } from "../lib/react-utils/prompt";
+import { usePorts } from "./ports";
+
+export * from './ports';
 
 export type FlowEditorState = {
   flow: FlydeFlow;
   boardData: GroupEditorBoardData;
 };
 
-const defaultPromptHandler: PromptFunction = async (text, defaultValue) =>
-  prompt(`${text}`, defaultValue);
-
 export type FlydeFlowEditorProps = {
   state: FlowEditorState;
-  onChangeState: React.Dispatch<React.SetStateAction<FlowEditorState>>;
+  onChangeEditorState: React.Dispatch<React.SetStateAction<FlowEditorState>>;
 
   resolvedRepoWithDeps: ResolvedFlydeFlowDefinition;
 
@@ -63,8 +63,6 @@ export type FlydeFlowEditorProps = {
   ref?: React.Ref<any>;
 
   hideTemplatingTips?: boolean;
-
-  promptHandler?: PromptFunction;
 };
 
 const maxUndoStackSize = 50;
@@ -89,7 +87,7 @@ const resolvedToRepo = (res: ResolvedFlydeFlowDefinition): PartDefRepo => ({
 
 export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
   React.forwardRef((props, ref) => {
-    const { state, resolvedRepoWithDeps: resolvedFlow, onChangeState, onImportPart } = props;
+    const { state, resolvedRepoWithDeps: resolvedFlow, onChangeEditorState, onImportPart } = props;
 
     const [undoStack, setUndoStack] = React.useState<Partial<FlowEditorState>[]>([]);
     const [redoStack, setRedoStack] = React.useState<Partial<FlowEditorState>[]>([]);
@@ -97,7 +95,7 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
     const { flow, boardData: editorBoardData } = state;
     const editedPart = state.flow.part;
 
-    const promptHandler = props.promptHandler || defaultPromptHandler;
+    const {openFile} = usePorts();
 
     const onChangeFlow = React.useCallback(
       (newFlow: FlydeFlow, changeType: FlydeFlowChangeType) => {
@@ -107,9 +105,9 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
           setUndoStack([{ flow: newFlow }, ...undoStack.slice(0, maxUndoStackSize)]);
           setRedoStack([]);
         }
-        onChangeState((state) => ({ ...state, flow: newFlow }));
+        onChangeEditorState((state) => ({ ...state, flow: newFlow }));
       },
-      [onChangeState, undoStack]
+      [onChangeEditorState, undoStack]
     );
 
     const [clipboardData, setClipboardData] = React.useState<ClipboardData>({
@@ -124,16 +122,9 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
 
     const onChangeEditorBoardData = React.useCallback(
       (partial: Partial<GroupEditorBoardData>) => {
-        onChangeState((state) => ({ ...state, boardData: { ...state.boardData, ...partial } }));
+        onChangeEditorState((state) => ({ ...state, boardData: { ...state.boardData, ...partial } }));
       },
-      [onChangeState]
-    );
-
-    const setEditedPart = React.useCallback(
-      (part: CustomPart) => {
-        onChangeState((state) => ({ ...state, currentPartId: part.id }));
-      },
-      [onChangeState]
+      [onChangeEditorState]
     );
 
     // clear board data that isn't related to part when it changes
@@ -154,7 +145,7 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
         setRedoStack([...redoStack, state]);
         const [last, ...rest] = undoStack;
         if (last) {
-          onChangeState((state) => ({ ...state, ...last }));
+          onChangeEditorState((state) => ({ ...state, ...last }));
           setUndoStack(rest);
         }
         e.preventDefault();
@@ -185,10 +176,13 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
     );
 
     const onEditPart = React.useCallback(
-      (partId: string) => {
-        toastMsg('TODO');
+      (part: ImportedPartDef) => {
+
+        openFile({absPath: part.importPath});
+        
+        // toastMsg('TODO');
       },
-      []
+      [openFile]
     );
 
     const commandHandler = React.useCallback(
@@ -276,7 +270,7 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
               boardData={editorBoardData}
               onChangeBoardData={onChangeEditorBoardData}
               part={editedPart}
-              onEditPart={onEditPart}
+              onGoToPartDef={onEditPart}
               // editOrCreateConstValue={editOrCreateConstValue}
               // requestNewConstValue={requestNewConstValue}
               // onGroupSelected={onGroupPart}
@@ -311,9 +305,7 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
 
     return (
       <div className="project-editor">
-        <PromptContextProvider showPrompt={promptHandler}>
           {renderInner()}
-        </PromptContextProvider>
       </div>
     );
   })

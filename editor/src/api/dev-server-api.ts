@@ -1,4 +1,4 @@
-import { createDevServerClient } from "@flyde/dev-server";
+import { createDevServerClient, DevServerClient } from "@flyde/dev-server";
 import React, { useContext } from "react";
 
 const params = new URLSearchParams(window.location.search);
@@ -9,8 +9,8 @@ const port = params.get("port") || locationPortIfNot3000 || 8545;
 const defaultDevServerClient = createDevServerClient("http://localhost:" + port);
 
 export const DevServerApiContext =
-  React.createContext<ReturnType<typeof createDevServerClient>>(defaultDevServerClient);
+  React.createContext<DevServerClient>(defaultDevServerClient);
 
-export const useDevServerApi = (): ReturnType<typeof createDevServerClient> => {
+export const useDevServerApi = (): DevServerClient => {
   return useContext(DevServerApiContext);
 };
