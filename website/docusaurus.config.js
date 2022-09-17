@@ -56,7 +56,7 @@ const FixWebpack5Plugin = () => ({
 const config = {
   title: "Flyde",
   tagline: "Visual Programming for the Web",
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://www.flyde.dev",
   baseUrl: "/",
   onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
