@@ -25,6 +25,7 @@ import { HistoryPayload } from "@flyde/remote-debugger";
 import { toastMsg } from "../../toaster";
 import { ClosestPinData } from "../GroupedPartEditor";
 import { usePrompt } from "../..";
+import { IMenuItemProps } from "@blueprintjs/core";
 
 export const PIECE_HORIZONTAL_PADDING = 25;
 export const PIECE_CHAR_WIDTH = 11;
@@ -35,14 +36,16 @@ export const getDefaultVisibleInputs = (
   instance: PartInstance,
   part: PartDefinition,
   connections: ConnectionData[]
-) => {
+): string[] => {
   const visiblePins = [...keys(part.inputs), TRIGGER_PIN_ID].filter((k, v) => {
     const isConnected = connections.some((c) => c.to.insId === instance.id && c.to.pinId === k);
     const isStatic = isStaticInputPinConfig(instance.inputConfig[k]);
 
     const isRequired = part.inputs[k] && part.inputs[k]?.mode === "required";
 
-    return !isStatic && (isRequired || isConnected);
+    const isOptional = part.inputs[k] && part.inputs[k]?.mode === "optional";
+
+    return !isOptional && k !== TRIGGER_PIN_ID;
   });
 
   if (visiblePins.length === 0) {
@@ -50,6 +53,19 @@ export const getDefaultVisibleInputs = (
   }
 
   return visiblePins;
+};
+
+export const getDefaultVisibleOutputs = (
+  instance: PartInstance,
+  part: PartDefinition,
+  connections: ConnectionData[]
+) => {
+  const keys = Object.keys(part.outputs);
+  if (connections.some(c => c.from.insId === instance.id && c.from.pinId === ERROR_PIN_ID)) {
+    return [...keys, ERROR_PIN_ID];
+  } else {
+    return keys;
+  }
 };
 
 export interface InstanceViewProps {
@@ -215,6 +231,7 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
   const is = entries(part.inputs);
 
   const { visibleInputs, visibleOutputs } = instance;
+  
 
   if (visibleInputs) {
     is.sort((a, b) => visibleInputs.indexOf(a[0]) - visibleInputs.indexOf(b[0]));
@@ -225,6 +242,25 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
   if (visibleOutputs) {
     os.sort((a, b) => visibleOutputs.indexOf(a[0]) - visibleOutputs.indexOf(b[0]));
   }
+
+
+  const _visibleInputs =
+    instance.visibleInputs || getDefaultVisibleInputs(instance, part, connections);
+
+  const _visibleOutputs = instance.visibleOutputs || getDefaultVisibleOutputs(instance, part, connections);
+
+  is.push([TRIGGER_PIN_ID, partInput("trigger")]);
+
+  os.push([ERROR_PIN_ID, partOutput("error")]);
+
+
+  const inputsToRender = is.filter(([k]) => {
+    return _visibleInputs.includes(k);
+  });
+
+  const outputsToRender = os.filter(([k]) => {
+    return _visibleOutputs.includes(k);
+  });
 
   const cm = classNames("ins-view", {
     selected,
@@ -272,9 +308,6 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     console.error(`Error rendering custom view for part ${part.id}`);
   }
 
-  const hiddenInputs = (customView && customView.hiddenInputs) || [];
-  const hiddenOutputs = (customView && customView.hiddenOutputs) || [];
-
   const content = calcPartContent(
     instance,
     part
@@ -286,13 +319,6 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
       return config.value;
     }
   };
-
-  const isUsingError = connectedOutputs.has(ERROR_PIN_ID);
-  const [showError, setShowError] = React.useState(isUsingError);
-
-  if (showError) {
-    os.push([ERROR_PIN_ID, partOutput("error")]);
-  }
 
   const _onChangeVisibleInputs = React.useCallback(async () => {
     const inputs = okeys(part.inputs);
@@ -310,28 +336,43 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     }
   }, [part.outputs, _prompt, instance, onChangeVisibleOutputs]);
 
-  const contextMenuItems = [
-    {
-      label: showError
-        ? `Hide Error ${isUsingError ? "(is used, disconnect first)" : ""}`
-        : `Show Error Pin`,
-      callback: () => !isUsingError && setShowError(!showError),
-      disabled: isUsingError,
-    },
+  const inputKeys = [...Object.keys(part.inputs), TRIGGER_PIN_ID];
+  const outputKeys = [...Object.keys(part.outputs), ERROR_PIN_ID];
+
+  const inputMenuItems = inputKeys.map(k => {
+      const isVisible = _visibleInputs.includes(k);
+      const isConnected = connectedInputs.has(k);
+
+      const pinName = k === TRIGGER_PIN_ID ? 'Trigger Pin' : k;
+
+      return {
+        text: isVisible ? (isConnected ? `Hide input "${pinName}" (disconnect first)` : `Hide input "${pinName}"`) : `Show input "${pinName}`,
+        onClick: () => onChangeVisibleInputs(instance, isVisible ? _visibleInputs.filter(i => i !== k) : [..._visibleInputs, k]),
+        disabled: isConnected
+      }
+  });
+
+  const outputMenuItems = outputKeys.map(k => {
+    const isVisible = _visibleOutputs.includes(k);
+    const isConnected = connectedOutputs.has(k);
+
+    const pinName = k === ERROR_PIN_ID ? 'Error Pin' : k;
+
+    return {
+      text: isVisible ? (isConnected ? `Hide output "${pinName}" (disconnect first)` : `Hide output "${pinName}"`) : `Show output "${pinName}`,
+      onClick: () => onChangeVisibleOutputs(instance, isVisible ? _visibleOutputs.filter(i => i !== k) : [..._visibleOutputs, k]),
+      disabled: isConnected
+    }
+});
+
+  const contextMenuItems: IMenuItemProps[] = [
+    ...inputMenuItems,
+    ...outputMenuItems,
     ...(isGroupedPart(part)
-      ? [{ label: "Dismantle Group", callback: () => props.onDismantleGroup(instance) }]
+      ? [{ text: "Dismantle Group", onClick: () => props.onDismantleGroup(instance) }]
       : []),
-    { label: `Ins id: ${instance.id}`, callback: noop },
-    {
-      label: `Copy part - "${isInlinePartInstance(instance) ? instance.part.id : instance.partId}"`,
-      callback: async () => {
-        const str = JSON.stringify(part, null, 4);
-        await navigator.clipboard.writeText(str);
-        toastMsg("Copied!");
-      },
-    },
-    { label: "Reorder inputs", callback: _onChangeVisibleInputs },
-    { label: "Reorder outputs", callback: _onChangeVisibleOutputs },
+    { text: "Reorder inputs", onClick: _onChangeVisibleInputs },
+    { text: "Reorder outputs", onClick: _onChangeVisibleOutputs },
   ];
 
   const _onRequestHistory = React.useCallback(
@@ -349,19 +390,6 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     },
     [instance, onConvertConstToEnv]
   );
-
-  is.push([TRIGGER_PIN_ID, partInput("trigger")]);
-
-  const _visibleInputs =
-    instance.visibleInputs || getDefaultVisibleInputs(instance, part, connections);
-
-  const inputsToRender = is.filter(([k]) => {
-    return _visibleInputs.includes(k);
-  });
-
-  const outputsToRender = os.filter(([k]) => {
-    return !hiddenOutputs.includes(k);
-  });
 
   const renderInputs = () => {
     return (

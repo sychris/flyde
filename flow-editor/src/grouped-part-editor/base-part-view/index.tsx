@@ -9,8 +9,13 @@ import { Pos } from "@flyde/core";
 // export const PIECE_CHAR_WIDTH = 11;
 // export const MIN_WIDTH_PER_PIN = 40;
 
-import { ContextMenu, Menu, MenuItem } from "@blueprintjs/core";
+import { ContextMenu, IMenuItemProps, IMenuProps, Menu, MenuItem } from "@blueprintjs/core";
 import { PosDebugger } from "../layout-debugger";
+
+
+export interface BasePartViewContextItem { 
+  label: string; callback: any
+}
 
 export interface BasePartViewProps {
   domId?: string;
@@ -21,7 +26,7 @@ export interface BasePartViewProps {
   dragged?: boolean;
   viewPort: { pos: Pos; zoom: number };
 
-  contextMenuItems: Array<{ label: string; callback: any }>;
+  contextMenuItems: IMenuItemProps[];
 
   displayMode?: true;
 
@@ -99,7 +104,7 @@ export const BasePartView: React.FC<BasePartViewProps> = function BasePartViewIn
     return (
       <Menu>
         {props.contextMenuItems.map((item) => (
-          <MenuItem onClick={item.callback} label={item.label} key={item.label} />
+          <MenuItem {...item} />
         ))}
       </Menu>
     );

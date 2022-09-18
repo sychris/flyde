@@ -31,7 +31,8 @@ import {
   InlinePartInstance,
   ResolvedFlydeFlowDefinition,
   connectionNode,
-  ImportedPartDef
+  ImportedPartDef,
+  ERROR_PIN_ID
 } from "@flyde/core";
 import { InstanceView } from "./instance-view/InstanceView";
 import { ConnectionView } from "./connection-view";
@@ -1119,7 +1120,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           return false;
           // TODO - check if external connection is still valid
         }
-        if (conn.to.pinId === TRIGGER_PIN_ID) {
+        if (conn.to.pinId === TRIGGER_PIN_ID || conn.from.pinId === ERROR_PIN_ID) {
           return false;
         }
 
@@ -1140,7 +1141,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
         });
         onChange(newPart, functionalChange("prune orphan connections"));
       }
-    }, [instances, onChange, connections, resolvedFlow, part]);
+    }, [instances, onChange, connections, resolvedFlow, part, repo]);
 
     useEffect(() => {
       const instanceMap = new Map(instances.map((ins) => [ins.id, ins]));
@@ -1461,33 +1462,33 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       Array<Omit<LayoutDebuggerProps, "viewPort">>
     >([]);
 
-    const maybeRenderInstancePanel = () => {
-      if (selected.length === 1) {
-        const instance = part.instances.find((ins) => ins.id === selected[0]);
-        if (!instance) {
-          throw new Error("Selected instance not found");
-        }
-        const insPart = getPartDef(instance, repo);
-        if (!insPart) {
-          throw new Error("Selected instance part not found");
-        }
+    // const maybeRenderInstancePanel = () => {
+    //   if (selected.length === 1) {
+    //     const instance = part.instances.find((ins) => ins.id === selected[0]);
+    //     if (!instance) {
+    //       throw new Error("Selected instance not found");
+    //     }
+    //     const insPart = getPartDef(instance, repo);
+    //     if (!insPart) {
+    //       throw new Error("Selected instance part not found");
+    //     }
 
-        const connections = part.connections.filter(
-          (c) => c.from.insId === instance.id || c.to.insId === instance.id
-        );
+    //     const connections = part.connections.filter(
+    //       (c) => c.from.insId === instance.id || c.to.insId === instance.id
+    //     );
 
-        return (
-          <InstancePanel
-            instance={instance}
-            part={insPart}
-            connections={connections}
-            onChangeInstanceConfig={onChangeInstanceConfig}
-          />
-        );
-      }
+    //     return (
+    //       <InstancePanel
+    //         instance={instance}
+    //         part={insPart}
+    //         connections={connections}
+    //         onChangeInstanceConfig={onChangeInstanceConfig}
+    //       />
+    //     );
+    //   }
 
-      return null;
-    };
+    //   return null;
+    // };
 
     const onSaveInlineCodePart = React.useCallback(
       (type: CodePartTemplateTypeInline, code: string) => {
@@ -1713,7 +1714,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             ) : null}
           </main>
           {maybeRenderInlinePartInstance()}
-          {maybeRenderInstancePanel()}
+          {/* {maybeRenderInstancePanel()} */}
         </div>
       );
     } catch (e) {
