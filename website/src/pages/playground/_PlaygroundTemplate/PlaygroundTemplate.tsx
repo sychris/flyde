@@ -190,7 +190,7 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
           <h2 className="hero__title">Flyde Playground</h2>
           <p className="hero__subtitle">
             Flyde's playground allows you to see how Flyde looks and feels like. Choose one of the
-            examples below to get started. Feel free to play aroung with the canvas and see how your
+            examples below to get started. Feel free to play around with the canvas and see how your
             changes affect the result!
           </p>
           <ul className="examples__menu">
