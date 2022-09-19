@@ -204,7 +204,7 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
               <Link to="/playground/react-counter">React Counter</Link>
             </li>
             <li>
-              <Link to="/playground/fibonacci">Fibonnaci Sequence</Link>
+              <Link to="/playground/fibonacci">Fibonacci Sequence</Link>
             </li>
           </ul>
         </div>
