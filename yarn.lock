@@ -5316,6 +5316,7 @@ __metadata:
     use-query-params: ^1.2.3
     usehooks-ts: ^2.4.2
     web-vitals: ^1.0.1
+    zoom-level: ^2.5.0
   languageName: unknown
   linkType: soft
 
@@ -25535,6 +25536,13 @@ __metadata:
   version: 3.17.10
   resolution: "zod@npm:3.17.10"
   checksum: 5de630b8eceda3de211cce0a734b629f8c4ca4bc887127b0ebd57e9c9be23204725e60adf2faf1c5ccb9b660c7588a8b04f60dfda1ed8e67a789e93c15f838f1
+  languageName: node
+  linkType: hard
+
+"zoom-level@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "zoom-level@npm:2.5.0"
+  checksum: a5ef4080d38f975cfc983f2c358eb5d00bff88da80842fb85bc3e762a2b6584f0851ee661257d6eaeead7793726e43df010d8573be39432b41cb9402dcd84ab8
   languageName: node
   linkType: hard
 

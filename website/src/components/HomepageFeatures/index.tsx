@@ -10,7 +10,7 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Fully Integratable',
+    title: 'Fully Integrable',
     Svg: require('@site/static/img/undraw_vcs.svg').default,
     description: (
       <>

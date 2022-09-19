@@ -1,9 +1,11 @@
-imports: {}
+imports:
+  "@flyde/stdlib":
+    - Id
 part:
   instances:
     - pos:
-        x: 525
-        y: 250
+        x: 496.9174499511719
+        y: 263.0300593972206
       id: ins1
       inputConfig: {}
       part:
@@ -59,6 +61,12 @@ part:
             x: 850
             y: 0
         customViewCode: Your Logic Here 🕺🏼
+    - pos:
+        x: 788.8216033935547
+        y: 430.3058765411377
+      id: Id-72
+      inputConfig: {}
+      partId: Id
   connections:
     - from:
         insId: __this
@@ -102,6 +110,12 @@ part:
       to:
         insId: __this
         pinId: r4
+    - from:
+        insId: ins1
+        pinId: r4
+      to:
+        insId: Id-72
+        pinId: v
   id: Bob1
   inputs:
     a:

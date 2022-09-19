@@ -256,7 +256,7 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
   const onImportPart = React.useCallback(
     ({ part: importedPart, module }: ImportablePart) => {
 
-      const existingModuleImports = (flow.imports || {})[module]
+      const existingModuleImports = (flow.imports || {})[module] || [];
       if (existingModuleImports.includes(importedPart.id)) {
         toastMsg(`Part with name ${importedPart.id} already exists in this project`, "danger");
         return;

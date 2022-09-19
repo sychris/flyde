@@ -32,11 +32,18 @@ export const PIECE_CHAR_WIDTH = 11;
 export const MIN_WIDTH_PER_PIN = 40;
 export const MAX_INSTANCE_WIDTH = 400; // to change in CSS as well
 
-export const getDefaultVisibleInputs = (
+export const getVisibleInputs = (
   instance: PartInstance,
   part: PartDefinition,
   connections: ConnectionData[]
 ): string[] => {
+
+  const {visibleInputs} = instance;
+
+  if (visibleInputs) {
+    
+    return visibleInputs;
+  }
   const visiblePins = [...keys(part.inputs), TRIGGER_PIN_ID].filter((k, v) => {
     const isConnected = connections.some((c) => c.to.insId === instance.id && c.to.pinId === k);
     const isStatic = isStaticInputPinConfig(instance.inputConfig[k]);
@@ -55,11 +62,17 @@ export const getDefaultVisibleInputs = (
   return visiblePins;
 };
 
-export const getDefaultVisibleOutputs = (
+export const getVisibleOutputs = (
   instance: PartInstance,
   part: PartDefinition,
   connections: ConnectionData[]
 ) => {
+
+  const {visibleOutputs} = instance;
+
+  if (visibleOutputs) {
+    return visibleOutputs;
+  }
   const keys = Object.keys(part.outputs);
   if (connections.some(c => c.from.insId === instance.id && c.from.pinId === ERROR_PIN_ID)) {
     return [...keys, ERROR_PIN_ID];
@@ -243,11 +256,9 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     os.sort((a, b) => visibleOutputs.indexOf(a[0]) - visibleOutputs.indexOf(b[0]));
   }
 
+  const _visibleInputs = getVisibleInputs(instance, part, connections);
 
-  const _visibleInputs =
-    instance.visibleInputs || getDefaultVisibleInputs(instance, part, connections);
-
-  const _visibleOutputs = instance.visibleOutputs || getDefaultVisibleOutputs(instance, part, connections);
+  const _visibleOutputs = getVisibleOutputs(instance, part, connections);
 
   is.push([TRIGGER_PIN_ID, partInput("trigger")]);
 
@@ -346,9 +357,9 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
       const pinName = k === TRIGGER_PIN_ID ? 'Trigger Pin' : k;
 
       return {
-        text: isVisible ? (isConnected ? `Hide input "${pinName}" (disconnect first)` : `Hide input "${pinName}"`) : `Show input "${pinName}`,
+        text: isVisible ? (isConnected ? `Hide input "${pinName}" (disconnect first)` : `Hide input "${pinName}"`) : `Show input "${pinName}"`,
         onClick: () => onChangeVisibleInputs(instance, isVisible ? _visibleInputs.filter(i => i !== k) : [..._visibleInputs, k]),
-        disabled: isConnected
+        disabled: isConnected && isVisible 
       }
   });
 
@@ -359,9 +370,9 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     const pinName = k === ERROR_PIN_ID ? 'Error Pin' : k;
 
     return {
-      text: isVisible ? (isConnected ? `Hide output "${pinName}" (disconnect first)` : `Hide output "${pinName}"`) : `Show output "${pinName}`,
+      text: isVisible ? (isConnected ? `Hide output "${pinName}" (disconnect first)` : `Hide output "${pinName}"`) : `Show output "${pinName}"`,
       onClick: () => onChangeVisibleOutputs(instance, isVisible ? _visibleOutputs.filter(i => i !== k) : [..._visibleOutputs, k]),
-      disabled: isConnected
+      disabled: isConnected && isVisible
     }
 });
 

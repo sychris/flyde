@@ -14,7 +14,7 @@ export interface LayoutDebuggerProps {
 
 export const PosDebugger: React.FC<{ pos: Pos }> = (props) => {
   const { x, y } = props.pos;
-  const turnedOn = safeLocalstorage.getItem("debugger") === "true";
+  const turnedOn = safeLocalstorage.getItem("pos-debugger") === "true";
   if (turnedOn) {
     return (
       <span className="pos-debugger">

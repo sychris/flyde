@@ -298,7 +298,8 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
 
       console.log({ vp });
       animatePos(viewPort.pos, vp.pos, 10, (dp) => {
-        setViewPort({ pos: dp, zoom: vp.zoom });
+        setViewPort({ pos: {x: 0, y: 0}, zoom: 1 });
+        // setViewPort({ pos: dp, zoom: vp.zoom });
       });
       // setViewPort(vp);
     };
