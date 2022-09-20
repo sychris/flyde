@@ -47,13 +47,13 @@
     "plugins": {
       "@release-it-plugins/workspaces": {
         "workspaces": [
-          "@flyde/core",
-          "@flyde/runtime",
-          "@flyde/dev-server",
-          "@flyde/remote-debugger",
-          "@flyde/stdlib",
-          "@flyde/editor",
-          "@flyde/flow-editor"
+          "editor",
+          "stdlib",
+          "dev-server",
+          "core",
+          "flow-editor",
+          "runtime",
+          "remote-debugger"
         ]
       }
     },
