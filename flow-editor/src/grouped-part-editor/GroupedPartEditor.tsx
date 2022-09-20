@@ -32,7 +32,7 @@ import {
   ResolvedFlydeFlowDefinition,
   connectionNode,
   ImportedPartDef,
-  ERROR_PIN_ID
+  ERROR_PIN_ID,
 } from "@flyde/core";
 import { InstanceView } from "./instance-view/InstanceView";
 import { ConnectionView } from "./connection-view";
@@ -73,7 +73,7 @@ import { HistoryPayload } from "@flyde/remote-debugger";
 import { orderGroupedPart } from "./order-layout/cmd";
 import { LayoutDebugger, LayoutDebuggerProps } from "./layout-debugger";
 import { preloadMonaco } from "../lib/preload-monaco";
-import { InstancePanel } from "./instance-panel";
+// import { InstancePanel } from "./instance-panel";
 import { toastMsg, AppToaster } from "../toaster";
 import {
   FlydeFlowChangeType,
@@ -164,7 +164,12 @@ type InlineValueTargetNewStatic = {
   type: "static-input";
 };
 type InlineValueTargetNewFloating = { pos: Pos; type: "new-floating"; value?: string };
-type InlineValueTargetNewOutput = { insId: string; pinId: string, type: "new-output"; value?: string };
+type InlineValueTargetNewOutput = {
+  insId: string;
+  pinId: string;
+  type: "new-output";
+  value?: string;
+};
 
 type InlineValueTarget =
   | InlineValueTargetExisting
@@ -298,7 +303,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
 
       console.log({ vp });
       animatePos(viewPort.pos, vp.pos, 10, (dp) => {
-        setViewPort({ pos: {x: 0, y: 0}, zoom: 1 });
+        setViewPort({ pos: { x: 0, y: 0 }, zoom: 1 });
         // setViewPort({ pos: dp, zoom: vp.zoom });
       });
       // setViewPort(vp);
@@ -758,7 +763,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
         } else {
           if (isRefPartInstance(ins)) {
             const part = getPartDef(ins, repo);
-            
+
             onEditPart(part as ImportedPartDef);
           } else {
             const part = ins.part;
@@ -997,7 +1002,6 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           const value = isStaticInputPinConfig(inputConfig) ? `${inputConfig.value}` : undefined;
 
           setInlineCodeTarget({ type: "static-input", insId: ins.id, pinId, value });
-
         } else {
           const part = getPartDef(ins, repo);
           const pin = part.outputs[pinId];
@@ -1191,7 +1195,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             toastMsg("Cannot add value to main input");
             return;
           }
-          setInlineCodeTarget({type: 'new-output', insId: ins.id, pinId})
+          setInlineCodeTarget({ type: "new-output", insId: ins.id, pinId });
         }
       },
       [quickAddMenuVisible, repo, part, onChange, onCloseQuickAdd]
@@ -1212,7 +1216,9 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             <MenuItem
               onMouseDown={(e) => e.stopPropagation()}
               label={"New Value"}
-              onClick={preventDefaultAnd(() => setInlineCodeTarget({type: 'new-floating', pos: lastMousePos.current}))}
+              onClick={preventDefaultAnd(() =>
+                setInlineCodeTarget({ type: "new-floating", pos: lastMousePos.current })
+              )}
             />
             <MenuItem
               label={`New input ${maybeDisabledLabel}`}
@@ -1540,17 +1546,15 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           case "static-input": {
             let val: any;
             try {
-              const normalizeString = code
-                .replace(/^'/, '"')
-                .replace(/'$/, '"')
+              const normalizeString = code.replace(/^'/, '"').replace(/'$/, '"');
               val = JSON.parse(normalizeString);
             } catch (e) {
-              toastMsg('Input values must not be formulas or code');
+              toastMsg("Input values must not be formulas or code");
               return;
             }
 
             const newVal = produce(part, (draft) => {
-              const ins = draft.instances.find(i => i.id === inlineCodeTarget.insId);
+              const ins = draft.instances.find((i) => i.id === inlineCodeTarget.insId);
               ins.inputConfig[inlineCodeTarget.pinId] = staticInputPinConfig(val);
             });
 
@@ -1562,28 +1566,35 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           case "new-floating": {
             const ins = inlinePartInstance(partId + rnd(100), newPart, {}, inlineCodeTarget.pos);
             const newVal = produce(part, (draft) => {
-              draft.instances.push(ins)
+              draft.instances.push(ins);
             });
             onChange(newVal, functionalChange("new floating value"));
             setInlineCodeTarget(undefined);
             break;
           }
           case "new-output": {
-            const {insId, pinId} = inlineCodeTarget;
-            const existingIns = part.instances.find(i => i.id === insId);
+            const { insId, pinId } = inlineCodeTarget;
+            const existingIns = part.instances.find((i) => i.id === insId);
             if (!existingIns) {
               throw new Error(`Impossible state`);
             }
-            const newIns = inlinePartInstance(partId + rnd(100), newPart, {}, vAdd(existingIns.pos, {x: -50, y: 150}));
+            const newIns = inlinePartInstance(
+              partId + rnd(100),
+              newPart,
+              {},
+              vAdd(existingIns.pos, { x: -50, y: 150 })
+            );
             const newVal = produce(part, (draft) => {
               draft.instances.push(newIns);
-              draft.connections.push({from: connectionNode(insId, pinId), to: connectionNode(newIns.id, TRIGGER_PIN_ID)});
+              draft.connections.push({
+                from: connectionNode(insId, pinId),
+                to: connectionNode(newIns.id, TRIGGER_PIN_ID),
+              });
             });
             onChange(newVal, functionalChange("new value connected to output"));
             setInlineCodeTarget(undefined);
           }
         }
-
       },
       [inlineCodeTarget, onChange, part]
     );

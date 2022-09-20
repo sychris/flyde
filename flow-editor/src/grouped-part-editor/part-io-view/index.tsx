@@ -93,15 +93,15 @@ export const PartIoView: React.SFC<PartIoViewProps> = React.memo(function PartIo
 
   const contextMenuItems = () => {
     return [
-      { label: `Current mode - ${inputMode}`, callback: noop },
-      { label: "Make required", callback: () => onChangeInputModeInner("required") },
-      { label: "Make optional", callback: () => onChangeInputModeInner("optional") },
+      { text: `Current mode - ${inputMode}`, onClick: noop },
+      { text: "Make required", onClick: () => onChangeInputModeInner("required") },
+      { text: "Make optional", onClick: () => onChangeInputModeInner("optional") },
       {
-        label: "Make required-if-connected",
-        callback: () => onChangeInputModeInner("required-if-connected"),
+        text: "Make required-if-connected",
+        onClick: () => onChangeInputModeInner("required-if-connected"),
       },
-      ...(props.onRename ? [{ label: "Rename", callback: onRenameInner }] : []),
-      ...(props.onDelete ? [{ label: "Delete", callback: onDeleteInner }] : []),
+      ...(props.onRename ? [{ text: "Rename", onClick: onRenameInner }] : []),
+      ...(props.onDelete ? [{ text: "Delete", onClick: onDeleteInner }] : []),
     ];
   };
 
