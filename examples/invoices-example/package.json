@@ -32,5 +32,8 @@
   },
   "devDependencies": {
     "ts-node-dev": "^1.0.0-pre.32"
+  },
+  "release-it": {
+    "npm": false
   }
 }
