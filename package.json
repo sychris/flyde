@@ -9,7 +9,9 @@
     "open-vscode": "code main.code-workspace",
     "watch-all-integrated": "yarn workspaces foreach -piAv -j 999 --exclude @flyde/managed-editor --exclude flyde-vscode run dev",
     "build": "yarn workspaces foreach -Avi run build",
-    "clean": "yarn workspaces foreach clean -y"
+    "clean": "yarn workspaces foreach clean -y",
+    "bump-patch-and-publish-all": "yarn workspaces foreach --exclude @flyde/managed-editor --exclude flyde-vscode run 'npm version patch'",
+    "release": "release-it"
   },
   "author": "",
   "license": "ISC",
@@ -36,5 +38,8 @@
     "editor",
     "remote-debugger"
   ],
-  "packageManager": "yarn@3.2.0"
+  "packageManager": "yarn@3.2.0",
+  "devDependencies": {
+    "release-it": "^15.4.2"
+  }
 }
