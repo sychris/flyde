@@ -1,6 +1,6 @@
 {
     "name": "@flyde/stdlib",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Flyde's StdLib",
     "flyde": {
         "exposes": [
@@ -22,9 +22,9 @@
     "author": "Flyde",
     "license": "ISC",
     "dependencies": {
-        "@flyde/core": "^0.0.1",
-        "@flyde/dev-server": "^0.0.1",
-        "@flyde/runtime": "^0.0.1"
+        "@flyde/core": "^0.0.2",
+        "@flyde/dev-server": "^0.0.2",
+        "@flyde/runtime": "^0.0.2"
     },
     "devDependencies": {
         "concurrently": "^7.3.0",
