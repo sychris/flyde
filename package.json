@@ -41,6 +41,7 @@
   "packageManager": "yarn@3.2.0",
   "devDependencies": {
     "@release-it-plugins/workspaces": "^3.2.0",
+    "lerna": "^5.5.2",
     "release-it": "^15.4.2"
   },
   "release-it": {
