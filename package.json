@@ -10,7 +10,6 @@
     "watch-all-integrated": "yarn workspaces foreach -piAv -j 999 --exclude @flyde/managed-editor --exclude flyde-vscode run dev",
     "build": "yarn workspaces foreach -Avit run build",
     "clean": "yarn workspaces foreach clean -y",
-    "publish": "yarn workspaces foreach -tA --exclude @flyde/managed-editor --exclude flyde-vscode run publish",
     "release": "release-it"
   },
   "author": "",

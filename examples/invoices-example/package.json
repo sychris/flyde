@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently 'ts-node-dev --respawn src/index.ts' 'npm run watch'",
-    "publish": "npm version patch && npm publish",
+    "__publish": "npm version patch && npm publish",
     "build": "rm -rf dist && tsc -p .",
     "prod": "node dist/index.js",
     "bob": "flyde",
