@@ -4,8 +4,8 @@ imports:
 part:
   instances:
     - pos:
-        x: 496.9174499511719
-        y: 263.0300593972206
+        x: 335.9174499511719
+        y: 221.0300593972206
       id: ins1
       inputConfig: {}
       part:

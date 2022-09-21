@@ -41,8 +41,7 @@
     "use-error-boundary": "^2.0.6",
     "use-query-params": "^1.2.3",
     "usehooks-ts": "^2.4.2",
-    "web-vitals": "^1.0.1",
-    "zoom-level": "^2.5.0"
+    "web-vitals": "^1.0.1"
   },
   "devDependencies": {
     "@simbathesailor/use-what-changed": "^2.0.0",

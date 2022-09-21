@@ -10,7 +10,7 @@
     "watch-all-integrated": "yarn workspaces foreach -piAv -j 999 --exclude @flyde/managed-editor --exclude flyde-vscode run dev",
     "build": "yarn workspaces foreach -Avit run build",
     "clean": "yarn workspaces foreach clean -y",
-    "release": "release-it"
+    "release": "lerna publish --no-version"
   },
   "author": "",
   "license": "ISC",
