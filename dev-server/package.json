@@ -1,6 +1,6 @@
 {
   "name": "@flyde/dev-server",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -14,7 +14,7 @@
     "watch-ts": "tsc -p . -w --incremental",
     "watch-flyde": "ts-node-dev src/cli.ts --root=../website",
     "dev": "concurrently 'ts-node-dev src/cli.ts --root=../website --port=8545' 'npm run watch-ts'",
-    "publish": "npm version patch && npm publish",
+    "__publish": "npm version patch && npm publish",
     "build": "rm -rf dist && tsc -p .",
     "prod": "node dist/index.js"
   },
@@ -24,8 +24,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@flyde/core": "^1.0.9",
-    "@flyde/runtime": "^1.0.5",
+    "@flyde/core": "^1.0.11",
+    "@flyde/runtime": "^1.0.6",
     "@types/args": "^5.0.0",
     "@types/cuid": "^1.3.0",
     "@types/express": "^4.16.1",
@@ -50,9 +50,9 @@
     "walker": "^1.0.8"
   },
   "devDependencies": {
-    "@flyde/editor": "^1.0.4",
+    "@flyde/editor": "^1.0.5",
     "fs-extra": "^10.1.0",
     "ts-node-dev": "^1.0.0-pre.32"
   },
-  "gitHead": "eca99fabce79ce9c8255b6ef3d0cc5e5f457f331"
+  "gitHead": "ca53ce8dade94afaf4be0ef78b3872bc72d4f799"
 }

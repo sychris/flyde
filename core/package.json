@@ -1,6 +1,6 @@
 {
   "name": "@flyde/core",
-  "version": "1.0.9",
+  "version": "1.0.11",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "test": "mocha src/spec.ts src/execute/spec.ts src/**/spec.ts --require ts-node/register --require test-setup.js",
     "start": "tsc -p . -w --incremental",
     "dev": "tsc -p . -w --incremental",
-    "publish": "npm version patch && npm publish",
+    "__publish": "npm version patch && npm publish",
     "bts": "tsc -p .",
     "build": "rm -rf dist && (tsc -p . || true)"
   },
@@ -36,5 +36,5 @@
     "mocha": "^5.2.0",
     "sinon": "^7.2.2"
   },
-  "gitHead": "eca99fabce79ce9c8255b6ef3d0cc5e5f457f331"
+  "gitHead": "ca53ce8dade94afaf4be0ef78b3872bc72d4f799"
 }

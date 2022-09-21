@@ -1,6 +1,6 @@
 {
     "name": "@flyde/stdlib",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Flyde's StdLib",
     "flyde": {
         "exposes": [
@@ -18,19 +18,19 @@
         "prod": "node dist/index.js",
         "start": "concurrently 'flyde --port=8383'",
         "dev": "yarn run start",
-        "publish": "npm version patch && npm publish"
+        "__publish": "npm version patch && npm publish"
     },
     "author": "Flyde",
     "license": "ISC",
     "dependencies": {
-        "@flyde/core": "^1.0.9",
-        "@flyde/dev-server": "^1.0.13",
-        "@flyde/runtime": "^1.0.5"
+        "@flyde/core": "^1.0.11",
+        "@flyde/dev-server": "^1.0.14",
+        "@flyde/runtime": "^1.0.6"
     },
     "devDependencies": {
         "concurrently": "^7.3.0",
         "ts-node-dev": "^1.0.0-pre.32",
         "typescript": "^4.0.0"
     },
-    "gitHead": "eca99fabce79ce9c8255b6ef3d0cc5e5f457f331"
+    "gitHead": "ca53ce8dade94afaf4be0ef78b3872bc72d4f799"
 }

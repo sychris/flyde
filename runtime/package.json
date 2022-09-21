@@ -1,13 +1,13 @@
 {
   "name": "@flyde/runtime",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc -p . -w --incremental",
-    "publish": "npm version patch && npm publish",
+    "__publish": "npm version patch && npm publish",
     "build": "rm -rf dist && tsc -p .",
     "prod": "node dist/index.js",
     "start": "concurrently 'ts-node-dev src/index.ts' 'npm run watch'"
@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@flyde/core": "^1.0.9",
+    "@flyde/core": "^1.0.11",
     "@types/cuid": "^1.3.0",
     "@types/node": "^11.10.5",
     "axios": "^0.19.2",
@@ -35,5 +35,5 @@
     "ts-node-dev": "^1.0.0-pre.32",
     "typescript": "^4.0.0"
   },
-  "gitHead": "eca99fabce79ce9c8255b6ef3d0cc5e5f457f331"
+  "gitHead": "ca53ce8dade94afaf4be0ef78b3872bc72d4f799"
 }
