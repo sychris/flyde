@@ -1,6 +1,6 @@
 {
   "name": "@flyde/flow-editor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -18,8 +18,8 @@
     "@blueprintjs/core": "^3.11.0",
     "@blueprintjs/popover2": "^0.3.1",
     "@blueprintjs/select": "^3.5.0",
-    "@flyde/core": "^1.0.7",
-    "@flyde/remote-debugger": "^1.0.2",
+    "@flyde/core": "^1.0.8",
+    "@flyde/remote-debugger": "^1.0.3",
     "@monaco-editor/react": "^4.0.10",
     "@rehooks/component-size": "^1.0.3",
     "@types/jest": "^26.0.15",
@@ -62,5 +62,6 @@
     "@types/react-dom": "^17.0.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
-  }
+  },
+  "gitHead": "2bb8d81dbae987ad076c04187d2249650e1ecd26"
 }

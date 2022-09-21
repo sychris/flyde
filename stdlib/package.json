@@ -1,6 +1,6 @@
 {
     "name": "@flyde/stdlib",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Flyde's StdLib",
     "flyde": {
         "exposes": [
@@ -23,13 +23,14 @@
     "author": "Flyde",
     "license": "ISC",
     "dependencies": {
-        "@flyde/core": "^1.0.7",
-        "@flyde/dev-server": "^1.0.11",
-        "@flyde/runtime": "^1.0.3"
+        "@flyde/core": "^1.0.8",
+        "@flyde/dev-server": "^1.0.12",
+        "@flyde/runtime": "^1.0.4"
     },
     "devDependencies": {
         "concurrently": "^7.3.0",
         "ts-node-dev": "^1.0.0-pre.32",
         "typescript": "^4.0.0"
-    }
+    },
+    "gitHead": "2bb8d81dbae987ad076c04187d2249650e1ecd26"
 }
