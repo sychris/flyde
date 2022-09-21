@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "private": true,
   "flyde": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
