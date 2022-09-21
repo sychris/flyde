@@ -1,6 +1,6 @@
 {
   "name": "@flyde/core",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -36,5 +36,5 @@
     "mocha": "^5.2.0",
     "sinon": "^7.2.2"
   },
-  "gitHead": "2bb8d81dbae987ad076c04187d2249650e1ecd26"
+  "gitHead": "eca99fabce79ce9c8255b6ef3d0cc5e5f457f331"
 }

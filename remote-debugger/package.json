@@ -1,6 +1,6 @@
 {
   "name": "@flyde/remote-debugger",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.8.4",
-    "@flyde/core": "^1.0.8",
+    "@flyde/core": "^1.0.9",
     "@socket.io/admin-ui": "^0.2.0",
     "@types/express": "^4.16.1",
     "@types/node": "^11.10.5",
@@ -27,5 +27,5 @@
     "ts-node-dev": "^1.0.0-pre.32",
     "typescript": "^4.0.0"
   },
-  "gitHead": "2bb8d81dbae987ad076c04187d2249650e1ecd26"
+  "gitHead": "eca99fabce79ce9c8255b6ef3d0cc5e5f457f331"
 }

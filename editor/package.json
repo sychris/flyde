@@ -1,6 +1,6 @@
 {
   "name": "@flyde/editor",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "build/index.html",
   "files": [
     "build/**/*",
@@ -11,10 +11,10 @@
     "@blueprintjs/core": "^3.11.0",
     "@blueprintjs/popover2": "^0.3.1",
     "@blueprintjs/select": "^3.5.0",
-    "@flyde/core": "^1.0.8",
-    "@flyde/dev-server": "^1.0.12",
-    "@flyde/flow-editor": "^1.0.7",
-    "@flyde/remote-debugger": "^1.0.3",
+    "@flyde/core": "^1.0.9",
+    "@flyde/dev-server": "^1.0.13",
+    "@flyde/flow-editor": "^1.0.8",
+    "@flyde/remote-debugger": "^1.0.4",
     "@monaco-editor/react": "^4.0.10",
     "@testing-library/jest-dom": "^5.11.4",
     "@types/jest": "^26.0.15",
@@ -77,5 +77,5 @@
       "last 1 safari version"
     ]
   },
-  "gitHead": "2bb8d81dbae987ad076c04187d2249650e1ecd26"
+  "gitHead": "eca99fabce79ce9c8255b6ef3d0cc5e5f457f331"
 }
