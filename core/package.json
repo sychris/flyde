@@ -8,6 +8,7 @@
     "test": "mocha src/spec.ts src/execute/spec.ts src/**/spec.ts --require ts-node/register --require test-setup.js",
     "start": "tsc -p . -w --incremental",
     "dev": "tsc -p . -w --incremental",
+    "publish": "npm version patch && npm publish",
     "bts": "tsc -p .",
     "build": "rm -rf dist && (tsc -p . || true)"
   },

@@ -14,6 +14,7 @@
     "watch-ts": "tsc -p . -w --incremental",
     "watch-flyde": "ts-node-dev src/cli.ts --root=../website",
     "dev": "concurrently 'ts-node-dev src/cli.ts --root=../website --port=8545' 'npm run watch-ts'",
+    "publish": "npm version patch && npm publish",
     "build": "rm -rf dist && tsc -p .",
     "prod": "node dist/index.js"
   },
