@@ -70,7 +70,7 @@ import useComponentSize from "@rehooks/component-size";
 import { Slider, Menu, MenuItem, ContextMenu, Button } from "@blueprintjs/core";
 import { PartIoView, PartIoType } from "./part-io-view";
 
-import { rnd, vAdd, vDiv, vec, vMul, vSub } from "../physics";
+import { rnd, vAdd, vDiv, vec, vMul, vSub, vZero } from "../physics";
 import { QuickAddMenu, QuickAddMenuData, QuickMenuMatch } from "./quick-add-menu";
 import { queueInputPinConfig } from "@flyde/core";
 import { HistoryPayload } from "@flyde/remote-debugger";
@@ -301,7 +301,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     const lastMousePos = React.useRef({ x: 400, y: 400 });
 
 
-    const boardPos = useBoundingclientrect(boardRef);
+    const boardPos = useBoundingclientrect(boardRef) || vZero;
 
     const fitToScreen = () => {
       const vp = fitViewPortToPart(part, repo, vpSize);

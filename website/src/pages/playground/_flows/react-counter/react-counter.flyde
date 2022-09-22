@@ -257,6 +257,7 @@ part:
   outputs:
     jsx:
       type: any
+  inputsPosition: {}
   outputsPosition:
     jsx:
       x: -295.8926095883459

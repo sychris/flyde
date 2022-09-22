@@ -32,6 +32,7 @@ part:
   outputs:
     result:
       type: any
+  inputsPosition: {}
   outputsPosition:
     result:
       x: -164.93927536610897
