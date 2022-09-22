@@ -10,7 +10,6 @@ import { Pos } from "@flyde/core";
 // export const MIN_WIDTH_PER_PIN = 40;
 
 import { ContextMenu, IMenuItemProps, IMenuProps, Menu, MenuItem } from "@blueprintjs/core";
-import { PosDebugger } from "../layout-debugger";
 
 
 export interface BasePartViewContextItem { 
@@ -135,7 +134,6 @@ export const BasePartView: React.FC<BasePartViewProps> = function BasePartViewIn
         cancel=".no-drag"
       >
         <span className="base-part-view-wrapper">
-          <PosDebugger pos={pos} />
           <div className={cm} style={zoomFixStyle} id={props.domId}>
             {upperElement}
             <div

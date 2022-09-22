@@ -15,15 +15,8 @@ const elemPos = (elem: Element | undefined, boardPos: Pos, id: string) => {
   }
   const { x, y, width, height } = elem.getBoundingClientRect();
 
-  if (elem.id === 'pin-root.Bob1.ins1-a-input') {
-    console.log({x, y, width, height});
-    
-  }
   const mx = x + width / 2;
   const my = y + height / 2;
-
-  const v1 = (my  - boardPos.y) * calcZoom();
-  const v2 = my - (boardPos.y * calcZoom());
   
   return {
     /*

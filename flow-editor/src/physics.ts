@@ -28,6 +28,8 @@ export const vSub = (a: Vector, b: Vector) => vAdd(a, vMul(b, -1));
 export const vLen = ({ x, y }: Vector): number => Math.sqrt(x * x + y * y);
 export const vNorm = (a: Vector) => vDiv(a, vLen(a) || 1);
 
+export const vToStr = ({x,y}: Vector) => `${x.toFixed(1)},${y.toFixed(1)}`;
+
 export const coulombs = (e1: Entity, e2: Entity, rep: number): Vector => {
   const distance = vLen(vSub(e1.p, e2.p));
   if (distance === 0) {

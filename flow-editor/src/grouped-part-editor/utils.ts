@@ -41,9 +41,10 @@ import {
 import { calcPartWidth } from "./instance-view/utils";
 
 import { calcPartIoWidth as calcIoPartWidth } from "./part-io-view/utils";
-import { vSub, vAdd } from "../physics";
+import { vSub, vAdd, vMul, vDiv, vToStr } from "../physics";
 import { getLeafInstancesOfSelection } from "./part-graph-utils";
 import { toastMsg } from "../toaster";
+import { getVisibleInputs, getVisibleOutputs } from "./instance-view";
 
 export const emptyObj = {}; // for immutability
 export const emptyList = []; // for immutability
@@ -94,18 +95,18 @@ export const findClosestPin = (
   });
 
   const instancesData = part.instances.reduce<any[]>((acc, ins) => {
-    const part = getPartDef(ins, repo);
+    const insPart = getPartDef(ins, repo);
 
-    const inputKeys = [...okeys(part.inputs), TRIGGER_PIN_ID];
-    const outputKeys = [...okeys(part.outputs), ERROR_PIN_ID];
+    const visibleInputs = getVisibleInputs(ins, insPart, part.connections);
+    const visibleOutputs = getVisibleOutputs(ins, insPart, part.connections);
 
-    const ips = inputKeys.map((id) => ({
+    const ips = visibleInputs.map((id) => ({
       ins,
       type: "input",
       pos: calcPinPosition(insId, ins.id, id, "input", boardPos),
       id,
     }));
-    const ops = outputKeys.map((id) => ({
+    const ops = visibleOutputs.map((id) => ({
       ins,
       type: "output",
       pos: calcPinPosition(insId, ins.id, id, "output", boardPos),
@@ -405,6 +406,34 @@ export const getEffectivePartDimensions = (part: GroupedPart, repo: PartDefRepo)
 
   return { size, pos, center };
 };
+
+export const logicalPosToRenderedPos = (pos: Pos, vp: ViewPort) => {
+  const diff = vSub(pos, vp.pos);
+  return vDiv(diff, vp.zoom);
+}
+
+export const renderedPosToLogicalPos = (renderedPos: Pos, vp: ViewPort) => {
+  const bob = vMul(renderedPos, vp.zoom);
+
+  return vAdd(vp.pos, bob);
+}
+
+export const centerBoardPosOnTarget = (target: Pos, vpSize: Size, newZoom: number, prevVp: ViewPort) => {
+  const renderedTargetPos = logicalPosToRenderedPos(target, prevVp);
+
+  const nextBoardPos = renderedPosToLogicalPos(renderedTargetPos, {...prevVp, zoom: newZoom });
+
+  const deltaX = Math.max(target.x, nextBoardPos.x) - Math.min(target.x, nextBoardPos.x);
+  const deltaY = Math.max(target.y, nextBoardPos.y) - Math.min(target.y, nextBoardPos.y);
+
+  const newX = newZoom > prevVp.zoom ? prevVp.pos.x + deltaX : prevVp.pos.x - deltaX;
+  const newY = newZoom > prevVp.zoom ? prevVp.pos.y + deltaY : prevVp.pos.y - deltaY;
+
+  return {
+    x: newX,
+    y: newY
+  }
+}
 
 export const fitViewPortToPart = (part: GroupedPart, repo: PartDefRepo, vpSize: Size): ViewPort => {
   const { size, center } = getEffectivePartDimensions(part, repo);

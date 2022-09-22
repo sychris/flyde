@@ -14,7 +14,7 @@
   }
 
   .connection polyline,
-  .connection path {
+  path.connection {
     fill: none;
     stroke-width: 1.5;
     stroke-linecap: round;
@@ -62,7 +62,36 @@
 		height: 0; */
   }
 
-  .connection svg {
+  .connections-view svg {
     overflow: visible;
     width: 1px; /* hack so it doesn't get in the way of selection box */
+  }
+
+  .connections-view {
+    position: absolute;
+
+    .connection.delayed polyline {
+      stroke-dasharray: 6;
+    }
+
+    path {
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke: #6c6c6c;
+
+      &.future-add {
+        stroke-dasharray: 6;
+        stroke-width: 2;
+        stroke: #007dc6a5;
+      }
+
+      &.future-remove {
+        stroke-dasharray: 6;
+        stroke-width: 2;
+        stroke: #c60000a5;
+      }
+      
+    }
+
   }

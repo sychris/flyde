@@ -5,6 +5,10 @@
   position: absolute;
   transition: box-shadow ease-in-out 0.5s;
   will-change: transform, width;
+  z-index: 2;
+  
+
+
 
   .drag-sim {
     position: absolute;
@@ -25,6 +29,12 @@
     transform-origin: top left;
   }
 
+}
+
+.viewport-data {
+  position: absolute;
+  top: 10px;
+  left: 10px;
 }
 
 .pos-debugger {

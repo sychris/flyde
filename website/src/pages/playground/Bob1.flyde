@@ -62,8 +62,8 @@ part:
             y: 0
         customViewCode: Your Logic Here 🕺🏼
     - pos:
-        x: 788.8216033935547
-        y: 430.3058765411377
+        x: 770.2893768310547
+        y: 334.28515510559083
       id: Id-72
       inputConfig: {}
       partId: Id
@@ -111,8 +111,8 @@ part:
         insId: __this
         pinId: r4
     - from:
-        insId: ins1
-        pinId: r4
+        insId: __this
+        pinId: r1
       to:
         insId: Id-72
         pinId: v
@@ -160,8 +160,8 @@ part:
       y: 0
   outputsPosition:
     r3:
-      x: -50
-      y: 500
+      x: 111
+      y: 511
     r4:
-      x: 150
-      y: 500
+      x: 467
+      y: 546

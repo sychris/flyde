@@ -35,8 +35,9 @@ import {
   ERROR_PIN_ID,
 } from "@flyde/core";
 import { InstanceView } from "./instance-view/InstanceView";
-import { ConnectionView } from "./connection-view";
+import { ConnectionView, ConnectionViewProps } from "./connection-view/ConnectionView";
 import { entries, isDefined, Pos, preventDefaultAnd, Size, values } from "../utils";
+import { useBoundingclientrect } from 'rooks';
 
 import {
   toggleStickyPin,
@@ -56,6 +57,9 @@ import {
   handleIoPinRename,
   handleChangePartInputType,
   calcSelectionBoxArea,
+  centerBoardPosOnTarget,
+  calcCenter,
+  emptyList,
 } from "./utils";
 
 import { produce } from "immer";
@@ -66,7 +70,7 @@ import useComponentSize from "@rehooks/component-size";
 import { Slider, Menu, MenuItem, ContextMenu, Button } from "@blueprintjs/core";
 import { PartIoView, PartIoType } from "./part-io-view";
 
-import { rnd, vAdd, vec, vSub } from "../physics";
+import { rnd, vAdd, vDiv, vec, vMul, vSub } from "../physics";
 import { QuickAddMenu, QuickAddMenuData, QuickMenuMatch } from "./quick-add-menu";
 import { queueInputPinConfig } from "@flyde/core";
 import { HistoryPayload } from "@flyde/remote-debugger";
@@ -296,12 +300,12 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     const vpSize: Size = useComponentSize(boardRef);
     const lastMousePos = React.useRef({ x: 400, y: 400 });
 
-    const boardPos = boardRef.current ? boardRef.current.getBoundingClientRect() : defaultPos;
+
+    const boardPos = useBoundingclientrect(boardRef);
 
     const fitToScreen = () => {
       const vp = fitViewPortToPart(part, repo, vpSize);
 
-      console.log({ vp });
       animatePos(viewPort.pos, vp.pos, 10, (dp) => {
         setViewPort({ pos: { x: 0, y: 0 }, zoom: 1 });
         // setViewPort({ pos: dp, zoom: vp.zoom });
@@ -442,22 +446,37 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       }
     }, [part.id, closestPin, onPartIoPinClick, onPinClick]);
 
+    const onZoom = React.useCallback(
+      (newZoom: number, source?: 'hotkey' | 'mouse') => {
+        // const pos = vDiv(viewPort.pos, (newZoom - viewPort.zoom));
+        // console.log({viewPort, pos});
+
+        
+        const targetPos = source === 'mouse' ? lastMousePos.current : {x: viewPort.pos.x + vpSize.width / 2, y: viewPort.pos.y + vpSize.height / 2};
+        const newPos = centerBoardPosOnTarget(targetPos, vpSize, newZoom, viewPort);
+        
+        // const newCenter = centerBoardPosOnTarget(lastMousePos.current, vpSize, newZoom, viewPort);
+        setViewPort({ ...viewPort, zoom: newZoom, pos: newPos })
+      },
+      [setViewPort, viewPort, vpSize]
+    );
+
     useHotkeys(
       "cmd+=",
       (e: any) => {
-        setViewPort({ ...viewPort, zoom: viewPort.zoom + 0.1 });
+        onZoom(viewPort.zoom + 0.1, 'hotkey')
         e.preventDefault();
       },
-      [viewPort]
+      [viewPort, onZoom]
     );
 
     useHotkeys(
       "cmd+-",
       (e) => {
-        setViewPort({ ...viewPort, zoom: viewPort.zoom - 0.1 });
+        onZoom(viewPort.zoom - 0.1, 'hotkey')
         e.preventDefault();
       },
-      []
+      [onZoom, viewPort.zoom]
     );
 
     useHotkeys(
@@ -488,10 +507,10 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     useHotkeys(
       "cmd+0",
       (e) => {
-        setViewPort({ ...viewPort, zoom: 1 });
+        onZoom(1)
         e.preventDefault();
       },
-      [viewPort]
+      [viewPort, onZoom]
     );
 
     const clearSelections = () => {
@@ -1076,11 +1095,11 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
         if (e.metaKey) {
           // blockScroll();
           const zoomDiff = e.deltaY * -0.001;
-          setViewPort({ ...viewPort, zoom: viewPort.zoom + zoomDiff });
+          onZoom(viewPort.zoom + zoomDiff, 'mouse')
           e.preventDefault();
         }
       },
-      [setViewPort, viewPort]
+      [onZoom, viewPort.zoom]
     );
 
     useEffect(() => {
@@ -1271,11 +1290,6 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       [getContextMenu, viewPort]
     );
 
-    const onSlide = React.useCallback(
-      (v) => setViewPort({ ...viewPort, zoom: v }),
-      [setViewPort, viewPort]
-    );
-
     useHotkeys("shift+c", fitToScreen);
     useHotkeys("cmd+c", onCopyInner);
     useHotkeys("cmd+v", onPaste);
@@ -1372,7 +1386,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       }
     };
 
-    const maybeRenderFutureConnection = () => {
+    const maybeRenderFutureConnection = (): ConnectionViewProps['futureConnection'] => {
       const maybeFutureConnection = maybeGetFutureConnection();
       if (maybeFutureConnection) {
         const { from, to } = maybeFutureConnection;
@@ -1381,22 +1395,10 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
         );
         const cstr = `${from.insId}|${from.pinId}|${to.insId}|${to.pinId}`;
 
-        return (
-          <ConnectionView
-            from={from}
-            to={to}
-            repo={repo}
-            parentInsId={thisInsId}
-            size={vpSize}
-            part={part}
-            boardPos={boardPos}
-            instances={instances}
-            key={"future-conn"}
-            onDblClick={noop}
-            future={existing.has(cstr) ? "removal" : "addition"}
-            viewPort={viewPort}
-          />
-        );
+        return {
+          connection: {from, to},
+          type: existing.has(cstr) ? 'future-remove' : 'future-add'
+        }
       }
     };
 
@@ -1599,12 +1601,21 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       [inlineCodeTarget, onChange, part]
     );
 
+    const connectionsToRender = connections
+    .filter((conn) => {
+      // do not render on top of a future connection so it shows removal properly
+      const fConn = maybeGetFutureConnection();
+      if (!fConn) {
+        return true;
+      }
+      return !connectionDataEquals(fConn, conn);
+    });
+
     try {
       return (
         <div className="grouped-part-editor" data-id={part.id} onContextMenu={showContextMenu}>
           <main
             className="board-editor-inner"
-            // onWheel={onMaybeZoom}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onMouseMove={onMouseMove}
@@ -1613,41 +1624,25 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             style={backgroundStyle}
           >
             <React.Fragment>
-              {layoutDebuggers.map((p, i) => (
-                <LayoutDebugger viewPort={viewPort} {...p} key={i} />
-              ))}
+                <LayoutDebugger vp={viewPort} part={part} extraDebug={emptyList} mousePos={lastMousePos.current}/>
             </React.Fragment>
             {/* <div className='debug-info'>
               <span className='viewport'>
                 {`${viewPort.pos.x.toFixed(2)}, ${viewPort.pos.y.toFixed(2)} | ${viewPort.zoom}`}
               </span>
             </div> */}
-
-            {connections
-              .filter((conn) => {
-                // do not render on top of a future connection so it shows removal properly
-                const fConn = maybeGetFutureConnection();
-                if (!fConn) {
-                  return true;
-                }
-                return !connectionDataEquals(fConn, conn);
-              })
-              .map((v, i) => (
-                <ConnectionView
+  <ConnectionView
                   repo={repo}
                   parentInsId={thisInsId}
                   size={vpSize}
                   part={part}
                   boardPos={boardPos}
                   instances={instances}
-                  from={v.from}
-                  to={v.to}
-                  key={i}
+                  connections={connectionsToRender}
+                  futureConnection={maybeRenderFutureConnection()}
                   onDblClick={noop}
                   viewPort={viewPort}
                 />
-              ))}
-            {maybeRenderFutureConnection()}
             {renderPartInputs()}
             {instances.map((v) => (
               <InstanceView
@@ -1709,7 +1704,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
                 stepSize={0.05}
                 labelStepSize={10}
                 labelRenderer={sliderRenderer}
-                onChange={onSlide}
+                onChange={onZoom}
                 value={viewPort.zoom}
               />
             </div>

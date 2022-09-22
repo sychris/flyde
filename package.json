@@ -19,11 +19,6 @@
     "mixpanel-browser": "^2.45.0",
     "yarn": "^1.22.18"
   },
-  "resolutions": {
-    "react-error-overlay": "6.0.9",
-    "website": "portal:/Users/gabrielgrinberg/projects/flyde/website",
-    "flyde-vscode": "portal:/Users/gabrielgrinberg/projects/flyde-vscode-extension"
-  },
   "private": true,
   "workspaces": [
     "core",
@@ -33,7 +28,6 @@
     "stdlib",
     "website",
     "examples/*",
-    "flyde-vscode-extension",
     "editor",
     "remote-debugger"
   ],

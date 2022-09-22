@@ -41,6 +41,7 @@
     "react-resizable": "^1.11.0",
     "react-router-dom": "^5.2.0",
     "react-tooltip": "^4.2.21",
+    "rooks": "^7.4.0",
     "typescript": "^4.1.2",
     "use-debounce": "^8.0.1",
     "zoom-level": "^2.5.0"
@@ -64,5 +65,5 @@
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },
-  "gitHead": "d70f8d1e53173793f3d61126b024ecc4865f0e64"
+  "gitHead": "5f06bd4a0f3da610e64d74c19cc84babc4557f56"
 }

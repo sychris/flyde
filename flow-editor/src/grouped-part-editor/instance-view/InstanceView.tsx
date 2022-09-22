@@ -44,6 +44,7 @@ export const getVisibleInputs = (
     
     return visibleInputs;
   }
+
   const visiblePins = [...keys(part.inputs), TRIGGER_PIN_ID].filter((k, v) => {
     const isConnected = connections.some((c) => c.to.insId === instance.id && c.to.pinId === k);
     const isStatic = isStaticInputPinConfig(instance.inputConfig[k]);

@@ -9,6 +9,7 @@ import {
   ConnectionNode,
   isInternalConnectionNode,
   isExternalConnectionNode,
+  ConnectionData,
 } from "@flyde/core";
 import {
   calcPinPosition,
@@ -20,12 +21,10 @@ import { Size } from "../../utils";
 import { calcBezierPath } from "./bezier";
 
 import { useSsr } from 'usehooks-ts'
+import { renderedPosToLogicalPos } from "../..";
 
 
-export interface ConnectionViewProps {
-  from: ConnectionNode;
-  to: ConnectionNode;
-  instances: PartInstance[];
+export interface BaseConnectionViewProps {
   repo: PartDefRepo;
   part: GroupedPart;
   parentInsId: string;
@@ -33,11 +32,22 @@ export interface ConnectionViewProps {
   size: Size;
   boardPos: Pos;
   viewPort: { pos: Pos; zoom: number };
-  future?: "addition" | "removal";
+  instances: PartInstance[]; 
 }
 
-const calcStartPos = (props: ConnectionViewProps): Pos => {
-  const { from, part, size, boardPos, parentInsId } = props;
+export interface ConnectionViewProps extends BaseConnectionViewProps {
+  connections: ConnectionData[];
+  futureConnection?: {connection: ConnectionData, type: "future-add" | "future-remove"};
+}
+
+export interface ConnectionItemViewProps extends BaseConnectionViewProps {
+  connection: ConnectionData;
+  type: 'regular' | 'future-add' | 'future-remove';
+}
+
+const calcStartPos = (props: ConnectionItemViewProps): Pos => {
+  const { connection, part, size, boardPos, parentInsId } = props;
+  const {from} = connection;
 
   if (isExternalConnectionNode(from)) {
     return calcMainInputPosition(part, size, from.pinId, parentInsId, "input", boardPos);
@@ -46,8 +56,9 @@ const calcStartPos = (props: ConnectionViewProps): Pos => {
   }
 };
 
-const calcTargetPos = (props: ConnectionViewProps): Pos => {
-  const { to, part, size, boardPos, parentInsId } = props;
+const calcTargetPos = (props: ConnectionItemViewProps): Pos => {
+  const { connection, part, size, boardPos, parentInsId } = props;
+  const {to} = connection;
 
   if (isExternalConnectionNode(to)) {
     return calcMainOutputPosition(part, size, to.pinId, parentInsId, "output", boardPos);
@@ -56,11 +67,11 @@ const calcTargetPos = (props: ConnectionViewProps): Pos => {
   }
 };
 
-export const ConnectionView: React.FC<ConnectionViewProps> = (props) => {
-    const { isBrowser } = useSsr();
+export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) => {
+  const { isBrowser } = useSsr();
 
-  const { from, onDblClick, part, viewPort, repo, future, instances, to } = props;
-  const [renderTrigger, setRenderTrigger] = React.useState(0);
+  const { connection, part, repo, instances, viewPort } = props;
+  const {from } = connection;
 
   const fromInstance = isInternalConnectionNode(from) && instances.find((i) => i.id === from.insId);
 
@@ -74,8 +85,33 @@ export const ConnectionView: React.FC<ConnectionViewProps> = (props) => {
   const sourcePin = fromPart.outputs[from.pinId];
   const delayed = sourcePin && sourcePin.delayed;
 
-  const { x: x1, y: y1 } = isBrowser ? calcStartPos(props) : {x: 0, y: 0};
-  const { x: x2, y: y2 } = isBrowser ? calcTargetPos(props) : {x: 0, y: 0};
+  const startPos = isBrowser ? calcStartPos(props) : {x: 0, y: 0};
+  const endPos = isBrowser ? calcTargetPos(props) : {x: 0, y: 0};
+
+  //transform them into "logical" positions
+  const {x: x1, y: y1} = startPos;
+  const {x: x2, y: y2} = endPos;
+
+  const cm = classNames("connection", { delayed }, props.type);
+
+  const bob = calcBezierPath({
+    sourceX: x1,
+    sourceY: y1,
+    targetX: x2,
+    targetY: y2,
+    curvature: 0.15,
+  });
+
+  return (
+    <path d={bob} className={cm}/>
+  );
+}
+
+export const ConnectionView: React.FC<ConnectionViewProps> = (props) => {
+
+  const { viewPort, futureConnection } = props;
+
+  const [renderTrigger, setRenderTrigger] = React.useState(0);
 
   const requestRerender = React.useCallback((count: number) => {
 
@@ -98,12 +134,10 @@ export const ConnectionView: React.FC<ConnectionViewProps> = (props) => {
     return () => {
       cancelAnimationFrame(t);
     };
-  }, [x1, y1, x2, y2, requestRerender]);
+  }, [requestRerender]);
 
   React.useEffect(() => {
     const handler = () => {
-      console.log('REREND', renderTrigger);
-      
       requestRerender(3);
     }
     window.addEventListener('scroll', handler);
@@ -115,28 +149,26 @@ export const ConnectionView: React.FC<ConnectionViewProps> = (props) => {
     }
   }, [requestRerender, renderTrigger])
 
-  const cm = classNames("connection", { delayed }, future ? `future-${future}` : undefined);
-
-  const bob = calcBezierPath({
-    sourceX: x1,
-    sourceY: y1,
-    targetX: x2,
-    targetY: y2,
-    curvature: 0.15,
+  const connectionPaths = props.connections.map(conn => {
+    return <SingleConnectionView {...props} connection={conn} type='regular'/>
   });
+
+
+  if (futureConnection) {
+    connectionPaths.push(
+      <SingleConnectionView {...props} connection={futureConnection.connection} type={futureConnection.type}/>
+    )
+  }
 
   return (
     <span
-      className={cm}
+      className={'connections-view'}
       style={{ opacity: viewPort.zoom }}
-      data-from-id={`${from.insId}.${from.pinId}`}
-      data-to-id={`${to.insId}.${to.pinId}`}
-      data-bob={renderTrigger}
-      key={renderTrigger}
+      // data-bob={renderTriggser}
+      // key={renderTrigger}
     >
       <svg>
-        {/* <polyline onDoubleClick={onDblClick} points={`${x1},${y1} ${x2},${y2}`}></polyline> */}
-        <path d={bob} />
+        {connectionPaths}
       </svg>
     </span>
   );
