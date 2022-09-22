@@ -18,7 +18,7 @@ part:
       inputConfig:
         children:
           mode: static
-          value: + 1
+          value: "-"
       visibleInputs:
         - children
       partId: Button
@@ -51,7 +51,7 @@ part:
       inputConfig:
         children:
           mode: static
-          value: "- 1"
+          value: +
       visibleInputs:
         - children
       partId: Button
@@ -139,12 +139,12 @@ part:
         - value
       partId: Publish
     - pos:
-        x: -449.69109130859374
-        y: 132.32694366455075
+        x: -398.734365234375
+        y: 154.64188507080075
       id: Inline-value-Value is ${inp-308
       inputConfig: {}
       part:
-        id: Inline-value-Value is ${inp
+        id: Inline-value-${inputs.count
         inputs:
           count:
             type: any
@@ -154,15 +154,15 @@ part:
             type: any
             delayed: false
             optional: false
-        fnCode: outputs.r.next((`Value is ${inputs.count}`))
-        customViewCode: "`Value is ${inputs.count}`"
-        dataBuilderSource: YFZhbHVlIGlzICR7aW5wdXRzLmNvdW50fWA=
+        fnCode: outputs.r.next((`${inputs.count}`))
+        customViewCode: "`${inputs.count}`"
+        dataBuilderSource: YCR7aW5wdXRzLmNvdW50fWA=
         templateType: value
         completionOutputs:
           - r
     - pos:
-        x: -435.9594775390625
-        y: -57.659471435546834
+        x: -421.03473388671875
+        y: 7.897886352539103
       id: Inline-value-0-783
       inputConfig: {}
       part:
@@ -203,7 +203,7 @@ part:
         pinId: list
       to:
         insId: __this
-        pinId: result
+        pinId: jsx
     - from:
         insId: Button-410
         pinId: click
@@ -255,11 +255,10 @@ part:
   id: Main
   inputs: {}
   outputs:
-    result:
+    jsx:
       type: any
-  inputsPosition: {}
   outputsPosition:
-    result:
+    jsx:
       x: -295.8926095883459
       y: 614.1729968489325
   completionOutputs:

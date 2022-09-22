@@ -74,10 +74,12 @@ const runFlow = ({ flow, output, inputs, onError, debugDelay, player }: Playgrou
 
   localDebugger.debugDelay = debugDelay;
 
+  const firstOutputName = keys(flow.main.outputs)[0];
+
   return execute({
     part: flow.main,
     inputs: inputs,
-    outputs: { result: output },
+    outputs: { [firstOutputName]: output },
     partsRepo: {...flow.dependencies, [flow.main.id]: flow.main},
     _debugger: localDebugger,
     onBubbleError: (e) => {
@@ -145,8 +147,10 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
       debugDelay,
       player: runtimePlayerRef.current
     });
+    const sub = props.flowProps.output.subscribe(() => setOutputReceived(true));
     return () => {
       clean();
+      sub.unsubscribe();
     };
   }, [debugDelay, resolvedFlow]);
 
@@ -160,10 +164,6 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
         draft.boardData.viewPort = fitViewPortToPart(draft.flow.part as any, resolvedFlow.dependencies, vpSize);
       })
     })
-  }, []);
-
-  useEffect(() => {
-    props.flowProps.output.subscribe(() => setOutputReceived(true));
   }, []);
 
   const debugDelayElem = (<div className='delay-container'>

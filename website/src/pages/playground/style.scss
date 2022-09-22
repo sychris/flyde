@@ -75,3 +75,14 @@ input.input {
     vertical-align: middle;
     white-space: nowrap;
 }
+
+.react-counter {
+    button {
+        font-size: 20px;
+    }
+
+    span {
+        font-size: 50px;
+        font-weight: 600;
+    }
+}
