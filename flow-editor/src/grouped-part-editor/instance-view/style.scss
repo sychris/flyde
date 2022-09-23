@@ -7,6 +7,9 @@ $half-of-pin-height: 16px;
   display: inline-block;
   position: absolute;
 
+  // transform: rotate(20deg);
+  // transform-origin: center;
+
   .inputs,
   .outputs {
     display: flex;

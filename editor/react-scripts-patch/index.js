@@ -14,13 +14,16 @@ if (!basePath) {
   return;
 }
 
-const webpackConfig = path.join(basePath, "config/webpack.config.js");
+['webpack.config','webpackDevServer.config'].forEach((filename) => {
 
-const patchedConfig = path.join(__dirname, "webpack.config.patched.js");
+  const original = path.join(basePath, `config/${filename}.js`);
+  const patched = path.join(__dirname, `${filename}.patched.js`);
+  console.log(`Patching ${filename}`);
+  fs.writeFileSync(original, fs.readFileSync(patched));
+  console.log(`Patched ${filename}`);
+})
 
-console.log("Patching react-scripts webpack config");
-fs.writeFileSync(webpackConfig, fs.readFileSync(patchedConfig));
-console.log("Patched react-scripts webpack config");
+
 
 // // force production mode so react performs faster. much faster
 // const rel = "scripts/start.js";

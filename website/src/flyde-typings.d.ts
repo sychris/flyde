@@ -11,6 +11,9 @@ declare module '@flyde/runtime' {
     * @deprecated Path "src/pages/playground/Bob1.flyde"" is corrupt. Please fix it."mainId" is missing.    */
     export function executeFlow(path: 'Bob1.flyde', args: never): never;
     /**
+    * @deprecated Path "src/pages/playground/_flows/ApisCombination.flyde"" is corrupt. Please fix it."mainId" is missing.    */
+    export function executeFlow(path: 'ApisCombination.flyde', args: never): never;
+    /**
     * @deprecated Path "src/pages/playground/_flows/debounce-throttle.flyde"" is corrupt. Please fix it."mainId" is missing.    */
     export function executeFlow(path: 'debounce-throttle.flyde', args: never): never;
     /**

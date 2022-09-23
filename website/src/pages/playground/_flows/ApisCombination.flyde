@@ -1,0 +1,34 @@
+imports:
+  "@flyde/stdlib":
+    - HttpResponse
+    - HttpGet
+part:
+  instances:
+    - pos:
+        x: -156.37
+        y: 258.97
+      id: HttpGet-907
+      inputConfig:
+        url:
+          mode: static
+          value: bob
+      partId: HttpGet
+  connections: []
+  id: ApisCombination
+  inputs:
+    city:
+      mode: required
+      type: any
+  outputs:
+    json:
+      type: any
+      optional: false
+      delayed: false
+  inputsPosition:
+    city:
+      x: -187.27285824815934
+      y: -14.13215209416181
+  outputsPosition:
+    json:
+      x: -96.11981513564088
+      y: 556.2291091917231
