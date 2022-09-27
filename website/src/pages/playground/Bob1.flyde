@@ -82,12 +82,6 @@ part:
         pinId: b
     - from:
         insId: __this
-        pinId: c
-      to:
-        insId: ins1
-        pinId: c
-    - from:
-        insId: __this
         pinId: r1
       to:
         insId: ins1

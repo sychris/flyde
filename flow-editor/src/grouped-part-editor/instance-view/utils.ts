@@ -37,7 +37,7 @@ export const calcPartContent = (
       const inputs = Object.entries(instance.inputConfig)
         .filter(([, v]) => isStaticInputPinConfig(v))
         .reduce((p, [k, v]) => ({ ...p, [k]:  (v as StaticInputPinConfig).value }), {});
-
+      
       return ejs.render(part.customViewCode, { inputs, isDefined }).trim(); // TODO: render with ejs or equivalent. Removed due to wp5 issues
 
       // // hack to render detached embedded parts correctly

@@ -70,7 +70,7 @@ const calcTargetPos = (props: ConnectionItemViewProps): Pos => {
 export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) => {
   const { isBrowser } = useSsr();
 
-  const { connection, part, repo, instances, viewPort } = props;
+  const { connection, part, repo, instances, type, viewPort } = props;
   const {from } = connection;
 
   const fromInstance = isInternalConnectionNode(from) && instances.find((i) => i.id === from.insId);
@@ -92,7 +92,7 @@ export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) =
   const {x: x1, y: y1} = startPos;
   const {x: x2, y: y2} = endPos;
 
-  const cm = classNames("connection", { delayed }, props.type);
+  const cm = classNames("connection", { delayed }, type);
 
   const bob = calcBezierPath({
     sourceX: x1,
@@ -102,8 +102,18 @@ export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) =
     curvature: 0.15,
   });
 
-  return (
-    <path d={bob} className={cm}/>
+  const strokeWidth = 2 * viewPort.zoom;
+  const strokeDasharray = type === 'regular' ?  undefined : 6 * viewPort.zoom;
+
+  const middleX = (x1 + x2) / 2; 
+  const middleY = (y1 + y2) / 2;
+
+
+  return (<React.Fragment>
+      <path d={bob} className={cm} style={{strokeWidth, strokeDasharray}}/>
+      {type  === 'future-add' ? <text className='label' x={middleX} y={middleY} font-size="12px">Add connection</text> : null }
+      {type  === 'future-remove' ? <text className='label' x={middleX} y={middleY} font-size="12">Remove connection</text> : null }
+    </React.Fragment>
   );
 }
 

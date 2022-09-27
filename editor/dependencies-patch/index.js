@@ -7,17 +7,24 @@ const basePath1 = path.join(__dirname, "../node_modules/react-scripts");
 const basePath2 = path.join(__dirname, "../../node_modules/react-scripts");
 const basePath3 = path.join(__dirname, "../../../node_modules/react-scripts");
 
-const basePath = [basePath1, basePath2, basePath3].find((p) => fs.existsSync(p));
+let basePath = [basePath1, basePath2, basePath3].find((p) => fs.existsSync(p));
 
 if (!basePath) {
   // cannot find react-scripts folder to monkey patch, relevant only for Flyde development
   return;
 }
 
-['webpack.config','webpackDevServer.config'].forEach((filename) => {
+basePath = path.join(basePath, '..');
 
-  const original = path.join(basePath, `config/${filename}.js`);
-  const patched = path.join(__dirname, `${filename}.patched.js`);
+
+[
+  'react-scripts/config/webpack.config.js',
+  'react-scripts/config/webpackDevServer.config.js',
+  'webpack/lib/web/JsonpChunkLoadingRuntimeModule.js'
+].forEach((filename) => {
+
+  const original = path.join(basePath, filename);
+  const patched = path.join(__dirname, filename);
   console.log(`Patching ${filename}`);
   fs.writeFileSync(original, fs.readFileSync(patched));
   console.log(`Patched ${filename}`);

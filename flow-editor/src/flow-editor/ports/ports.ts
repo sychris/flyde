@@ -38,6 +38,8 @@ export const usePrompt = () => {
     return (text: string, defaultValue?: string) => dtoPrompt({text, defaultValue})
 }
 
+export type PromptFn = ReturnType<typeof usePrompt>;
+
 export const usePorts = () => {
     return useContext(PortsContext);
 }

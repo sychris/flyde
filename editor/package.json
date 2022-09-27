@@ -53,10 +53,10 @@
     "build": "PUBLIC_URL=/editor REACT_APP_FLYDE_MODE=production react-scripts build --debug --log --verbose",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dev": "DANGEROUSLY_DISABLE_HOST_CHECK=true FAST_REFRESH=false PUBLIC_URL=/editor REACT_APP_FLYDE_MODE=development FORCE_ENV=production react-scripts start",
+    "dev": "WDS_SOCKET_HOST=localhost DANGEROUSLY_DISABLE_HOST_CHECK=true FAST_REFRESH=false PUBLIC_URL=/editor REACT_APP_FLYDE_MODE=development FORCE_ENV=production react-scripts start",
     "__publish": "npm version patch && npm publish",
-    "start": "DANGEROUSLY_DISABLE_HOST_CHECK=true FAST_REFRESH=false PUBLIC_URL=/editor REACT_APP_FLYDE_MODE=development FORCE_ENV=production react-scripts start --openssl-legacy-provider",
-    "postinstall": "node react-scripts-patch/index.js || true"
+    "start": "yarn dev",
+    "postinstall": "node dependencies-patch/index.js || true"
   },
   "eslintConfig": {
     "extends": [

@@ -1,4 +1,9 @@
-import { useEffect } from "react"
+import { useEffect } from "react";
+
+const blockList = [
+    {metaKey: true, key: 'c'},
+    {metaKey: true, key: 'v'},
+]
 
 export const useHotkeysPropagationVsCode = () => {
     // https://github.com/microsoft/vscode/issues/65452#issuecomment-586485815
@@ -14,7 +19,15 @@ export const useHotkeysPropagationVsCode = () => {
             repeat: originalEvent.repeat,
             shiftKey: originalEvent.shiftKey
         }
-        window.parent.postMessage({type: 'hotkeys-propagation', keyboardEvent: serializableEvent} , '*')
+        
+        if (blockList.find(e => e.metaKey === serializableEvent.metaKey && e.key.toLowerCase() === serializableEvent.key.toLowerCase())) {
+            // console.log('ignorng', originalEvent);
+            
+            return;
+        } else {
+            window.parent.postMessage({type: 'hotkeys-propagation', keyboardEvent: serializableEvent} , '*')
+        }
+        
     }
     return useEffect(() => {
         document.addEventListener('keydown', handler);

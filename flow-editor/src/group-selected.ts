@@ -2,13 +2,15 @@ import { GroupedPart, PartDefRepo, partInstance, ConnectionData, inlinePartInsta
 import produce from "immer";
 import { createGroup } from "./lib/create-group";
 import { middlePos } from "./grouped-part-editor/utils";
+import { PromptFn } from "./flow-editor/ports";
 
-export const groupSelected = (
+export const groupSelected = async (
   selected: string[],
   part: GroupedPart,
   partName: string,
-  type: 'inline' | 'ref'
-): { newPart: GroupedPart; currentPart: GroupedPart } => {
+  type: 'inline' | 'ref',
+  prompt: PromptFn
+): Promise<{ newPart: GroupedPart; currentPart: GroupedPart }> => {
   const { instances, connections } = part;
   const relevantInstances = instances.filter((ins) => selected.includes(ins.id));
 
@@ -20,10 +22,11 @@ export const groupSelected = (
     throw new Error("grouped without selections");
   }
 
-  const { groupedPart, renamedInputs, renamedOutputs } = createGroup(
+  const { groupedPart, renamedInputs, renamedOutputs } = await createGroup(
     relevantInstances,
     relevantConnections,
-    partName
+    partName,
+    prompt
   );
   const midPos = relevantInstances.reduce((p, c) => {
     return middlePos(c.pos, p);

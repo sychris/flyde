@@ -6,9 +6,7 @@ $half-of-pin-height: 16px;
 .ins-view {
   display: inline-block;
   position: absolute;
-
-  // transform: rotate(20deg);
-  // transform-origin: center;
+  // transform: rotate(45deg);
 
   .inputs,
   .outputs {
@@ -43,7 +41,7 @@ $half-of-pin-height: 16px;
   transform-origin: top left;
   display: inline-block;
   position: absolute;
-  transition: box-shadow ease-in-out 0.5s;
+  transition: box-shadow ease-in-out 0.15s;
   will-change: transform, width;
   z-index: 1;
 

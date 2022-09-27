@@ -81,17 +81,23 @@
       stroke: #6c6c6c;
 
       &.future-add {
-        stroke-dasharray: 6;
-        stroke-width: 2;
         stroke: #007dc6a5;
       }
 
       &.future-remove {
-        stroke-dasharray: 6;
-        stroke-width: 2;
         stroke: #c60000a5;
       }
       
+    }
+
+    text.label {
+      // transform: translateX(-50%);
+      // transform-origin: center;
+      // transform: translate(50%);
+      // position: relative;
+      font-size: 14px;
+      text-anchor: middle;
+
     }
 
   }

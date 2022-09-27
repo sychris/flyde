@@ -1,7 +1,6 @@
-import { OMap, okeys, TRIGGER_PIN_ID } from "@flyde/core";
+import { OMap, okeys, partOutput } from "@flyde/core";
 import {
   ConnectionData,
-  InputPinMap,
   externalConnectionNode,
   connectionNode,
   partInput,
@@ -11,11 +10,14 @@ import {
 import { middlePos } from "../grouped-part-editor/utils";
 import { rnd } from "../physics";
 import { PartInstance } from "@flyde/core";
+import { PromptFn } from "..";
 
-export const createGroup = (
+
+export const createGroup = async(
   instances: PartInstance[],
   connections: ConnectionData[],
-  name: string
+  name: string,
+  prompt: PromptFn
 ) => {
   if (instances.length === 0) {
     throw new Error("cannot create group without instances");
@@ -66,7 +68,9 @@ export const createGroup = (
   const externalConnections: ConnectionData[] = [];
   // const inputIds = keys(looseInputs).map(k => k.split(".")[1]);
 
-  const inputs = inputCandidates.reduce<InputPinMap>((p, conn) => {
+
+  const inputs = {};
+  for (const conn of inputCandidates) {
     const targetKey = `${conn.to.insId}.${conn.to.pinId}`;
     const sourceKey = `${conn.from.insId}.${conn.from.pinId}`;
 
@@ -77,11 +81,11 @@ export const createGroup = (
         from: externalConnectionNode(usedInputs[sourceKey] as string),
         to: connectionNode(conn.to.insId, conn.to.pinId),
       });
-      return p;
+      continue;
     }
 
-    const name = p[potential]
-      ? prompt(`Name this input (${potential} of ${conn.to.insId}) is already taken:`) ||
+    const name = inputs[potential]
+      ? await prompt(`Name this input (${potential} of ${conn.to.insId}) is already taken:`) ||
         `i${rnd()}`
       : potential;
 
@@ -94,10 +98,11 @@ export const createGroup = (
       to: connectionNode(conn.to.insId, conn.to.pinId),
     });
 
-    return { ...p, [name]: partInput("any") };
-  }, {});
+    inputs[name] = partInput('any');
+  }
 
-  const outputs = outputCandidates.reduce<InputPinMap>((p, conn) => {
+  const outputs = {};
+  for (const conn of outputCandidates) {
     const targetKey = `${conn.to.insId}.${conn.to.pinId}`;
     const sourceKey = `${conn.from.insId}.${conn.from.pinId}`;
 
@@ -108,11 +113,11 @@ export const createGroup = (
         from: connectionNode(conn.from.insId, conn.from.pinId),
         to: externalConnectionNode(usedOutputs[targetKey] as string),
       });
-      return p;
+      continue;
     }
 
-    const name = p[potential]
-      ? prompt(`Name this output (${potential} of ${conn.from.insId} is already taken:`) ||
+    const name = outputs[potential]
+      ? await prompt(`Name this output (${potential} of ${conn.from.insId} is already taken:`) ||
         `i${rnd()}`
       : potential;
 
@@ -125,8 +130,8 @@ export const createGroup = (
       to: externalConnectionNode(name),
     });
 
-    return { ...p, [name]: partInput("any") };
-  }, {});
+    outputs[name] = partOutput('any');
+  }
 
   // replace relevant parts with new part
   const midPos = instances.reduce((p, c) => {

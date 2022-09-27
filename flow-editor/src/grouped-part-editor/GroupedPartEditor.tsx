@@ -270,7 +270,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
 
     const onGroupSelectedInternal = React.useCallback(async () => {
       const name = await _prompt("Part name?");
-      const { currentPart } = groupSelected(boardData.selected, part, name, "inline");
+      const { currentPart } = await groupSelected(boardData.selected, part, name, "inline", _prompt);
       onChange(currentPart, functionalChange("group part"));
 
       toastMsg("Part grouped!");
@@ -357,7 +357,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           } else if (from) {
             onConnectionClose(from, to);
           } else {
-            onChangeBoardData({ to });
+            onChangeBoardData({ to, selected: [] });
           }
         } else {
           const from = { insId: ins.id, pinId };
@@ -371,7 +371,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           } else if (to) {
             onConnectionClose(from, to);
           } else {
-            onChangeBoardData({ from });
+            onChangeBoardData({ from, selected: [] });
           }
         }
       },
@@ -853,7 +853,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     const onAddIoPin = React.useCallback(
       async (type: PartIoType) => {
         const newPinId = (await _prompt("New name?")) || "na";
-        const newPinType = (await _prompt("type?")) || "any";
+        const newPinType = "any";
 
         const newValue = produce(part, (draft) => {
           if (type === "input") {
