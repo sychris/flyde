@@ -36,6 +36,7 @@ import "@flyde/flow-editor/src/index.scss";
 
 import { Resizable } from 'react-resizable';
 import produce from "immer";
+import BrowserOnly from "@docusaurus/BrowserOnly";
 
 (global as any).vm2 = fakeVm;
 
@@ -223,7 +224,9 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
         <div className="playground">
           <div className="flow-container">
               {props.hideDelay !== true ? debugDelayElem: null }
-              <FlowEditor {...flowEditorProps} />
+              <BrowserOnly>
+                {() => <FlowEditor {...flowEditorProps} />}
+              </BrowserOnly>
           </div>
           <Resizable height={0} width={childrenWidth} onResize={onResizeChildren} axis='x' handle={<div className='handle'/>} resizeHandles={['w']}>
 
