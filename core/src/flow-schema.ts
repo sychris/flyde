@@ -23,6 +23,7 @@ const instance = z.object({
   id: z.string(),
   inputConfig: z.optional(z.record(z.string(), inputConfig)).default({}),
   visibleInputs: z.optional(z.array(z.string())),
+  visibleOutputs: z.optional(z.array(z.string())),
   partId: z.optional(z.string()),
   part: z.optional(z.any())
 }).refine((val) => val.part || val.partId, {message: 'Instance must have either an inline part or refer to a partId'});

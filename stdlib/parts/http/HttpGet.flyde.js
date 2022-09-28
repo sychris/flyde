@@ -1,3 +1,7 @@
+const axios = require('axios');
+
+const {DEFAULT_AXIOS_TIMEOUT} = require('./helpers');
+
 module.exports = {"id":"HttpGet","inputs":{"url":{"mode":"required","type":"any"},"headers":{"mode":"required-if-connected","type":"any"}},"outputs":{"r":{"type":"any"}},"completionOutputs":["r"],"fn":function (inputs, outputs, adv) { const { url, headers } = inputs;
 const { r, error } = outputs;
 

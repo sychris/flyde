@@ -5,7 +5,9 @@
     "flyde": {
         "exposes": [
             "parts/*.flyde",
-            "parts/*.flyde.js"
+            "parts/*.flyde.js",
+            "parts/**/*.flyde.js",
+            "parts/**/*.flyde"
         ],
         "typings": "flyde-typings.d.ts"
     },
@@ -25,7 +27,8 @@
     "dependencies": {
         "@flyde/core": "^1.0.12",
         "@flyde/dev-server": "^1.0.15",
-        "@flyde/runtime": "^1.0.7"
+        "@flyde/runtime": "^1.0.7",
+        "axios": "^0.27.2"
     },
     "devDependencies": {
         "concurrently": "^7.3.0",

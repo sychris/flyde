@@ -922,11 +922,12 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
     );
 
     const onRenameIoPin = React.useCallback(
-      (type: PartIoType, pinId: string) => {
-        const newValue = handleIoPinRename(part, type, pinId);
+      async (type: PartIoType, pinId: string) => {
+        const newName = await _prompt('New name?', pinId) || pinId;
+        const newValue = handleIoPinRename(part, type, pinId, newName);
         onChange(newValue, functionalChange("rename io pin"));
       },
-      [part, onChange]
+      [part, onChange, _prompt]
     );
 
     const onChangeInputMode = React.useCallback(

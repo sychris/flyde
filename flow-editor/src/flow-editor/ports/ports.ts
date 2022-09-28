@@ -35,7 +35,7 @@ export const PortsContext = createContext<EditorPorts>(defaultPorts);
 
 export const usePrompt = () => {
     const dtoPrompt = useContext(PortsContext).prompt;
-    return (text: string, defaultValue?: string) => dtoPrompt({text, defaultValue})
+    return (text: string, defaultValue?: string): Promise<string | null> => dtoPrompt({text, defaultValue})
 }
 
 export type PromptFn = ReturnType<typeof usePrompt>;

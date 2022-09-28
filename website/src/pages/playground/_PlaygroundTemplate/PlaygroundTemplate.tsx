@@ -206,6 +206,9 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
             <li>
               <Link to="/playground/fibonacci">Fibonacci Sequence</Link>
             </li>
+            <li>
+              <Link to="/playground/apis">REST API Usage</Link>
+            </li>
           </ul>
         </div>
       </header>

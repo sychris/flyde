@@ -45,6 +45,7 @@ import { vSub, vAdd, vMul, vDiv, vToStr } from "../physics";
 import { getLeafInstancesOfSelection } from "./part-graph-utils";
 import { toastMsg } from "../toaster";
 import { getVisibleInputs, getVisibleOutputs } from "./instance-view";
+import { PromptFn } from "../flow-editor/ports";
 
 export const emptyObj = {}; // for immutability
 export const emptyList = []; // for immutability
@@ -597,9 +598,8 @@ export const calcMoveViewPort = (
   });
 };
 
-export const handleIoPinRename = (part: GroupedPart, type: PinType, pinId: string) => {
+export const handleIoPinRename = (part: GroupedPart, type: PinType, pinId: string, newPinId: string) => {
   return immer.produce(part, (draft) => {
-    const newPinId = prompt("New name?") || "na";
     if (type === "input") {
       draft.inputs[newPinId] = draft.inputs[pinId];
       draft.inputsPosition[newPinId] = draft.inputsPosition[pinId];

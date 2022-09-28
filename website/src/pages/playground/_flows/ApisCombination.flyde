@@ -2,25 +2,237 @@ imports:
   "@flyde/stdlib":
     - HttpResponse
     - HttpGet
+    - Pick
+    - HttpPost
+    - Dot
 part:
   instances:
     - pos:
-        x: -211.217412109375
-        y: 209.10664126396182
+        x: -341.654423828125
+        y: -135.189943819046
       id: HttpGet-907
       inputConfig:
         url:
           mode: static
-          value: bob
+          value: https://api.country.is/
+      visibleInputs:
+        - url
+        - __trigger
+      visibleOutputs:
+        - r
+        - __error
       partId: HttpGet
-  connections: []
+    - pos:
+        x: -476.8067456054688
+        y: 60.628082275390625
+      id: HttpPost-624
+      inputConfig:
+        url:
+          mode: static
+          value: https://countriesnow.space/api/v0.1/countries/capital
+      visibleInputs:
+        - url
+        - body
+      partId: HttpPost
+    - pos:
+        x: -454.35468749999995
+        y: -35.96441955566405
+      id: "Inline-value-{iso2: ${input76"
+      inputConfig: {}
+      part:
+        id: "Inline-value-{iso2: inputs.d"
+        inputs:
+          data:
+            type: any
+            mode: required
+        outputs:
+          r:
+            type: any
+            delayed: false
+            optional: false
+        fnCode: "outputs.r.next(({iso2: inputs.data.country}))"
+        customViewCode: "{iso2: inputs.data.country}"
+        dataBuilderSource: e2lzbzI6IGlucHV0cy5kYXRhLmNvdW50cnl9
+        templateType: value
+        completionOutputs:
+          - r
+    - pos:
+        x: -282.1936401367187
+        y: 402.2950234985351
+      id: HttpPost-775
+      inputConfig:
+        url:
+          mode: static
+          value: https://countriesnow.space/api/v0.1/countries/population/cities
+      visibleInputs:
+        - url
+        - body
+      partId: HttpPost
+    - pos:
+        x: -275.61771484375004
+        y: 295.9552060699463
+      id: "Inline-value-{city: inputs.c75"
+      inputConfig: {}
+      part:
+        id: "Inline-value-{city: inputs.c"
+        inputs:
+          city:
+            type: any
+            mode: required
+        outputs:
+          r:
+            type: any
+            delayed: false
+            optional: false
+        fnCode: "outputs.r.next(({city: inputs.city}))"
+        customViewCode: "{city: inputs.city}"
+        dataBuilderSource: e2NpdHk6IGlucHV0cy5jaXR5fQ==
+        templateType: value
+        completionOutputs:
+          - r
+    - pos:
+        x: -963.764296875
+        y: 389.3397685241699
+      id: Inline-value-Hello from ${i76
+      inputConfig: {}
+      part:
+        id: Inline-value-Hello from ${i
+        inputs:
+          country:
+            type: any
+            mode: required
+          capital:
+            type: any
+            mode: required
+        outputs:
+          r:
+            type: any
+            delayed: false
+            optional: false
+        fnCode: outputs.r.next((`Hello from ${inputs.country}! It's capital is
+          ${inputs.capital}`))
+        customViewCode: "`Hello from ${inputs.country}! It's capital is ${inputs.capital}`"
+        dataBuilderSource: YEhlbGxvIGZyb20gJHtpbnB1dHMuY291bnRyeX0hIEl0J3MgY2FwaXRhbCBpcyAke2lucHV0cy5jYXBpdGFsfWA=
+        templateType: value
+        completionOutputs:
+          - r
+    - pos:
+        x: -559.7825415039063
+        y: 194.45557312011715
+      id: Dot-286
+      inputConfig:
+        key:
+          mode: static
+          value: data.name
+      visibleInputs:
+        - obj
+      partId: Dot
+    - pos:
+        x: -400.3785717773437
+        y: 198.4349559259415
+      id: Dot-822
+      inputConfig:
+        key:
+          mode: static
+          value: data.capital
+      visibleInputs:
+        - obj
+      partId: Dot
+    - pos:
+        x: -543.9706567382813
+        y: 518.8753744316101
+      id: Inline-value-Hello from ${i76-d409
+      inputConfig: {}
+      part:
+        id: Inline-value-With a populat
+        inputs:
+          popRes:
+            type: any
+            mode: required
+        outputs:
+          r:
+            type: any
+            delayed: false
+            optional: false
+        fnCode: outputs.r.next((`With a population of
+          ${inputs.popRes.data.populationCounts[0].value} citizens`))
+        customViewCode: "`With a population of
+          ${inputs.popRes.data.populationCounts[0].value} citizens`"
+        dataBuilderSource: YFdpdGggYSBwb3B1bGF0aW9uIG9mICR7aW5wdXRzLnBvcFJlcy5kYXRhLnBvcHVsYXRpb25Db3VudHNbMF0udmFsdWV9IGNpdGl6ZW5zYA==
+        templateType: value
+        completionOutputs:
+          - r
+  connections:
+    - from:
+        insId: "Inline-value-{iso2: ${input76"
+        pinId: r
+      to:
+        insId: HttpPost-624
+        pinId: body
+    - from:
+        insId: HttpGet-907
+        pinId: r
+      to:
+        insId: "Inline-value-{iso2: ${input76"
+        pinId: data
+    - from:
+        insId: "Inline-value-{city: inputs.c75"
+        pinId: r
+      to:
+        insId: HttpPost-775
+        pinId: body
+    - from:
+        insId: HttpPost-624
+        pinId: r
+      to:
+        insId: Dot-286
+        pinId: obj
+    - from:
+        insId: Dot-286
+        pinId: value
+      to:
+        insId: Inline-value-Hello from ${i76
+        pinId: country
+    - from:
+        insId: Dot-822
+        pinId: value
+      to:
+        insId: "Inline-value-{city: inputs.c75"
+        pinId: city
+    - from:
+        insId: Dot-822
+        pinId: value
+      to:
+        insId: Inline-value-Hello from ${i76
+        pinId: capital
+    - from:
+        insId: Inline-value-Hello from ${i76
+        pinId: r
+      to:
+        insId: __this
+        pinId: output
+    - from:
+        insId: HttpPost-624
+        pinId: r
+      to:
+        insId: Dot-822
+        pinId: obj
+    - from:
+        insId: HttpPost-775
+        pinId: r
+      to:
+        insId: Inline-value-Hello from ${i76-d409
+        pinId: popRes
+    - from:
+        insId: Inline-value-Hello from ${i76-d409
+        pinId: r
+      to:
+        insId: __this
+        pinId: output
   id: ApisCombination
-  inputs:
-    city:
-      mode: required
-      type: any
+  inputs: {}
   outputs:
-    json:
+    output:
       type: any
       optional: false
       delayed: false
@@ -30,5 +242,14 @@ part:
       y: -14.13215209416181
   outputsPosition:
     json:
-      x: -96.11981513564088
-      y: 556.2291091917231
+      x: -441.98276309426666
+      y: 480.38719404276554
+    na:
+      x: -441.98276309426666
+      y: 480.38719404276554
+    result:
+      x: -499.82438378976735
+      y: 706.7650396699393
+    output:
+      x: -499.82438378976735
+      y: 706.7650396699393

@@ -8,7 +8,7 @@ export interface OutputLogsProps {
 }
 
 export type LogItemProps = {
-  value: string;
+  value: string | JSX.Element;
   time: number;
 };
 
@@ -25,8 +25,9 @@ export const OutputLogs: React.FC<OutputLogsProps> = (props) => {
   const [log, setLog] = React.useState<LogItemProps[]>([]);
 
   React.useEffect(() => {
-    props.output.subscribe((value) => {
-      setLog((logs) => [{ value, time: Date.now() }, ...logs]);
+    props.output.subscribe((rawValue) => {
+      const value = typeof rawValue === 'object' && React.isValidElement(rawValue)  ? rawValue : `${rawValue}`;
+      setLog((logs) => [...logs, { value, time: Date.now() }]);
     });
   }, []);
 
