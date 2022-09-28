@@ -1,7 +1,5 @@
 const axios = require("axios");
 
-const { DEFAULT_AXIOS_TIMEOUT } = require("./helpers");
-
 module.exports = {
   id: "HttpGet",
   inputs: {
