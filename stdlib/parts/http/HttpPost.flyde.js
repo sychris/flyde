@@ -1,7 +1,5 @@
 const axios = require("axios");
 
-const { DEFAULT_AXIOS_TIMEOUT } = require("./helpers");
-
 module.exports = {
   id: "HttpPost",
   inputs: {
@@ -19,7 +17,7 @@ module.exports = {
 
     const config = {
       headers,
-      timeout: DEFAULT_AXIOS_TIMEOUT,
+      timeout: 15000,
     };
 
     // magic here

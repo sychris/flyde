@@ -1,15 +1,29 @@
-const axios = require('axios');
+const axios = require("axios");
 
-const {DEFAULT_AXIOS_TIMEOUT} = require('./helpers');
+const { DEFAULT_AXIOS_TIMEOUT } = require("./helpers");
 
-module.exports = {"id":"HttpGet","inputs":{"url":{"mode":"required","type":"any"},"headers":{"mode":"required-if-connected","type":"any"}},"outputs":{"r":{"type":"any"}},"completionOutputs":["r"],"fn":function (inputs, outputs, adv) { const { url, headers } = inputs;
-const { r, error } = outputs;
+module.exports = {
+  id: "HttpGet",
+  inputs: {
+    url: { mode: "required", type: "any" },
+    headers: { mode: "required-if-connected", type: "any" },
+  },
+  outputs: { r: { type: "any" } },
+  completionOutputs: ["r"],
+  fn: function (inputs, outputs, adv) {
+    const { url, headers } = inputs;
+    const { r, error } = outputs;
 
-const {onError} = adv;
-        
-// magic here
-axios.get(url, { headers, timeout: DEFAULT_AXIOS_TIMEOUT }).then((res) => {
-    r.next(res.data);
-}, (err) => {
-    onError(err);
-}); }}
+    const { onError } = adv;
+
+    // magic here
+    axios.get(url, { headers, timeout: 15000 }).then(
+      (res) => {
+        r.next(res.data);
+      },
+      (err) => {
+        onError(err);
+      }
+    );
+  },
+};
