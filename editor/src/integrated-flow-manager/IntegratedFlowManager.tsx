@@ -41,7 +41,7 @@ import { defaultViewPort } from "@flyde/flow-editor/dist/grouped-part-editor/Gro
 import { useState } from "react";
 import { useEffect } from "react";
 import _ from "lodash";
-import { useHotkeysPropagationVsCode } from "./use-hotkeys-propagation-vscode";
+import { useBootstrapData } from "./use-bootstrap-data";
 
 export const PIECE_HEIGHT = 28;
 
@@ -60,11 +60,9 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
 
   const ports = usePorts();
 
-  useHotkeysPropagationVsCode();
-
   // const searchParams = useSearchParams();
-
-  const [isEmbedded] = useQueryParam("embedded", BooleanParam);
+  const bootstrapData = useBootstrapData();
+  const isEmbedded = !!bootstrapData;
 
   const [currentResolvedDefs, setCurrentResolvedDefs] = useState(resolvedDefinitions);
 

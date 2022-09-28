@@ -5,6 +5,7 @@ imports:
     - Publish
     - Subscribe
     - Add
+    - HtmlBtn
   ./Button.flyde.js:
     - Button
   ./Span.flyde.js:

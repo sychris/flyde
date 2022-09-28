@@ -5,11 +5,12 @@ imports:
     - Add
     - Merge
     - HtmlH1
+    - Boolean Split
 part:
   instances:
     - pos:
-        x: -249.1657495117188
-        y: -105.87720733642578
+        x: -254.73343750000004
+        y: -83.60570770263672
       id: Equals-364
       inputConfig:
         compare:
@@ -17,8 +18,8 @@ part:
           value: 0
       partId: Equals
     - pos:
-        x: -75.12186523437501
-        y: 22.182240905761716
+        x: -66.21451660156251
+        y: 21.080251159667966
       id: Equals-364-d95
       inputConfig:
         compare:

@@ -22,9 +22,28 @@ type PostMsgConfig = {
     [Property in keyof EditorPorts]: PortConfig<EditorPorts[Property]>;
 };
 
+
+let vscodeApi: any;
+
+const safelyAcquireApi = () => {
+    if (vscodeApi) {
+        return vscodeApi;
+    } 
+
+    const fn = (window as any).acquireVsCodeApi;
+    try {
+        const api = fn();
+        vscodeApi = api;
+        return api;
+    } catch (e) {
+        return;
+    }
+}
+
 export const postMessageCallback = (type: string, params: any): Promise<any> => {
     const requestId = cuid();
-    window.parent.postMessage({type, params, requestId, source: 'app'}, '*');
+    const vscode = safelyAcquireApi();
+    vscode.postMessage({type, params, requestId, source: 'app'}, '*');
     return new Promise((res) => {
         const handler = (event: MessageEvent) => {
             const {data} = event;
@@ -37,7 +56,9 @@ export const postMessageCallback = (type: string, params: any): Promise<any> => 
     });
 }
 
+
 export const createVsCodePorts = (): EditorPorts => {
+
     return {
         prompt: ({text, defaultValue}) => {
             return postMessageCallback('prompt', {text, defaultValue});

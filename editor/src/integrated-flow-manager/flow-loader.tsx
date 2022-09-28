@@ -9,10 +9,13 @@ import { Loader, PortsContext } from "@flyde/flow-editor"; // ../../common/lib/l
 import { IntegratedFlowManager } from "./IntegratedFlowManager";
 import { createVsCodePorts } from "../vscode-ports";
 import { createWebPorts } from "../web-ports";
+import { useBootstrapData } from "./use-bootstrap-data";
 
 export const FlowLoader: React.FC = (props) => {
   const [fileName, setFileName] = useQueryParam<string>("fileName");
-  const [isEmbedded] = useQueryParam("embedded", BooleanParam);
+
+  const bootstrapData = useBootstrapData();
+  const isEmbedded = !!bootstrapData;
 
   const [flow, setFlow] = React.useState<FlydeFlow>();
   const [resolvedDefinitions, setResolvedDefinitions] =
@@ -27,12 +30,12 @@ export const FlowLoader: React.FC = (props) => {
 
   const loadData = useCallback(async () => {
 
-    if (isEmbedded) {
-      const resolvedDefinitions = await ports.current.resolveDeps({absPath: 'n/a'});
-      setResolvedDefinitions(resolvedDefinitions);
-  
-      const flow = await ports.current.readFlow({absPath: 'n/a'});
-      setFlow(flow);
+    if (bootstrapData) {
+
+      const {initialFlow, dependencies} = bootstrapData;
+      
+      setResolvedDefinitions(dependencies);
+      setFlow(initialFlow);
       setFileName('n/a');
     } else {
       const structure = await devServerClient.fileStructure();
