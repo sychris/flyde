@@ -21,7 +21,8 @@ import { Size } from "../../utils";
 import { calcBezierPath } from "./bezier";
 
 import { useSsr } from 'usehooks-ts'
-import { renderedPosToLogicalPos } from "../..";
+import { renderedPosToLogicalPos, ViewPort, vMul } from "../..";
+import { vDiv } from "../../physics";
 
 
 export interface BaseConnectionViewProps {
@@ -31,8 +32,9 @@ export interface BaseConnectionViewProps {
   onDblClick: () => void;
   size: Size;
   boardPos: Pos;
-  viewPort: { pos: Pos; zoom: number };
+  viewPort: ViewPort;
   instances: PartInstance[]; 
+  parentVp: ViewPort;
 }
 
 export interface ConnectionViewProps extends BaseConnectionViewProps {
@@ -46,24 +48,24 @@ export interface ConnectionItemViewProps extends BaseConnectionViewProps {
 }
 
 const calcStartPos = (props: ConnectionItemViewProps): Pos => {
-  const { connection, part, size, boardPos, parentInsId } = props;
+  const { connection, part, size, boardPos, parentInsId, viewPort } = props;
   const {from} = connection;
 
   if (isExternalConnectionNode(from)) {
-    return calcMainInputPosition(part, size, from.pinId, parentInsId, "input", boardPos);
+    return calcMainInputPosition(part, size, from.pinId, parentInsId, "input", boardPos, viewPort);
   } else {
-    return calcPinPosition(parentInsId, from.insId, from.pinId, "output", boardPos);
+    return calcPinPosition(parentInsId, from.insId, from.pinId, "output", boardPos, viewPort);
   }
 };
 
 const calcTargetPos = (props: ConnectionItemViewProps): Pos => {
-  const { connection, part, size, boardPos, parentInsId } = props;
+  const { connection, part, size, boardPos, parentInsId, viewPort } = props;
   const {to} = connection;
 
   if (isExternalConnectionNode(to)) {
-    return calcMainOutputPosition(part, size, to.pinId, parentInsId, "output", boardPos);
+    return calcMainOutputPosition(part, size, to.pinId, parentInsId, "output", boardPos, viewPort);
   } else {
-    return calcPinPosition(parentInsId, to.insId, to.pinId, "input", boardPos);
+    return calcPinPosition(parentInsId, to.insId, to.pinId, "input", boardPos, viewPort);
   }
 };
 
@@ -88,9 +90,8 @@ export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) =
   const startPos = isBrowser ? calcStartPos(props) : {x: 0, y: 0};
   const endPos = isBrowser ? calcTargetPos(props) : {x: 0, y: 0};
 
-  //transform them into "logical" positions
-  const {x: x1, y: y1} = startPos;
-  const {x: x2, y: y2} = endPos;
+  const {x: x1, y: y1} = vDiv(startPos, props.parentVp.zoom);
+  const {x: x2, y: y2} = vDiv(endPos, props.parentVp.zoom);
 
   const cm = classNames("connection", { delayed }, type);
 

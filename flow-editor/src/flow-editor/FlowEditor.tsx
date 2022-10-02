@@ -33,8 +33,6 @@ import { HistoryPayload } from "@flyde/remote-debugger";
 import { AppToaster, toastMsg } from "../toaster";
 
 import { FlydeFlowChangeType, functionalChange } from "./flyde-flow-change-type";
-import { handleCommand } from "./commands/commands";
-import { EditorCommand } from "./commands/definition";
 import { Omnibar, OmniBarCmd, OmniBarCmdType } from "./omnibar/Omnibar";
 import { usePorts } from "./ports";
 
@@ -150,6 +148,7 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
         }
         e.preventDefault();
       },
+      undefined,
       [state, undoStack, redoStack]
     );
 
@@ -185,24 +184,6 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
       [openFile]
     );
 
-    const commandHandler = React.useCallback(
-      (command: EditorCommand) => {
-        if (!isGroupedPart(editedPart)) {
-          throw new Error(`Impossible state, handling command handler on non grouped part`);
-        }
-
-        const newValue = handleCommand(command, {
-          flow,
-          boardData: editorBoardData,
-          currentPartId: editedPart.id,
-        });
-
-        onChangeFlow(newValue.flow, functionalChange(command.type));
-        onChangeEditorBoardData(newValue.boardData);
-      },
-      [editedPart, editorBoardData, flow, onChangeFlow, onChangeEditorBoardData]
-    );
-
     const onAddPartInstance = React.useCallback(
       (partId: string, offset: number = -1 * PART_HEIGHT * 1.5) => {
         const newPartIns = createNewPartInstance(
@@ -233,7 +214,7 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
           case OmniBarCmdType.ADD:
             return onAddPartInstance(cmd.data);
           case OmniBarCmdType.ADD_VALUE:
-            const pos = domToViewPort(editorBoardData.lastMousePos, editorBoardData.viewPort);
+            const pos = domToViewPort(editorBoardData.lastMousePos, editorBoardData.viewPort, defaultViewPort);
             toastMsg('TODO')
             // return requestNewConstValue(pos);
             break;
@@ -284,7 +265,6 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
               onInspectPin={props.onInspectPin}
               onRequestHistory={props.onRequestHistory}
               onRequestImportables={props.onQueryImportables}
-              onCommand={commandHandler}
               onShowOmnibar={showOmnibar}
             />
 

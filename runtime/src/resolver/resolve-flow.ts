@@ -7,6 +7,8 @@ import {
   isNativePart,
   NativePart,
   ImportedPart,
+  GroupedPart,
+  isInlinePartInstance,
 } from "@flyde/core";
 import { existsSync, readFileSync } from "fs";
 import _ = require("lodash");
@@ -28,6 +30,20 @@ Resolving algorithm:
 */
 
 export type ResolveMode = "implementation" | "definition" | "bundle";
+
+const getRefPartIds = (part: GroupedPart): string[] => {
+  const refPartIds = part.instances.filter(isRefPartInstance).map((ins) => ins.partId);
+  const inlineParts = part.instances.filter(isInlinePartInstance).map(ins => ins.part);
+
+  const idsFromInline = inlineParts.reduce((acc, part) => {
+    if (isGroupedPart(part)) {
+      acc.push(...getRefPartIds(part));
+    }
+    return acc;
+  }, []);
+
+  return _.uniq([...refPartIds, ...idsFromInline]);
+}
 
 const _resolveFlow = (
   fullFlowPath: string,
@@ -63,11 +79,14 @@ const _resolveFlow = (
   };
 
   if (isGroupedPart(part)) {
-    const refPartIds = _.uniq(part.instances.filter(isRefPartInstance).map((ins) => ins.partId));
+    const refPartIds = getRefPartIds(part)
 
     let deps: ResolvedFlydeFlow['dependencies'] = {};
 
     for (const refPartId of refPartIds) {
+
+      console.log(refPartId);
+      
 
       if (refPartId === part.id) {
         // recursive call
@@ -82,13 +101,16 @@ const _resolveFlow = (
       }
 
       const paths = getLocalOrExternalPaths(importPath);
-
-      const { flow, path } = paths
+      console.log(paths);
+      
+      const {flow, path} = paths
         .map((path) => {
           const contents = readFileSync(path, "utf-8");
           try {
             return { flow: deserializeFlow(contents, path), path };
           } catch (e) {
+            console.log(e);
+            
             return null
           }
         })

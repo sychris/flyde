@@ -22,6 +22,7 @@ import {
   inlinePartInstance,
   ResolvedFlydeFlowDefinition,
   getPart,
+  InlinePartInstance,
 } from "@flyde/core";
 import {
   calcPinPosition,
@@ -81,17 +82,18 @@ export const findClosestPin = (
   mousePos: Pos,
   size: Size,
   boardPos: Pos,
-  insId: string
+  insId: string,
+  viewPort: ViewPort
 ) => {
 
   const rootInstance: PartInstance = partInstance(part.id, part.id);
   const mainInputsData = okeys(part.inputs).map((pinId) => {
-    const pos = calcMainInputPosition(part, size, pinId, insId, "input", boardPos);
+    const pos = calcMainInputPosition(part, size, pinId, insId, "input", boardPos, viewPort);
     return { id: pinId, type: "input", pos, ins: rootInstance };
   });
 
   const mainOutputsData = okeys(part.outputs).map((pinId) => {
-    const pos = calcMainOutputPosition(part, size, pinId, insId, "output", boardPos);
+    const pos = calcMainOutputPosition(part, size, pinId, insId, "output", boardPos, viewPort);
     return { id: pinId, type: "output", pos, ins: rootInstance };
   });
 
@@ -104,13 +106,13 @@ export const findClosestPin = (
     const ips = visibleInputs.map((id) => ({
       ins,
       type: "input",
-      pos: calcPinPosition(insId, ins.id, id, "input", boardPos),
+      pos: calcPinPosition(insId, ins.id, id, "input", boardPos, viewPort),
       id,
     }));
     const ops = visibleOutputs.map((id) => ({
       ins,
       type: "output",
-      pos: calcPinPosition(insId, ins.id, id, "output", boardPos),
+      pos: calcPinPosition(insId, ins.id, id, "output", boardPos, viewPort),
       id,
     }));
 
@@ -234,10 +236,10 @@ export const createNewPartInstance = (
 export type ViewPort = { pos: Pos; zoom: number };
 export const roundNumber = (v: number) => Math.round(v * 100) / 100;
 
-export const domToViewPort = (p: Pos, viewPort: ViewPort): Pos => {
+export const domToViewPort = (p: Pos, viewPort: ViewPort, parentVp: ViewPort): Pos => {
   return {
-    x: roundNumber(viewPort.pos.x + p.x / viewPort.zoom),
-    y: roundNumber(viewPort.pos.y + p.y / viewPort.zoom),
+    x: roundNumber(viewPort.pos.x + p.x / viewPort.zoom / parentVp.zoom),
+    y: roundNumber(viewPort.pos.y + p.y / viewPort.zoom / parentVp.zoom),
   };
 };
 
@@ -279,29 +281,42 @@ export const easeInOutPos = (
   };
 };
 
-export const animatePos = (p1: Pos, p2: Pos, duration: number, cb: (p: Pos) => void) => {
-  const dis = distance(p1, p2);
+export const easeInOutNum = (
+  n1: number,
+  n2: number,
+  start: number,
+  duration: number,
+  now: number
+): number => {
+  const t = clamp(0, 1, (now - start) / duration);
+
+  const m = easeInOutQuad(t);
+
+  const d = n2 - n1;
+
+  return n1 + d * m;
+};
+
+export const animateViewPort = (vp1: ViewPort, vp2: ViewPort, duration: number, cb: (vp: ViewPort) => void) => {
+  const dis = distance(vp1.pos, vp2.pos);
 
   const start = Date.now();
   const normDuration = Math.sqrt(dis) * duration;
 
   if (dis === 0) {
-    cb(p1);
+    cb(vp1);
     return;
   }
 
   const animate = () => {
     const now = Date.now();
-    const pos = easeInOutPos(p1, p2, start, normDuration, now);
+    const pos = easeInOutPos(vp1.pos, vp2.pos, start, normDuration, now);
+    const zoom = easeInOutNum(vp1.zoom, vp2.zoom, start, normDuration, now);
     if (now - start < normDuration) {
-      cb(pos);
+      cb({pos, zoom});
       requestAnimationFrame(animate);
     } else {
-      cb(pos);
-      // ugly hack to re-render connections
-      setTimeout(() => {
-        cb(pos);
-      }, 10);
+      cb({pos, zoom});
     }
   };
 
@@ -410,11 +425,11 @@ export const getEffectivePartDimensions = (part: GroupedPart, repo: PartDefRepo)
 
 export const logicalPosToRenderedPos = (pos: Pos, vp: ViewPort) => {
   const diff = vSub(pos, vp.pos);
-  return vDiv(diff, vp.zoom);
+  return vMul(diff, vp.zoom);
 }
 
 export const renderedPosToLogicalPos = (renderedPos: Pos, vp: ViewPort) => {
-  const bob = vMul(renderedPos, vp.zoom);
+  const bob = vDiv(renderedPos, vp.zoom);
 
   return vAdd(vp.pos, bob);
 }
@@ -436,6 +451,9 @@ export const centerBoardPosOnTarget = (target: Pos, vpSize: Size, newZoom: numbe
   }
 }
 
+const FIT_VIEWPORT_MIN_ZOOM = 0.3;
+const FIT_VIEWPORT_MAX_ZOOM = 1.5;
+
 export const fitViewPortToPart = (part: GroupedPart, repo: PartDefRepo, vpSize: Size): ViewPort => {
   const { size, center } = getEffectivePartDimensions(part, repo);
 
@@ -453,7 +471,7 @@ export const fitViewPortToPart = (part: GroupedPart, repo: PartDefRepo, vpSize: 
   const zoomPaddingModifier = 1.15;
   const idealZoom = fitToGoBy / zoomPaddingModifier;
 
-  const zoom = clamp(0.3, 1, idealZoom);
+  const zoom = clamp(FIT_VIEWPORT_MIN_ZOOM, FIT_VIEWPORT_MAX_ZOOM, idealZoom);
 
   const vpX = center.x - vpSize.width / 2 / zoom;
   const vpY = center.y - vpSize.height / 2 / zoom;
@@ -474,57 +492,28 @@ export const isJsxValue = (val: any): boolean => {
   }
 };
 
-export const dismantleGroup = (
-  part: GroupedPart,
-  instance: PartInstance,
-  repo: PartDefRepo
-) => {
-  return immer.produce(part, (draft) => {
-    const part = getPartDef(instance, repo);
-    if (!isGroupedPart(part)) {
-      throw new Error("impossible state");
-    }
-    toastMsg('TODO', "danger")
-  //   const { instances: newInstances, connections: newConnections } = part;
-
-  //   const instancesFound = draft.instances.filter((ins) => ins.partId === part.id);
-  //   const instancesFoundIds = instancesFound.map((i) => i.id);
-
-  //   draft.instances = draft.instances.filter((ins) => !instancesFound.includes(ins));
-
-  //   draft.connections = draft.connections.filter(({ from, to }) => {
-  //     return !instancesFoundIds.includes(from.insId) && !instancesFoundIds.includes(to.insId);
-  //   });
-
-  //   draft.instances.push(...newInstances);
-  //   draft.connections.push(
-  //     ...newConnections.filter(
-  //       (conn) => !isExternalConnectionNode(conn.from) && !isExternalConnectionNode(conn.to)
-  //     )
-  //   );
-  });
-};
-
 export const getInstancesInRect = (
   selectionBox: { from: Pos; to: Pos },
   repo: PartDefRepo,
   viewPort: ViewPort,
   instancesConnectToPins: any,
   instances: PartInstance[],
-  boardPos: Pos
+  boardPos: Pos,
+  parentVp: ViewPort
 ) => {
   const { from, to } = selectionBox;
-  const realFrom = domToViewPort(vSub(from, boardPos), viewPort);
-  const realTo = domToViewPort(vSub(to, boardPos), viewPort);
-  const rect = getSelectionBoxRect(realFrom, realTo);
+
+  const rect = getSelectionBoxRect(from, to);
   const toSelect = instances
     .filter((ins) => {
       const { pos } = ins;
       const w = calcPartWidth(
         ins,
         getPartDef(ins, repo),
-      );
-      const rec2 = { ...pos, w, h: PART_HEIGHT };
+      ) * viewPort.zoom * parentVp.zoom;
+      const rec2 = { ...pos, w, h: PART_HEIGHT * viewPort.zoom * parentVp.zoom };
+      console.log(ins.id, rec2, 'main', rect);
+      
       return intersectRect(rect, rec2) || intersectRect(rec2, rect);
     })
     .map((ins) => ins.id);

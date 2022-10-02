@@ -1,5 +1,3 @@
-const axios = require("axios");
-
 module.exports = {
   id: "HttpGet",
   inputs: {
@@ -9,6 +7,7 @@ module.exports = {
   outputs: { r: { type: "any" } },
   completionOutputs: ["r"],
   fn: function (inputs, outputs, adv) {
+    const axios = require("axios");
     const { url, headers } = inputs;
     const { r, error } = outputs;
 

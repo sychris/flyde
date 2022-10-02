@@ -1,5 +1,6 @@
-$const-color: #FCF0FF;
+@import  '../../lib/common.scss';
 
+$const-color: #FCF0FF;
 $trigger-pin-width: 40px;
 $half-of-pin-height: 16px;
 
@@ -17,7 +18,7 @@ $half-of-pin-height: 16px;
     justify-content: space-around;
   }
 
-  // .inputs {
+  // .inputs {f
   //   padding-right: $trigger-pin-width + 10px;
 
   //   .pin[data-pin-id="__trigger"] {
@@ -27,15 +28,6 @@ $half-of-pin-height: 16px;
   // }
 }
 
-.ins-vp-fixer {
-  transform-origin: top left;
-  will-change: transform;
-}
-
-.ins-view-wrapper {
-  position: absolute;
-  transform-origin: top left;
-}
 
 .ins-view {
   transform-origin: top left;
@@ -59,6 +51,56 @@ $half-of-pin-height: 16px;
   
   &.no-outputs {
     padding-bottom: 15px;
+  }
+
+  .ins-view-inner {
+    @include base-part;
+  }
+
+  &.inline-part-edited {
+
+    > .base-part-view .base-part-view-inner {
+      // padding: 0;
+      overflow: hidden;
+    }
+
+    
+    
+    
+    .inline-group-editor-container {
+      // width: 400px;
+      // height: 300px;
+      // max-width: 600px;
+
+      background: #ffffff;
+    
+      box-shadow: $shadow-a;
+      // position: relative;
+      
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+
+      > header {
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+        padding: 4px 15px 3px;
+        cursor: move;
+        user-select: none;
+        z-index: 1;
+      }
+
+      > .grouped-part-editor {
+        flex: 1;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+      }
+    }
+    
   }
 
   .pin {
@@ -85,29 +127,24 @@ $half-of-pin-height: 16px;
   &[data-part-id="Pick"],
   &[data-part-id="Dot"] {
   
-    .base-part-view-inner {
+    .ins-view-inner {
+      @include custom-part-color(#f2fdff);
+
       font-size: 18px;
       padding: 2px 8px;
-      background: #f2fdff;
       line-height: 20px;
     }
   }
 
   &[data-part-id^="Inline Code"],
   &[data-part-id^="Inline-value"] {  
-    .base-part-view-inner {
+    .ins-view-inner {
+      @include custom-part-color(#f7f7f7);
       font-size: 18px;
       padding: 2px 8px;
       line-height: 20px;
       font-weight: 400;
       font-family: monospace;
-    }
-
-    .base-part-view:not(.selected) {
-      .base-part-view-inner {
-        background: #e9e9e9;
-        color: #000000;
-      }
     }
 
   }

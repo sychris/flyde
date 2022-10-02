@@ -1,5 +1,3 @@
-const axios = require("axios");
-
 module.exports = {
   id: "HttpPost",
   inputs: {
@@ -10,6 +8,7 @@ module.exports = {
   },
   outputs: { r: { type: "any" }, e: { type: "any" } },
   fn: function (inputs, outputs, adv) {
+    const axios = require("axios");
     const { url, body, headers, bodyType } = inputs;
     const { r, e } = outputs;
 

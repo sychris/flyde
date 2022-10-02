@@ -1,5 +1,3 @@
-const isDefined = obj => typeof obj !== 'undefined';
-
 module.exports = {
   id: "Dot",
   inputs: { obj: { mode: "required", type: "any" }, key: { mode: "required", type: "any" } },
@@ -26,7 +24,7 @@ module.exports = {
     let o = { ...obj };
     for (let p of path) {
       const key = matches[p] || p;
-      if (o && isDefined(o[key]) && o[key] !== null) {
+      if (o && (typeof o[key] !== 'undefined') && o[key] !== null) {
         o = o[key];
       } else {
         value.next(null);

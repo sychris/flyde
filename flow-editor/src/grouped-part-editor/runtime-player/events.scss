@@ -1,21 +1,21 @@
 
 $blink-duration: 2s;
 
-.base-part-view-wrapper[data-runtime="processing"] .base-part-view-inner {
+.base-part-view-wrapper[data-runtime="processing"] .ins-view-inner {
   background: #88f8ff !important; //88F8FF
   box-shadow: 0px 0px 10px 2px #007dc6aa;
   // transition: background-color ease-in-out 0.05s, box-shadow ease-in-out 0.2s;
   animation: pulse 1.5s infinite;
 }
 
-.base-part-view-wrapper[data-runtime="done"] .base-part-view-inner {
+.base-part-view-wrapper[data-runtime="done"] .ins-view-inner {
   animation: blink-done $blink-duration;
   // background: #C1FF91 !important;
   // box-shadow: 0px 0px 10px 2px rgba(10, 126, 0, 0.5);
   // transition: background-color ease-in-out 0.3s, box-shadow ease-in-out 0.3s;
 }
 
-.base-part-view-wrapper[data-runtime="error"] .base-part-view-inner {
+.base-part-view-wrapper[data-runtime="error"] .ins-view-inner {
     animation: blink-error $blink-duration;
 //   box-shadow: 0px 0px 10px 2px rgba(99, 38, 24, 0.5);
 //   transition: background-color ease-in-out 0.05s, box-shadow ease-in-out 0.2s;

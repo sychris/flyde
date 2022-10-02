@@ -230,4 +230,30 @@ describe("resolver", () => {
     assert.equal(Add1.fn, '__BUNDLE_FN:[[../node_modules/@acme/add1-wrapped/src/Add1.flyde.js]]');
   });
 
+  it('resolves dependencies of inline parts', async () => {
+    const flow = resolveFlow(
+      getFixturePath("a-uses-inline-part-with-dependency/a.flyde"),
+    );
+    
+    const repo = flow.dependencies as PartRepo;
+    console.log(repo);
+    
+    assert.exists(repo.Add);
+    const val = await simplifiedExecute(flow.main, repo, { n: 2 });
+    assert.equal(val, 2 + 1);
+  })
+
+  it('resolves dependencies of imported inline parts', async () => {
+    const flow = resolveFlow(
+      getFixturePath("a-uses-inline-part-with-dependency/b-imports-a.flyde"),
+    );
+    
+    const repo = flow.dependencies as PartRepo;
+    console.log(repo);
+    
+    assert.exists(repo.Add1Wrapper);
+    const val = await simplifiedExecute(flow.main, repo, { n: 2 });
+    assert.equal(val, 2 + 1);
+  });
+
 });

@@ -1,4 +1,5 @@
 import { Pos, PartDefinition } from "@flyde/core";
+import { logicalPosToRenderedPos, renderedPosToLogicalPos, ViewPort } from "../..";
 import { Size } from "../../utils";
 import { calcZoom } from "../calc-zoom";
 import { getMainPinDomId, getPinDomId } from "../dom-ids";
@@ -8,23 +9,28 @@ const DEFAULT_POS = {
   y: 99999,
 };
 
-const elemPos = (elem: Element | undefined, boardPos: Pos, id: string) => {
+const elemPos = (elem: Element | undefined, boardPos: Pos, id: string, viewPort: ViewPort) => {
   if (!elem) {
     console.warn(`Cannot find element ${id} to render connection`);
     return DEFAULT_POS;
   }
   const { x, y, width, height } = elem.getBoundingClientRect();
 
-  const mx = x + width / 2;
-  const my = y + height / 2;
+  
+  const mx = x + width / 2 - boardPos.x;
+  const my = y + height / 2 - boardPos.y;
+
+  const logicalPos = renderedPosToLogicalPos({x: mx, y: my}, viewPort);
+
+  const renderedPos = logicalPosToRenderedPos(logicalPos, viewPort);
   
   return {
     /*
       can't really explain why the formula for x is different than y
       wanted to fix the zoom bug on vscode fast and this did the trick for a the 80% - 125% range
      */
-    x: (mx - boardPos.x) * calcZoom(), 
-    y: my - (boardPos.y * calcZoom())
+    x: renderedPos.x  * calcZoom(), 
+    y: renderedPos.y  * calcZoom()
   };
 }
 
@@ -35,11 +41,12 @@ export const calcPinPosition = (
   insId: string,
   pinId: string,
   type: "output" | "input",
-  boardPos: Pos
+  boardPos: Pos,
+  viewPort: ViewPort
 ) => {
   const domId = getPinDomId(parentInsId, insId, pinId, type);
   const elem = document.getElementById(domId);
-  return elemPos(elem, boardPos, domId);
+  return elemPos(elem, boardPos, domId, viewPort);
 };
 
 export const calcMainInputPosition = (
@@ -48,12 +55,13 @@ export const calcMainInputPosition = (
   pinId: string,
   insId: string,
   type: "output" | "input",
-  boardPos: Pos
+  boardPos: Pos,
+  viewPort: ViewPort
 ) => {
   const domId = getMainPinDomId(insId, pinId, type);
   const elem = document.getElementById(domId);
 
-  return elemPos(elem, boardPos, domId);
+  return elemPos(elem, boardPos, domId, viewPort);
 };
 
 export const calcMainOutputPosition = (
@@ -62,9 +70,10 @@ export const calcMainOutputPosition = (
   pinId: string,
   insId: string,
   type: "input" | "output",
-  boardPos: Pos
+  boardPos: Pos,
+  viewPort: ViewPort
 ) => {
   const domId = getMainPinDomId(insId, pinId, type);
   const elem = document.getElementById(domId);
-  return elemPos(elem, boardPos, domId);
+  return elemPos(elem, boardPos, domId, viewPort);
 };

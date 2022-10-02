@@ -5,6 +5,7 @@ import { InputMode, noop, Pos } from "@flyde/core";
 import { BasePartView } from "../base-part-view";
 import { getMainPinDomId } from "../dom-ids";
 import classNames from "classnames";
+import { Menu, MenuItem, ContextMenu } from "@blueprintjs/core";
 
 export type PartIoType = "input" | "output";
 
@@ -91,7 +92,7 @@ export const PartIoView: React.SFC<PartIoViewProps> = React.memo(function PartIo
     [id, onChangeInputMode]
   );
 
-  const contextMenuItems = () => {
+  const contextMenuItems = React.useCallback(() => {
     return [
       { text: `Current mode - ${inputMode}`, onClick: noop },
       { text: "Make required", onClick: () => onChangeInputModeInner("required") },
@@ -103,7 +104,7 @@ export const PartIoView: React.SFC<PartIoViewProps> = React.memo(function PartIo
       ...(props.onRename ? [{ text: "Rename", onClick: onRenameInner }] : []),
       ...(props.onDelete ? [{ text: "Delete", onClick: onDeleteInner }] : []),
     ];
-  };
+  }, [inputMode, onChangeInputModeInner, onDeleteInner, onRenameInner, props.onDelete, props.onRename]);
 
   const onDblClickInner = React.useCallback(
     (e: any) => {
@@ -118,20 +119,42 @@ export const PartIoView: React.SFC<PartIoViewProps> = React.memo(function PartIo
     onSelect(id, type);
   }, [id, type, onSelect]);
 
+  const getContextMenu = React.useCallback(() => {
+    return (
+      <Menu>
+        {contextMenuItems().map((item) => (
+          <MenuItem {...item} />
+        ))}
+      </Menu>
+    );
+  }, [contextMenuItems]);
+
+  const showMenu = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = getContextMenu();
+      ContextMenu.show(menu, { left: e.pageX, top: e.pageY });
+    },
+    [getContextMenu]
+  );
+
   return (
     <BasePartView
-      className={classNames(`part-io-view`, type, { closest })}
+      className={classNames(`part-io-view`, type)}
       domId={getMainPinDomId(props.insId, id, type)}
       pos={pos}
       onDragEnd={onDragEnd}
       onDragStart={onDragStart}
       onDragMove={onDragMove}
-      onClick={_onClick}
-      label={id}
       viewPort={viewPort}
-      contextMenuItems={contextMenuItems()}
-      onDoubleClick={onDblClickInner}
-      selected={selected}
-    />
+    >
+        <div
+            className={classNames('part-io-view-inner', { closest, selected })}
+            onClick={_onClick}
+            onDoubleClick={onDblClickInner}
+            onContextMenu={showMenu}
+        >{id}</div>
+      </BasePartView>
   );
 });

@@ -1,5 +1,14 @@
 import * as React from "react";
-import { entries, pickFirst, OMap, okeys, partInput, keys, isInlinePartInstance } from "@flyde/core";
+import {
+  entries,
+  pickFirst,
+  OMap,
+  okeys,
+  partInput,
+  keys,
+  isInlinePartInstance,
+  GroupedPart,
+} from "@flyde/core";
 import classNames from "classnames";
 
 // ;
@@ -19,29 +28,31 @@ import { calcPartContent } from "./utils";
 import { BasePartView } from "../base-part-view";
 import { isStaticInputPinConfig } from "@flyde/core";
 
-import { noop } from "lodash";
+import { debounce, noop, size } from "lodash";
 import { getInstanceDomId } from "../dom-ids";
 import { HistoryPayload } from "@flyde/remote-debugger";
 import { toastMsg } from "../../toaster";
-import { ClosestPinData } from "../GroupedPartEditor";
+import { ClosestPinData, GroupedPartEditor, GroupedPartEditorProps } from "../GroupedPartEditor";
 import { usePrompt } from "../..";
-import { IMenuItemProps } from "@blueprintjs/core";
+import { ContextMenu, IMenuItemProps, Menu, MenuItem } from "@blueprintjs/core";
+import { Resizable } from "react-resizable";
+import { useDebounce } from "use-debounce";
 
 export const PIECE_HORIZONTAL_PADDING = 25;
 export const PIECE_CHAR_WIDTH = 11;
 export const MIN_WIDTH_PER_PIN = 40;
 export const MAX_INSTANCE_WIDTH = 400; // to change in CSS as well
 
+const INLINE_GROUP_EDITOR_CENTER_DEBOUNCE = 100;
+
 export const getVisibleInputs = (
   instance: PartInstance,
   part: PartDefinition,
   connections: ConnectionData[]
 ): string[] => {
-
-  const {visibleInputs} = instance;
+  const { visibleInputs } = instance;
 
   if (visibleInputs) {
-    
     return visibleInputs;
   }
 
@@ -68,14 +79,13 @@ export const getVisibleOutputs = (
   part: PartDefinition,
   connections: ConnectionData[]
 ) => {
-
-  const {visibleOutputs} = instance;
+  const { visibleOutputs } = instance;
 
   if (visibleOutputs) {
     return visibleOutputs;
   }
   const keys = Object.keys(part.outputs);
-  if (connections.some(c => c.from.insId === instance.id && c.from.pinId === ERROR_PIN_ID)) {
+  if (connections.some((c) => c.from.insId === instance.id && c.from.pinId === ERROR_PIN_ID)) {
     return [...keys, ERROR_PIN_ID];
   } else {
     return keys;
@@ -127,6 +137,9 @@ export interface InstanceViewProps {
   displayMode?: true;
 
   forceShowMinimized?: PinType | "both";
+
+  inlineGroupProps?: GroupedPartEditorProps;
+  onCloseInlineEditor: () => void;
 }
 
 export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewInner(props) {
@@ -161,11 +174,16 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     onChangeVisibleInputs,
     onChangeVisibleOutputs,
     onConvertConstToEnv,
+    inlineGroupProps,
   } = props;
 
   const { id } = instance;
 
   const isNative = isNativePart(part);
+
+  const [inlineEditorSize, setInlineEditorSize] = React.useState({w: 400, h: 300});
+
+  const inlineEditorRef = React.useRef();
 
   const _prompt = usePrompt();
 
@@ -245,7 +263,6 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
   const is = entries(part.inputs);
 
   const { visibleInputs, visibleOutputs } = instance;
-  
 
   if (visibleInputs) {
     is.sort((a, b) => visibleInputs.indexOf(a[0]) - visibleInputs.indexOf(b[0]));
@@ -265,7 +282,6 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
 
   os.push([ERROR_PIN_ID, partOutput("error")]);
 
-
   const inputsToRender = is.filter(([k]) => {
     return _visibleInputs.includes(k);
   });
@@ -275,10 +291,7 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
   });
 
   const cm = classNames("ins-view", {
-    selected,
-    dragged,
     native: isNative,
-    closest: closestPin && closestPin.ins.id === instance.id,
     "no-inputs": is.length === 0,
     "no-outputs": os.length === 0,
     "display-mode": displayMode,
@@ -286,6 +299,13 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
       props.forceShowMinimized === "input" || props.forceShowMinimized === "both",
     "force-minimized-output":
       props.forceShowMinimized === "output" || props.forceShowMinimized === "both",
+    "inline-part-edited": !!inlineGroupProps,
+  });
+
+  const innerCms = classNames({
+    selected,
+    dragged,
+    closest: closestPin && closestPin.ins.id === instance.id,
   });
 
   const connectedInputs = new Set(
@@ -320,10 +340,7 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     console.error(`Error rendering custom view for part ${part.id}`);
   }
 
-  const content = calcPartContent(
-    instance,
-    part
-  );
+  const content = calcPartContent(instance, part);
 
   const getStaticValue = (k: string) => {
     const config = instance.inputConfig[k];
@@ -351,31 +368,47 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
   const inputKeys = [...Object.keys(part.inputs), TRIGGER_PIN_ID];
   const outputKeys = [...Object.keys(part.outputs), ERROR_PIN_ID];
 
-  const inputMenuItems = inputKeys.map(k => {
-      const isVisible = _visibleInputs.includes(k);
-      const isConnected = connectedInputs.has(k);
+  const inputMenuItems = inputKeys.map((k) => {
+    const isVisible = _visibleInputs.includes(k);
+    const isConnected = connectedInputs.has(k);
 
-      const pinName = k === TRIGGER_PIN_ID ? 'Trigger Pin' : k;
+    const pinName = k === TRIGGER_PIN_ID ? "Trigger Pin" : k;
 
-      return {
-        text: isVisible ? (isConnected ? `Hide input "${pinName}" (disconnect first)` : `Hide input "${pinName}"`) : `Show input "${pinName}"`,
-        onClick: () => onChangeVisibleInputs(instance, isVisible ? _visibleInputs.filter(i => i !== k) : [..._visibleInputs, k]),
-        disabled: isConnected && isVisible 
-      }
+    return {
+      text: isVisible
+        ? isConnected
+          ? `Hide input "${pinName}" (disconnect first)`
+          : `Hide input "${pinName}"`
+        : `Show input "${pinName}"`,
+      onClick: () =>
+        onChangeVisibleInputs(
+          instance,
+          isVisible ? _visibleInputs.filter((i) => i !== k) : [..._visibleInputs, k]
+        ),
+      disabled: isConnected && isVisible,
+    };
   });
 
-  const outputMenuItems = outputKeys.map(k => {
+  const outputMenuItems = outputKeys.map((k) => {
     const isVisible = _visibleOutputs.includes(k);
     const isConnected = connectedOutputs.has(k);
 
-    const pinName = k === ERROR_PIN_ID ? 'Error Pin' : k;
+    const pinName = k === ERROR_PIN_ID ? "Error Pin" : k;
 
     return {
-      text: isVisible ? (isConnected ? `Hide output "${pinName}" (disconnect first)` : `Hide output "${pinName}"`) : `Show output "${pinName}"`,
-      onClick: () => onChangeVisibleOutputs(instance, isVisible ? _visibleOutputs.filter(i => i !== k) : [..._visibleOutputs, k]),
-      disabled: isConnected && isVisible
-    }
-});
+      text: isVisible
+        ? isConnected
+          ? `Hide output "${pinName}" (disconnect first)`
+          : `Hide output "${pinName}"`
+        : `Show output "${pinName}"`,
+      onClick: () =>
+        onChangeVisibleOutputs(
+          instance,
+          isVisible ? _visibleOutputs.filter((i) => i !== k) : [..._visibleOutputs, k]
+        ),
+      disabled: isConnected && isVisible,
+    };
+  });
 
   const contextMenuItems: IMenuItemProps[] = [
     ...inputMenuItems,
@@ -469,24 +502,86 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     );
   };
 
+  const getContextMenu = React.useCallback(() => {
+    return (
+      <Menu>
+        {contextMenuItems.map((item) => (
+          <MenuItem {...item} />
+        ))}
+      </Menu>
+    );
+  }, [contextMenuItems]);
+
+  const showMenu = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = getContextMenu();
+      ContextMenu.show(menu, { left: e.pageX, top: e.pageY });
+    },
+    [getContextMenu]
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceMaybeCenterInline = React.useCallback(debounce(() => {
+    const currRef: any = inlineEditorRef.current;
+    if (currRef) {
+      currRef.centerViewPort();
+    } 
+  }, INLINE_GROUP_EDITOR_CENTER_DEBOUNCE), []);
+
+  const onResizeInline = React.useCallback((e, {size}) => {
+    e.stopPropagation();
+    setInlineEditorSize({w: size.width, h: size.height});
+    debounceMaybeCenterInline();
+  }, [debounceMaybeCenterInline] );
+
+  const renderContent = () => {
+    if (inlineGroupProps) {
+      return (
+        <Resizable width={inlineEditorSize.w} height={inlineEditorSize.h} onResize={onResizeInline} handle={<span className='no-drag react-resizable-handle react-resizable-handle-se'/>}>
+          <div
+            className="inline-group-editor-container"
+            style={{ width: `${inlineEditorSize.w}px`, height: `${inlineEditorSize.h}px` }}
+          >
+            <header>
+              {content} <button onClick={props.onCloseInlineEditor}>close</button>
+            </header>
+            <GroupedPartEditor {...props.inlineGroupProps} className="no-drag" ref={inlineEditorRef}/>
+          </div>
+        </Resizable>
+      );
+    } else {
+      return (
+        <div
+          className={classNames("ins-view-inner", innerCms)}
+          onClick={_onSelect}
+          onDoubleClick={onDblClick}
+          onContextMenu={showMenu}
+        >
+          {content}
+        </div>
+      );
+    }
+  };
+
   return (
     <div className={cm} data-part-id={part.id}>
       <BasePartView
-        label={content}
-        onClick={_onSelect}
-        onDoubleClick={onDblClick}
-        selected={selected}
         pos={instance.pos}
         viewPort={viewPort}
         onDragStart={_onDragStart}
         onDragMove={_onDragMove}
         onDragEnd={_onDragEnd}
-        contextMenuItems={contextMenuItems}
         upperRenderer={renderInputs}
         bottomRenderer={renderOutputs}
         displayMode={displayMode}
         domId={getInstanceDomId(props.parentInsId, instance.id)}
-      />
+      >
+        {renderInputs()}
+        {renderContent()}
+        {renderOutputs()}
+      </BasePartView>
     </div>
   );
 };

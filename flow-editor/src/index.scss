@@ -9,6 +9,8 @@
 @import './grouped-part-editor/style.scss';
 @import './PartPreview/PartPreview.scss';
 
+@import './lib/react-utils/react-resizable.scss';
+
 body {
   margin: 0;
   padding: 0;
@@ -35,4 +37,3 @@ body {
     text-align: center;
   }
 }
-

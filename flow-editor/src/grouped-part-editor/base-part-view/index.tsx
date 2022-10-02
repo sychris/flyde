@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import classNames from "classnames";
 import Draggable from "react-draggable";
@@ -9,7 +10,7 @@ import { Pos } from "@flyde/core";
 // export const PIECE_CHAR_WIDTH = 11;
 // export const MIN_WIDTH_PER_PIN = 40;
 
-import { ContextMenu, IMenuItemProps, IMenuProps, Menu, MenuItem } from "@blueprintjs/core";
+import { IMenuItemProps } from "@blueprintjs/core";
 
 
 export interface BasePartViewContextItem { 
@@ -19,21 +20,15 @@ export interface BasePartViewContextItem {
 export interface BasePartViewProps {
   domId?: string;
   className?: string;
-  label: string;
   pos: Pos;
-  selected?: boolean;
   dragged?: boolean;
   viewPort: { pos: Pos; zoom: number };
-
-  contextMenuItems: IMenuItemProps[];
 
   displayMode?: true;
 
   upperRenderer?: () => any;
   bottomRenderer?: () => any;
 
-  onClick: (e: React.MouseEvent) => void;
-  onDoubleClick: (e: React.MouseEvent) => void;
   onDragEnd: (...data: any[]) => void;
   onDragStart: (...data: any[]) => void;
   onDragMove: (ev: React.MouseEvent, pos: Pos) => void;
@@ -41,13 +36,9 @@ export interface BasePartViewProps {
 
 export const BasePartView: React.FC<BasePartViewProps> = function BasePartViewInner(props) {
   const {
-    selected,
     dragged,
-    label,
     viewPort,
     pos,
-    onClick,
-    onDoubleClick,
     onDragEnd,
     onDragMove,
     onDragStart,
@@ -85,7 +76,6 @@ export const BasePartView: React.FC<BasePartViewProps> = function BasePartViewIn
   };
 
   const cm = classNames("base-part-view", props.className, {
-    selected,
     dragged,
     "display-mode": displayMode,
   });
@@ -99,28 +89,6 @@ export const BasePartView: React.FC<BasePartViewProps> = function BasePartViewIn
   const fixerStyle: any = {
     transform: `translate(${dx}px, ${dy}px)`,
   };
-  const getContextMenu = React.useCallback(() => {
-    return (
-      <Menu>
-        {props.contextMenuItems.map((item) => (
-          <MenuItem {...item} />
-        ))}
-      </Menu>
-    );
-  }, [props.contextMenuItems]);
-
-  const showMenu = React.useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const menu = getContextMenu();
-      ContextMenu.show(menu, { left: e.pageX, top: e.pageY });
-    },
-    [getContextMenu]
-  );
-
-  const upperElement = props.upperRenderer ? props.upperRenderer() : null;
-  const bottomElement = props.bottomRenderer ? props.bottomRenderer() : null;
 
   const outerCm = classNames("base-part-view-vp-fixer", { "display-mode": displayMode });
 
@@ -135,16 +103,7 @@ export const BasePartView: React.FC<BasePartViewProps> = function BasePartViewIn
       >
         <span className="base-part-view-wrapper">
           <div className={cm} style={zoomFixStyle} id={props.domId}>
-            {upperElement}
-            <div
-              className="base-part-view-inner"
-              onClick={onClick}
-              onDoubleClick={onDoubleClick}
-              onContextMenu={showMenu}
-            >
-              {label}
-            </div>
-            {bottomElement}
+            {props.children}
           </div>
         </span>
       </Draggable>
