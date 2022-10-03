@@ -249,11 +249,12 @@ describe("resolver", () => {
     );
     
     const repo = flow.dependencies as PartRepo;
-    console.log(repo);
     
     assert.exists(repo.Add1Wrapper);
     const val = await simplifiedExecute(flow.main, repo, { n: 2 });
+    
     assert.equal(val, 2 + 1);
   });
+
 
 });

@@ -33,6 +33,9 @@
 		"search.useParentIgnoreFiles": true,
 		"search.exclude": {
 			"**/dist": true
-		}
+		},
+		"cSpell.words": [
+			"Ungroup"
+		]
 	}
 }

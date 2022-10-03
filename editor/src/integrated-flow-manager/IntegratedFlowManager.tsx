@@ -284,6 +284,10 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
     [flow, onChangeFlow, repo, editorState.boardData.lastMousePos]
   );
 
+  const onExtractInlinePart = React.useCallback(async () => {
+    
+  }, []);
+
   React.useEffect(() => {
     const importedPartsRepo = importedParts.reduce((acc, curr) => {
       return { ...acc, [curr.part.id]: {...curr.part, importPath: curr.module} };
@@ -325,7 +329,9 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
             resolvedRepoWithDeps={currentResolvedDefs}
             onQueryImportables={queryImportables}
             onImportPart={onImportPart}
+            onExtractInlinePart={onExtractInlinePart}
             ref={boardRef}
+
           />
         </div>
       </main>

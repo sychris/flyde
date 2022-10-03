@@ -8,91 +8,8 @@ imports:
 part:
   instances:
     - pos:
-        x: -341.654423828125
-        y: -135.189943819046
-      id: HttpGet-907
-      inputConfig:
-        url:
-          mode: static
-          value: https://api.country.is/
-      visibleInputs:
-        - url
-        - __trigger
-      visibleOutputs:
-        - r
-        - __error
-      partId: HttpGet
-    - pos:
-        x: -476.8067456054688
-        y: 60.628082275390625
-      id: HttpPost-624
-      inputConfig:
-        url:
-          mode: static
-          value: https://countriesnow.space/api/v0.1/countries/capital
-      visibleInputs:
-        - url
-        - body
-      partId: HttpPost
-    - pos:
-        x: -454.35468749999995
-        y: -35.96441955566405
-      id: "Inline-value-{iso2: ${input76"
-      inputConfig: {}
-      part:
-        id: "Inline-value-{iso2: inputs.d"
-        inputs:
-          data:
-            type: any
-            mode: required
-        outputs:
-          r:
-            type: any
-            delayed: false
-            optional: false
-        fnCode: "outputs.r.next(({iso2: inputs.data.country}))"
-        customViewCode: "{iso2: inputs.data.country}"
-        dataBuilderSource: e2lzbzI6IGlucHV0cy5kYXRhLmNvdW50cnl9
-        templateType: value
-        completionOutputs:
-          - r
-    - pos:
-        x: -282.1936401367187
-        y: 402.2950234985351
-      id: HttpPost-775
-      inputConfig:
-        url:
-          mode: static
-          value: https://countriesnow.space/api/v0.1/countries/population/cities
-      visibleInputs:
-        - url
-        - body
-      partId: HttpPost
-    - pos:
-        x: -275.61771484375004
-        y: 295.9552060699463
-      id: "Inline-value-{city: inputs.c75"
-      inputConfig: {}
-      part:
-        id: "Inline-value-{city: inputs.c"
-        inputs:
-          city:
-            type: any
-            mode: required
-        outputs:
-          r:
-            type: any
-            delayed: false
-            optional: false
-        fnCode: "outputs.r.next(({city: inputs.city}))"
-        customViewCode: "{city: inputs.city}"
-        dataBuilderSource: e2NpdHk6IGlucHV0cy5jaXR5fQ==
-        templateType: value
-        completionOutputs:
-          - r
-    - pos:
-        x: -963.764296875
-        y: 389.3397685241699
+        x: -863.0027001953125
+        y: 389.34525787353516
       id: Inline-value-Hello from ${i76
       inputConfig: {}
       part:
@@ -117,36 +34,14 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -559.7825415039063
-        y: 194.45557312011715
-      id: Dot-286
-      inputConfig:
-        key:
-          mode: static
-          value: data.name
-      visibleInputs:
-        - obj
-      partId: Dot
-    - pos:
-        x: -400.3785717773437
-        y: 198.4349559259415
-      id: Dot-822
-      inputConfig:
-        key:
-          mode: static
-          value: data.capital
-      visibleInputs:
-        - obj
-      partId: Dot
-    - pos:
-        x: -543.9706567382813
-        y: 518.8753744316101
+        x: -498.20857177734376
+        y: 519.9910885047913
       id: Inline-value-Hello from ${i76-d409
       inputConfig: {}
       part:
         id: Inline-value-With a populat
         inputs:
-          popRes:
+          population:
             type: any
             mode: required
         outputs:
@@ -154,81 +49,330 @@ part:
             type: any
             delayed: false
             optional: false
-        fnCode: outputs.r.next((`With a population of
-          ${inputs.popRes.data.populationCounts[0].value} citizens`))
-        customViewCode: "`With a population of
-          ${inputs.popRes.data.populationCounts[0].value} citizens`"
-        dataBuilderSource: YFdpdGggYSBwb3B1bGF0aW9uIG9mICR7aW5wdXRzLnBvcFJlcy5kYXRhLnBvcHVsYXRpb25Db3VudHNbMF0udmFsdWV9IGNpdGl6ZW5zYA==
+        fnCode: outputs.r.next((`With a population of ${inputs.population} citizens`))
+        customViewCode: "`With a population of ${inputs.population} citizens`"
+        dataBuilderSource: YFdpdGggYSBwb3B1bGF0aW9uIG9mICR7aW5wdXRzLnBvcHVsYXRpb259IGNpdGl6ZW5zYA==
         templateType: value
         completionOutputs:
           - r
+    - pos:
+        x: -477.4747650146485
+        y: 3.8961541819572574
+      id: Get User's Country-ins
+      inputConfig: {}
+      part:
+        id: Get User's Country
+        inputs: {}
+        outputs:
+          r:
+            type: any
+            delayed: false
+            optional: false
+        instances:
+          - pos:
+              x: -341.654423828125
+              y: -135.189943819046
+            id: HttpGet-907
+            inputConfig:
+              url:
+                mode: static
+                value: https://api.country.is/
+            visibleInputs:
+              - url
+              - __trigger
+            visibleOutputs:
+              - r
+              - __error
+            partId: HttpGet
+          - pos:
+              x: -454.35468749999995
+              y: -35.96441955566405
+            id: "Inline-value-{iso2: ${input76"
+            inputConfig: {}
+            part:
+              id: "Inline-value-{iso2: inputs.d"
+              inputs:
+                data:
+                  type: any
+                  mode: required
+              outputs:
+                r:
+                  type: any
+                  delayed: false
+                  optional: false
+              fnCode: "outputs.r.next(({iso2: inputs.data.country}))"
+              customViewCode: "{iso2: inputs.data.country}"
+              dataBuilderSource: e2lzbzI6IGlucHV0cy5kYXRhLmNvdW50cnl9
+              templateType: value
+              completionOutputs:
+                - r
+        inputsPosition: {}
+        outputsPosition:
+          r:
+            x: 0
+            y: 400
+        connections:
+          - from:
+              insId: HttpGet-907
+              pinId: r
+            to:
+              insId: "Inline-value-{iso2: ${input76"
+              pinId: data
+          - from:
+              insId: "Inline-value-{iso2: ${input76"
+              pinId: r
+            to:
+              insId: __this
+              pinId: r
+        completionOutputs:
+          - r
+    - pos:
+        x: -528.9584338378907
+        y: 130.15007394075394
+      id: Get Country Name And Capital-ins
+      inputConfig: {}
+      visibleOutputs:
+        - name
+        - capital
+      part:
+        id: Get Country Name And Capital
+        inputs:
+          body:
+            type: any
+            mode: required
+        outputs:
+          capital:
+            type: any
+            delayed: false
+            optional: false
+          name:
+            type: any
+            delayed: false
+            optional: false
+        instances:
+          - pos:
+              x: -476.8067456054688
+              y: 60.628082275390625
+            id: HttpPost-624
+            inputConfig:
+              url:
+                mode: static
+                value: https://countriesnow.space/api/v0.1/countries/capital
+            visibleInputs:
+              - url
+              - body
+            partId: HttpPost
+          - pos:
+              x: -559.7825415039063
+              y: 194.45557312011715
+            id: Dot-286
+            inputConfig:
+              key:
+                mode: static
+                value: data.name
+            visibleInputs:
+              - obj
+            partId: Dot
+          - pos:
+              x: -400.3785717773437
+              y: 198.4349559259415
+            id: Dot-822
+            inputConfig:
+              key:
+                mode: static
+                value: data.capital
+            visibleInputs:
+              - obj
+            partId: Dot
+        inputsPosition:
+          body:
+            x: -333.75691140339336
+            y: -63.66470402308542
+        outputsPosition:
+          value:
+            x: -514.1541695281439
+            y: 411.8457371232514
+          i10:
+            x: -280.88783057750686
+            y: 411.581705357324
+          capital:
+            x: -280.88783057750686
+            y: 411.581705357324
+          name:
+            x: -514.1541695281439
+            y: 411.8457371232514
+        connections:
+          - from:
+              insId: HttpPost-624
+              pinId: r
+            to:
+              insId: Dot-286
+              pinId: obj
+          - from:
+              insId: HttpPost-624
+              pinId: r
+            to:
+              insId: Dot-822
+              pinId: obj
+          - from:
+              insId: __this
+              pinId: body
+            to:
+              insId: HttpPost-624
+              pinId: body
+          - from:
+              insId: Dot-286
+              pinId: value
+            to:
+              insId: __this
+              pinId: name
+          - from:
+              insId: Dot-822
+              pinId: value
+            to:
+              insId: __this
+              pinId: capital
+        completionOutputs:
+          - name
+          - capital
+    - pos:
+        x: -255.5703509521485
+        y: 322.45756826400753
+      id: Get Population By City-ins
+      inputConfig: {}
+      part:
+        id: Get Population By City
+        inputs:
+          city:
+            type: any
+            mode: required
+        outputs:
+          value:
+            type: any
+            delayed: false
+            optional: false
+        instances:
+          - pos:
+              x: -204.90311279296873
+              y: 349.60314422607416
+            id: HttpPost-775
+            inputConfig:
+              url:
+                mode: static
+                value: https://countriesnow.space/api/v0.1/countries/population/cities
+            visibleInputs:
+              - url
+              - body
+            partId: HttpPost
+          - pos:
+              x: -198.32718750000004
+              y: 243.26332679748538
+            id: "Inline-value-{city: inputs.c75"
+            inputConfig: {}
+            part:
+              id: "Inline-value-{city: inputs.c"
+              inputs:
+                city:
+                  type: any
+                  mode: required
+              outputs:
+                r:
+                  type: any
+                  delayed: false
+                  optional: false
+              fnCode: "outputs.r.next(({city: inputs.city}))"
+              customViewCode: "{city: inputs.city}"
+              dataBuilderSource: e2NpdHk6IGlucHV0cy5jaXR5fQ==
+              templateType: value
+              completionOutputs:
+                - r
+          - id: Dot-710
+            partId: Dot
+            inputConfig:
+              key:
+                mode: static
+                value: data.populationCounts.0.value
+            pos:
+              x: -242.44521728515625
+              y: 475.4914538574219
+        inputsPosition:
+          city:
+            x: -90.05109427468216
+            y: 130.05198063472523
+        outputsPosition:
+          value:
+            x: -193.830678878954
+            y: 635.5821638066014
+        connections:
+          - from:
+              insId: "Inline-value-{city: inputs.c75"
+              pinId: r
+            to:
+              insId: HttpPost-775
+              pinId: body
+          - from:
+              insId: __this
+              pinId: city
+            to:
+              insId: "Inline-value-{city: inputs.c75"
+              pinId: city
+          - from:
+              insId: HttpPost-775
+              pinId: r
+            to:
+              insId: Dot-710
+              pinId: obj
+          - from:
+              insId: Dot-710
+              pinId: value
+            to:
+              pinId: value
+              insId: __this
+        completionOutputs:
+          - value
   connections:
     - from:
-        insId: "Inline-value-{iso2: ${input76"
-        pinId: r
-      to:
-        insId: HttpPost-624
-        pinId: body
-    - from:
-        insId: HttpGet-907
-        pinId: r
-      to:
-        insId: "Inline-value-{iso2: ${input76"
-        pinId: data
-    - from:
-        insId: "Inline-value-{city: inputs.c75"
-        pinId: r
-      to:
-        insId: HttpPost-775
-        pinId: body
-    - from:
-        insId: HttpPost-624
-        pinId: r
-      to:
-        insId: Dot-286
-        pinId: obj
-    - from:
-        insId: Dot-286
-        pinId: value
-      to:
         insId: Inline-value-Hello from ${i76
-        pinId: country
-    - from:
-        insId: Dot-822
-        pinId: value
+        pinId: r
       to:
-        insId: "Inline-value-{city: inputs.c75"
-        pinId: city
+        insId: __this
+        pinId: output
     - from:
-        insId: Dot-822
-        pinId: value
+        insId: Inline-value-Hello from ${i76-d409
+        pinId: r
+      to:
+        insId: __this
+        pinId: output
+    - from:
+        insId: Get User's Country-ins
+        pinId: r
+      to:
+        insId: Get Country Name And Capital-ins
+        pinId: body
+    - from:
+        insId: Get Country Name And Capital-ins
+        pinId: capital
       to:
         insId: Inline-value-Hello from ${i76
         pinId: capital
     - from:
+        insId: Get Country Name And Capital-ins
+        pinId: name
+      to:
         insId: Inline-value-Hello from ${i76
-        pinId: r
-      to:
-        insId: __this
-        pinId: output
+        pinId: country
     - from:
-        insId: HttpPost-624
-        pinId: r
+        insId: Get Country Name And Capital-ins
+        pinId: capital
       to:
-        insId: Dot-822
-        pinId: obj
+        insId: Get Population By City-ins
+        pinId: city
     - from:
-        insId: HttpPost-775
-        pinId: r
+        insId: Get Population By City-ins
+        pinId: value
       to:
         insId: Inline-value-Hello from ${i76-d409
-        pinId: popRes
-    - from:
-        insId: Inline-value-Hello from ${i76-d409
-        pinId: r
-      to:
-        insId: __this
-        pinId: output
+        pinId: population
   id: ApisCombination
   inputs: {}
   outputs:

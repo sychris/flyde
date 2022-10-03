@@ -12,6 +12,7 @@ import {
   ImportablePart,
   PartDefRepo,
   ImportedPartDef,
+  InlinePartInstance,
 } from "@flyde/core";
 import {
   GroupedPartEditor,
@@ -57,6 +58,8 @@ export type FlydeFlowEditorProps = {
   onRequestHistory: (insId: string, pinId: string, pinType: PinType) => Promise<HistoryPayload>;
 
   onNewEnvVar?: (name: string, val: any) => void;
+
+  onExtractInlinePart: (ins: InlinePartInstance) => Promise<void>,
 
   ref?: React.Ref<any>;
 
@@ -266,6 +269,7 @@ export const FlowEditor: React.FC<FlydeFlowEditorProps> = React.memo(
               onRequestHistory={props.onRequestHistory}
               onRequestImportables={props.onQueryImportables}
               onShowOmnibar={showOmnibar}
+              onExtractInlinePart={props.onExtractInlinePart}
             />
 
             {omnibarVisible ? (

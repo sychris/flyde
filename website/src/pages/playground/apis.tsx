@@ -16,9 +16,9 @@ import { OutputLogs } from "./_OutputLogs/OutputLogs";
 
 const META_DATA = {
   title: "HTTP Requests",
-  description: `TODO`,
+  description: `Flyde works great for heavy asynchronous & concurrent tasks, like combining several REST APIs together. This example shows exactly that, by combining 3 different REST APIs, the population of the capital of the country your IP is assigned with is retrieved`,
   key: "api",
-  extraInfo: 'TODO'
+  extraInfo: `Double click each API part to see it's underlying implementation! In Flyde, nothing is hidden, only abstracted.`
 };
 
 
@@ -29,12 +29,9 @@ const outputWithSub = (sub: any) => {
 };
 
 export default function ReactCounterExample(): JSX.Element {
-  const [val, setVal] = useState(4);
-  const [fib, setFib] = useState(5);
+  const result = useRef(dynamicOutput());
 
-  const result = useRef(outputWithSub((res) => setFib(res)));
-
-  const inputs = useRef({ n: dynamicPartInput() });
+  const inputs = useRef({ __trigger: dynamicPartInput() });
 
   const [flowProps, setFlowProps] = useState<PlaygroundTemplateProps["flowProps"]>({
     flow: flow.flow,
@@ -43,9 +40,9 @@ export default function ReactCounterExample(): JSX.Element {
     output: result.current,
   });
 
-
+  const prefixComponent = <button className='button button--primary' onClick={() => inputs.current.__trigger.subject.next("run")}>Run!</button>;
   return (
-    <PlaygroundTemplate meta={META_DATA} flowProps={flowProps} defaultDelay={100}>
+    <PlaygroundTemplate meta={META_DATA} flowProps={flowProps} defaultDelay={100} prefixComponent={prefixComponent}>
 
       <OutputLogs output={result.current}/>
       

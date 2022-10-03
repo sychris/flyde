@@ -158,6 +158,8 @@ export type GroupedPartEditorProps = {
   onRequestHistory: (insId: string, pinId: string, pinType: PinType) => Promise<HistoryPayload>;
   onRequestImportables?: (query: string) => Promise<ImportablePart[]>;
 
+  onExtractInlinePart: (instance: InlinePartInstance) => Promise<void>,
+
   onShowOmnibar: (e: any) => void;
 
   className?: string;
@@ -856,33 +858,50 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       [onEditPart, repo, thisInsId]
     );
 
-    const onDismantleGroup = React.useCallback(
-      (groupPartIns: InlinePartInstance) => {
+    const onUngroup = React.useCallback(
+      (groupPartIns: PartInstance) => {
 
-        const groupedPart = groupPartIns.part;
 
-        if (!isGroupedPart(groupedPart)) {
-          toastMsg('Not supported', 'warning');
-          return;
+        if (isInlinePartInstance(groupPartIns)) {
+          const groupedPart = groupPartIns.part;
+          if (!isGroupedPart(groupedPart)) {
+            toastMsg('Not supported', 'warning');
+            return;
+          }
+  
+          const newPart = produce(part, draft => {
+            draft.instances = draft.instances
+              .filter(ins => ins.id !== groupPartIns.id)
+  
+            draft.connections = draft.connections
+              .filter(({from, to}) => from.insId !== groupPartIns.id && to.insId !== groupPartIns.id)
+            
+            draft.instances.push(...groupedPart.instances);
+            draft.connections.push(...groupedPart.connections.filter((conn) => {
+              return isInternalConnectionNode(conn.from) && isInternalConnectionNode(conn.to);
+            }));
+          });
+  
+  
+          onChange(newPart, { type: "functional", message: "ungroup" });
+          // todo - combine the above with below to an atomic action
+          onChangeBoardData({ selected: [] });
+        } else {
+          const groupedPart = getPartDef(groupPartIns.partId, repo);
+
+          // const imports = 
+          if (!isGroupedPart(groupedPart)) {
+            toastMsg('Not supported', 'warning');
+            return;
+          }
         }
-
-        const newPart = produce(part, draft => {
-          draft.instances = draft.instances
-            .filter(ins => ins.id === groupPartIns.id)
-          
-          draft.instances.push(...groupedPart.instances);
-          draft.connections.push(...groupedPart.connections.filter((conn) => {
-            return isInternalConnectionNode(conn.from) && isInternalConnectionNode(conn.to);
-          }));
-        });
-
-
-        onChange(newPart, { type: "functional", message: "ungroup" });
-        // todo - combine the above with below to an atomic action
-        onChangeBoardData({ selected: [] });
       },
-      [part, onChange, onChangeBoardData]
+      [part, onChange, onChangeBoardData, repo]
     );
+
+    const onExtractInlinePart = React.useCallback(async (inlineInstance: InlinePartInstance) => {
+
+    }, []);
 
     const onDetachConstValue = React.useCallback(
       (ins: PartInstance, pinId: string) => {
@@ -1434,7 +1453,8 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
           onChangePart: onChangeInspected,
           onShowOmnibar: onShowOmnibar,
           parentViewport: viewPort,
-          parentBoardPos: boardPos
+          parentBoardPos: boardPos,
+          onExtractInlinePart: props.onExtractInlinePart
         };
       } else {
         return;
@@ -1746,7 +1766,8 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             {renderPartInputs()}
             {instances.map((ins) => (
               <InstanceView
-                onDismantleGroup={onDismantleGroup}
+                onUngroup={onUngroup}
+                onExtractInlinePart={onExtractInlinePart}
                 onDetachConstValue={onDetachConstValue}
                 onCopyConstValue={onCopyConstValue}
                 onPasteConstValue={onPasteConstValue}

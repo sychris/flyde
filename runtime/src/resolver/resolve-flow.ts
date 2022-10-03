@@ -85,9 +85,6 @@ const _resolveFlow = (
 
     for (const refPartId of refPartIds) {
 
-      console.log(refPartId);
-      
-
       if (refPartId === part.id) {
         // recursive call
         continue;
@@ -101,7 +98,6 @@ const _resolveFlow = (
       }
 
       const paths = getLocalOrExternalPaths(importPath);
-      console.log(paths);
       
       const {flow, path} = paths
         .map((path) => {
@@ -109,7 +105,7 @@ const _resolveFlow = (
           try {
             return { flow: deserializeFlow(contents, path), path };
           } catch (e) {
-            console.log(e);
+            console.error(e);
             
             return null
           }

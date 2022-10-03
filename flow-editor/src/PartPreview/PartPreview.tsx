@@ -12,7 +12,7 @@ export const PartPreview: React.FC<{part: PartDefinition}> = ({part}) => {
       connectionsPerOutput: {},
       viewPort: { pos: { x: 0, y: 0 }, zoom: 1 },
       partDefRepo: {},
-      onDismantleGroup: noop,
+      onUngroup: noop,
       onDblClick: noop,
       onDragEnd: noop,
       onDragMove: noop,

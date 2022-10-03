@@ -9,12 +9,13 @@ export interface EditorPorts {
     openFile: (dto: {absPath: string}) => Promise<void>,
 
     readFlow: (dto: {absPath: string}) => Promise<FlydeFlow>,
-    saveFlow: (dto: {absPath: string, flow: FlydeFlow}) => Promise<void>,
+    saveFlow: (dto: {absPath: string, flow: FlydeFlow, resolve?: boolean}) => Promise<undefined | ResolvedFlydeFlowDefinition>,
 
     resolveDeps: (dto: {absPath: string}) => Promise<ResolvedFlydeFlowDefinition>,
     getImportables: (dto: {rootFolder: string, flowPath: string}) => Promise<Record<string, PartDefRepo>>
 
     onFlowChange: (cb: ({flow: FlydeFlow, deps: ResolvedFlydeFlowDefinition}) => void) => CancelFn;
+
 }
 
 const throwsNotImplemented: any = async () => { throw new Error(`Not implemented`)};
@@ -28,7 +29,7 @@ export const defaultPorts: EditorPorts = {
     saveFlow: throwsNotImplemented,
     resolveDeps: throwsNotImplemented,
     getImportables: throwsNotImplemented,
-    onFlowChange: throwsNotImplemented
+    onFlowChange: throwsNotImplemented,
 }
 
 export const PortsContext = createContext<EditorPorts>(defaultPorts);

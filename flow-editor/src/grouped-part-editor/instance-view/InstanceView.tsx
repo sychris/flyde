@@ -8,6 +8,7 @@ import {
   keys,
   isInlinePartInstance,
   GroupedPart,
+  InlinePartInstance,
 } from "@flyde/core";
 import classNames from "classnames";
 
@@ -121,7 +122,7 @@ export interface InstanceViewProps {
 
   onInspectPin: (insId: string, pinId: string, type: PinType) => void;
 
-  onDismantleGroup: (ins: PartInstance) => void;
+  onUngroup: (ins: PartInstance) => void;
   onDetachConstValue: (ins: PartInstance, pinId: string) => void;
   onCopyConstValue: (ins: PartInstance, pinId: string) => void;
   onPasteConstValue: (ins: PartInstance, pinId: string) => void;
@@ -140,9 +141,11 @@ export interface InstanceViewProps {
 
   inlineGroupProps?: GroupedPartEditorProps;
   onCloseInlineEditor: () => void;
+
+  onExtractInlinePart: (instance: InlinePartInstance) => Promise<void>;
 }
 
-export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewInner(props) {
+export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewInner(props) {
   const {
     selected,
     selectedInput,
@@ -175,13 +178,15 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
     onChangeVisibleOutputs,
     onConvertConstToEnv,
     inlineGroupProps,
+    onUngroup,
+    onExtractInlinePart
   } = props;
 
   const { id } = instance;
 
   const isNative = isNativePart(part);
 
-  const [inlineEditorSize, setInlineEditorSize] = React.useState({w: 400, h: 300});
+  const [inlineEditorSize, setInlineEditorSize] = React.useState({w: 800, h: 600});
 
   const inlineEditorRef = React.useRef();
 
@@ -368,58 +373,6 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
   const inputKeys = [...Object.keys(part.inputs), TRIGGER_PIN_ID];
   const outputKeys = [...Object.keys(part.outputs), ERROR_PIN_ID];
 
-  const inputMenuItems = inputKeys.map((k) => {
-    const isVisible = _visibleInputs.includes(k);
-    const isConnected = connectedInputs.has(k);
-
-    const pinName = k === TRIGGER_PIN_ID ? "Trigger Pin" : k;
-
-    return {
-      text: isVisible
-        ? isConnected
-          ? `Hide input "${pinName}" (disconnect first)`
-          : `Hide input "${pinName}"`
-        : `Show input "${pinName}"`,
-      onClick: () =>
-        onChangeVisibleInputs(
-          instance,
-          isVisible ? _visibleInputs.filter((i) => i !== k) : [..._visibleInputs, k]
-        ),
-      disabled: isConnected && isVisible,
-    };
-  });
-
-  const outputMenuItems = outputKeys.map((k) => {
-    const isVisible = _visibleOutputs.includes(k);
-    const isConnected = connectedOutputs.has(k);
-
-    const pinName = k === ERROR_PIN_ID ? "Error Pin" : k;
-
-    return {
-      text: isVisible
-        ? isConnected
-          ? `Hide output "${pinName}" (disconnect first)`
-          : `Hide output "${pinName}"`
-        : `Show output "${pinName}"`,
-      onClick: () =>
-        onChangeVisibleOutputs(
-          instance,
-          isVisible ? _visibleOutputs.filter((i) => i !== k) : [..._visibleOutputs, k]
-        ),
-      disabled: isConnected && isVisible,
-    };
-  });
-
-  const contextMenuItems: IMenuItemProps[] = [
-    ...inputMenuItems,
-    ...outputMenuItems,
-    ...(isGroupedPart(part)
-      ? [{ text: "Dismantle Group", onClick: () => props.onDismantleGroup(instance) }]
-      : []),
-    { text: "Reorder inputs", onClick: _onChangeVisibleInputs },
-    { text: "Reorder outputs", onClick: _onChangeVisibleOutputs },
-  ];
-
   const _onRequestHistory = React.useCallback(
     (pinId: string, pinType: PinType) => {
       return onRequestHistory(instance.id, pinId, pinType);
@@ -503,6 +456,58 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
   };
 
   const getContextMenu = React.useCallback(() => {
+    const inputMenuItems = inputKeys.map((k) => {
+      const isVisible = _visibleInputs.includes(k);
+      const isConnected = connectedInputs.has(k);
+  
+      const pinName = k === TRIGGER_PIN_ID ? "Trigger Pin" : k;
+  
+      return {
+        text: isVisible
+          ? isConnected
+            ? `Hide input "${pinName}" (disconnect first)`
+            : `Hide input "${pinName}"`
+          : `Show input "${pinName}"`,
+        onClick: () =>
+          onChangeVisibleInputs(
+            instance,
+            isVisible ? _visibleInputs.filter((i) => i !== k) : [..._visibleInputs, k]
+          ),
+        disabled: isConnected && isVisible,
+      };
+    });
+  
+    const outputMenuItems = outputKeys.map((k) => {
+      const isVisible = _visibleOutputs.includes(k);
+      const isConnected = connectedOutputs.has(k);
+  
+      const pinName = k === ERROR_PIN_ID ? "Error Pin" : k;
+  
+      return {
+        text: isVisible
+          ? isConnected
+            ? `Hide output "${pinName}" (disconnect first)`
+            : `Hide output "${pinName}"`
+          : `Show output "${pinName}"`,
+        onClick: () =>
+          onChangeVisibleOutputs(
+            instance,
+            isVisible ? _visibleOutputs.filter((i) => i !== k) : [..._visibleOutputs, k]
+          ),
+        disabled: isConnected && isVisible,
+      };
+    });
+  
+    const contextMenuItems: IMenuItemProps[] = [
+      ...inputMenuItems,
+      ...outputMenuItems,
+      ...(isInlinePartInstance(instance) && isGroupedPart(instance.part)
+        ? [{ text: "Ungroup inline part", onClick: () => onUngroup(instance) }]
+        : []),
+      ...(isInlinePartInstance(instance) ? [{text: "Extract inline part to file", onClick: () => onExtractInlinePart(instance)}] : []),
+            { text: "Reorder inputs", onClick: _onChangeVisibleInputs },
+      { text: "Reorder outputs", onClick: _onChangeVisibleOutputs },
+    ];
     return (
       <Menu>
         {contextMenuItems.map((item) => (
@@ -510,7 +515,7 @@ export const InstanceView: React.SFC<InstanceViewProps> = function InstanceViewI
         ))}
       </Menu>
     );
-  }, [contextMenuItems]);
+  }, [_onChangeVisibleInputs, _onChangeVisibleOutputs, _visibleInputs, _visibleOutputs, connectedInputs, connectedOutputs, inputKeys, instance, onChangeVisibleInputs, onChangeVisibleOutputs, onExtractInlinePart, onUngroup, outputKeys]);
 
   const showMenu = React.useCallback(
     (e: React.MouseEvent) => {
