@@ -8,8 +8,8 @@ imports:
 part:
   instances:
     - pos:
-        x: -814.1855615234375
-        y: 179.57767974853516
+        x: -863.0027001953125
+        y: 389.34525787353516
       id: Inline-value-Hello from ${i76
       inputConfig: {}
       part:
@@ -34,8 +34,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -375.27387939453126
-        y: 307.40573083877564
+        x: -493.0424951171875
+        y: 512.2400661659241
       id: Inline-value-Hello from ${i76-d409
       inputConfig: {}
       part:
@@ -56,8 +56,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -433.66098327636723
-        y: -163.29543517351146
+        x: -241.37613220214848
+        y: -350.89940856218334
       id: Get User's Country-ins
       inputConfig: {}
       part:
@@ -127,8 +127,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -485.7963854980469
-        y: -28.253658359050746
+        x: -597.2476794433594
+        y: -89.07229239225387
       id: Get Country Name And Capital-ins
       inputConfig: {}
       visibleOutputs:
@@ -396,5 +396,5 @@ part:
       x: -499.82438378976735
       y: 706.7650396699393
     output:
-      x: -447.80296039783997
-      y: 466.165964524412
+      x: -499.82438378976735
+      y: 706.7650396699393
