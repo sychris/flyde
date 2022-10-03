@@ -33,7 +33,9 @@ export const PartPreview: React.FC<{part: PartDefinition}> = ({part}) => {
       onChangeVisibleInputs: noop,
       onChangeVisibleOutputs: noop,
       onConvertConstToEnv: noop,
-      forceShowMinimized: 'both'
+      forceShowMinimized: 'both',
+      onExtractInlinePart: noop as any,
+      onCloseInlineEditor: noop
     };
   
     return <div className='part-preview'><InstanceView {...instanceProps} /></div>;

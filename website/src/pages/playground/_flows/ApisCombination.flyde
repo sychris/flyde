@@ -8,8 +8,8 @@ imports:
 part:
   instances:
     - pos:
-        x: -863.0027001953125
-        y: 389.34525787353516
+        x: -814.1855615234375
+        y: 179.57767974853516
       id: Inline-value-Hello from ${i76
       inputConfig: {}
       part:
@@ -34,8 +34,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -498.20857177734376
-        y: 519.9910885047913
+        x: -375.27387939453126
+        y: 307.40573083877564
       id: Inline-value-Hello from ${i76-d409
       inputConfig: {}
       part:
@@ -56,8 +56,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -477.4747650146485
-        y: 3.8961541819572574
+        x: -433.66098327636723
+        y: -163.29543517351146
       id: Get User's Country-ins
       inputConfig: {}
       part:
@@ -109,8 +109,8 @@ part:
         inputsPosition: {}
         outputsPosition:
           r:
-            x: 0
-            y: 400
+            x: -313.78723630742843
+            y: 123.50129731187559
         connections:
           - from:
               insId: HttpGet-907
@@ -127,8 +127,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -528.9584338378907
-        y: 130.15007394075394
+        x: -485.7963854980469
+        y: -28.253658359050746
       id: Get Country Name And Capital-ins
       inputConfig: {}
       visibleOutputs:
@@ -196,11 +196,11 @@ part:
             x: -280.88783057750686
             y: 411.581705357324
           capital:
-            x: -280.88783057750686
-            y: 411.581705357324
+            x: -373.87585887717984
+            y: 347.90184574177306
           name:
-            x: -514.1541695281439
-            y: 411.8457371232514
+            x: -537.398329068569
+            y: 348.1765805072715
         connections:
           - from:
               insId: HttpPost-624
@@ -233,11 +233,10 @@ part:
               insId: __this
               pinId: capital
         completionOutputs:
-          - name
-          - capital
+          - name+capital
     - pos:
-        x: -255.5703509521485
-        y: 322.45756826400753
+        x: -142.9604876708985
+        y: 166.23700056076046
       id: Get Population By City-ins
       inputConfig: {}
       part:
@@ -265,8 +264,8 @@ part:
               - body
             partId: HttpPost
           - pos:
-              x: -198.32718750000004
-              y: 243.26332679748538
+              x: -143.08780761718754
+              y: 233.70198646545413
             id: "Inline-value-{city: inputs.c75"
             inputConfig: {}
             part:
@@ -293,16 +292,18 @@ part:
                 mode: static
                 value: data.populationCounts.0.value
             pos:
-              x: -242.44521728515625
-              y: 475.4914538574219
+              x: -206.3246728515625
+              y: 483.9902026367188
+            visibleInputs:
+              - obj
         inputsPosition:
           city:
-            x: -90.05109427468216
-            y: 130.05198063472523
+            x: -59.242744173605615
+            y: 192.73141904118035
         outputsPosition:
           value:
-            x: -193.830678878954
-            y: 635.5821638066014
+            x: -107.75930491072856
+            y: 617.5218613166921
         connections:
           - from:
               insId: "Inline-value-{city: inputs.c75"
@@ -395,5 +396,5 @@ part:
       x: -499.82438378976735
       y: 706.7650396699393
     output:
-      x: -499.82438378976735
-      y: 706.7650396699393
+      x: -447.80296039783997
+      y: 466.165964524412

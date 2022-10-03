@@ -59,13 +59,12 @@ $half-of-pin-height: 16px;
 
   &.inline-part-edited {
 
+    z-index: 2; // otherwise other instances get rendered on top of inline part editor
+
     > .base-part-view .base-part-view-inner {
       // padding: 0;
       overflow: hidden;
     }
-
-    
-    
     
     .inline-group-editor-container {
       // width: 400px;

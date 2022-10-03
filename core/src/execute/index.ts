@@ -251,22 +251,36 @@ const executeNative = (data: NativeExecutionData) => {
         }
 
         let completedOutputs = new Set();
+
         if (part.completionOutputs) {
           processing = true;
           onProcessing({ processing, insId: fullInsId });
 
-          const partCompletionOutputsSet = new Set(part.completionOutputs);
+          // completion outputs support the "AND" operator via "+" sign, i.e. "a+b,c" means "(a AND b) OR c)""
+          const dependenciesArray = part.completionOutputs.map(k => k.split('+'));
+          const dependenciesMap = dependenciesArray.reduce((map, currArr) => {
+            currArr.forEach((pin) => {
+              map.set(pin, currArr);
+            });
+            return map;
+          }, new Map<string, string[]>());
 
           entries(outputs).forEach(([key, subj]) => {
             subj.pipe(first()).subscribe((val) => {
               completedOutputs.add(key);
-              const requiredOutputsStr = Array.from(partCompletionOutputsSet.keys()).join(",");
-              const actualOutputsStr = Array.from(completedOutputs.keys()).join(",");
-              if (
-                partCompletionOutputsSet.has(key)
-                // partCompletionOutputsSet.size &&
-                // actualOutputsStr.includes(requiredOutputsStr)
-              ) {
+
+              let requirementArr = dependenciesMap.get(key);
+
+              if (!requirementArr) {
+                // this means the pin received is not part of completion output requirements
+                return;
+              }
+  
+              // mutating original array is important here as the impl. relies on different pins reaching the same arr obj
+              requirementArr.splice(requirementArr.indexOf(key), 1)
+              
+
+              if (requirementArr.length === 0) {
                 processing = false;
                 onProcessing({ processing, insId: fullInsId });
 
@@ -283,6 +297,8 @@ const executeNative = (data: NativeExecutionData) => {
                 if (hasNewSignificantValues(inputs, inputsState, env, part.id)) {
                   maybeRunPart();
                 }
+              } else {
+                // do nothing, part is not done
               }
             });
           });

@@ -1816,7 +1816,7 @@ describe("main ", () => {
     });
 
     describe("completion outputs", () => {
-      it("re-runs parts only when the required output complete", async () => {
+      it("re-runs parts when one of the required outputs complete", async () => {
         const item = dynamicPartInput({ config: queueInputPinConfig() });
 
         const r = new Subject();
@@ -1859,7 +1859,59 @@ describe("main ", () => {
         );
       });
 
-      it("re-runs parts only when of required outputs complete if there are more than 1", async () => {
+      it("supports + as the AND operator for completion outputs", async () => {
+        const item = dynamicPartInput({ config: queueInputPinConfig() });
+
+        
+        const f1 = dynamicOutput();
+        const f2 = dynamicOutput();
+
+        const s = spy();
+        f1.subscribe(s);
+        f2.subscribe(s);
+
+        const [sr, r] = spiedOutput();
+
+        const delayer: NativePart = {
+          id: "delayer",
+          inputs: {
+            item: partInput("number"),
+          },
+          outputs: {
+            r: partOutput("number"),
+            f1: partOutput("number"),
+            f2: partOutput("number"),
+          },
+          completionOutputs: ["f1+f2"],
+          fn: ({ item }, { r, f1, f2 }) => {
+            r.next(item);
+
+            setTimeout(() => {
+              f1.next(item);
+            }, 5);
+
+            setTimeout(() => {
+              f2.next(item);
+            }, 10);
+          },
+        };
+
+        execute({part: delayer, inputs: { item }, outputs: { f1, f2, r }, partsRepo: testRepo});
+
+        item.subject.next(1);
+        item.subject.next(2);
+        item.subject.next(3);
+
+        await eventually(
+          () => {
+            assert.deepEqual(callsFirstArgs(s), [1, 1, 2, 2, 3, 3]);
+          },
+          200,
+          5
+        );
+      });
+
+      it("re-runs parts only when one of the required outputs complete if there are more than 1", async () => {
         const item = dynamicPartInput({ config: queueInputPinConfig() });
 
         const [r, final1, final2] = [dynamicOutput(), dynamicOutput(), dynamicOutput()];

@@ -16,22 +16,20 @@ const elemPos = (elem: Element | undefined, boardPos: Pos, id: string, viewPort:
   }
   const { x, y, width, height } = elem.getBoundingClientRect();
 
+  const browserZoom = calcZoom();
   
-  const mx = x + width / 2 - boardPos.x;
-  const my = y + height / 2 - boardPos.y;
+  const mx = (x + width / 2 - boardPos.x) * browserZoom;
+  const my = (y + height / 2 - boardPos.y) * browserZoom;
 
   const logicalPos = renderedPosToLogicalPos({x: mx, y: my}, viewPort);
 
   const renderedPos = logicalPosToRenderedPos(logicalPos, viewPort);
+
+
+  console.log({browserZoom});
   
-  return {
-    /*
-      can't really explain why the formula for x is different than y
-      wanted to fix the zoom bug on vscode fast and this did the trick for a the 80% - 125% range
-     */
-    x: renderedPos.x  * calcZoom(), 
-    y: renderedPos.y  * calcZoom()
-  };
+  
+  return renderedPos;
 }
 
 

@@ -9,7 +9,7 @@ export interface EditorPorts {
     openFile: (dto: {absPath: string}) => Promise<void>,
 
     readFlow: (dto: {absPath: string}) => Promise<FlydeFlow>,
-    saveFlow: (dto: {absPath: string, flow: FlydeFlow, resolve?: boolean}) => Promise<undefined | ResolvedFlydeFlowDefinition>,
+    saveFlow: (dto: {absPath: string, flow: FlydeFlow}) => Promise<void>,
 
     resolveDeps: (dto: {absPath: string}) => Promise<ResolvedFlydeFlowDefinition>,
     getImportables: (dto: {rootFolder: string, flowPath: string}) => Promise<Record<string, PartDefRepo>>
