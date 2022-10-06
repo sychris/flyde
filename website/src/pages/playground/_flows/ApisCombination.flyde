@@ -8,8 +8,8 @@ imports:
 part:
   instances:
     - pos:
-        x: -863.0027001953125
-        y: 389.34525787353516
+        x: -911.072158203125
+        y: 152.8552523803711
       id: Inline-value-Hello from ${i76
       inputConfig: {}
       part:
@@ -34,8 +34,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -493.0424951171875
-        y: 512.2400661659241
+        x: -485.02607666015626
+        y: 243.8668934059143
       id: Inline-value-Hello from ${i76-d409
       inputConfig: {}
       part:
@@ -56,8 +56,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -241.37613220214848
-        y: -350.89940856218334
+        x: -525.7369110107422
+        y: -186.38686583757396
       id: Get User's Country-ins
       inputConfig: {}
       part:
@@ -127,8 +127,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -597.2476794433594
-        y: -89.07229239225387
+        x: -581.6926257324219
+        y: -50.24837881803512
       id: Get Country Name And Capital-ins
       inputConfig: {}
       visibleOutputs:
@@ -235,8 +235,8 @@ part:
         completionOutputs:
           - name+capital
     - pos:
-        x: -142.9604876708985
-        y: 166.23700056076046
+        x: -294.9236224365235
+        y: 82.17027387619015
       id: Get Population By City-ins
       inputConfig: {}
       part:
@@ -396,5 +396,5 @@ part:
       x: -499.82438378976735
       y: 706.7650396699393
     output:
-      x: -499.82438378976735
-      y: 706.7650396699393
+      x: -511.8485703843266
+      y: 428.20411298393054
