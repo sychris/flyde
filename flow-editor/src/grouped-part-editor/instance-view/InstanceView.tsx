@@ -560,7 +560,7 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
       return (
         <div
           className={classNames("ins-view-inner", innerCms)}
-          onClick={_onSelect}
+          onClick={_onSelect} 
           onDoubleClick={onDblClick}
           onContextMenu={showMenu}
         >

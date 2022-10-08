@@ -1,15 +1,15 @@
 import axios from "axios";
-import { CodePart, compileObjectTemplate, compileStringTemplate, debugLogger, PartRepo } from ".";
+import { CodePart, compileObjectTemplate, compileStringTemplate, debugLogger, PartRepo } from "..";
 
-import { isCodePart, NativePart, dynamicPartInput } from "./part";
+import { isCodePart, NativePart, dynamicPartInput } from "../part";
 
-import { dynamicOutput, isDefined } from ".";
+import { dynamicOutput, isDefined } from "..";
+import { getVM2Instance } from "./get-vm2";
+
+const vm2 = getVM2Instance();
 
 export const codePartToNative = (codePart: CodePart, extraContext: Record<string, any> = {}) => {
-  const vm2 =
-    (global && (global as any).vm2) || typeof window === "undefined"
-      ? (global as any).vm2
-      : window && (window as any).vm2; // hack for it to work on web
+  
   const { fnCode, ...rest } = codePart;
 
   const logger = debugLogger(`code-part:${codePart.id}`);

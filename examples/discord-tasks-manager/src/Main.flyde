@@ -1,0 +1,47 @@
+imports:
+  "@flyde/stdlib":
+    - ListFrom2
+    - Pick
+    - Dot
+    - Switch
+    - Round
+    - Boolean Split
+  AddTask.flyde.ts:
+    - Add Task
+  Bot.flyde.ts:
+    - Discord Bot
+part:
+  instances:
+    - pos:
+        x: -241.71101684570317
+        y: -637.5235516357423
+      id: Discord Bot-440
+      inputConfig: {}
+      partId: Discord Bot
+    - pos:
+        x: -575.36
+        y: -325.87
+      id: Boolean Split-380
+      inputConfig: {}
+      partId: Boolean Split
+    - pos:
+        x: -598.7188293457032
+        y: -583.8677899169923
+      id: cl90b70z7000n4666rtyvt6s8
+      inputConfig: {}
+      partId: Discord Bot
+  connections: []
+  id: Test
+  inputs: {}
+  outputs: {}
+  inputsPosition:
+    name:
+      x: 50
+      y: 0
+    assignee:
+      x: 213.41464230124672
+      y: -0.9424757136281402
+  outputsPosition:
+    task:
+      x: 139.71624555740541
+      y: 305.0083678621793

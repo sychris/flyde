@@ -15,6 +15,7 @@ import {
   PartState,
   isStickyInputPinConfig,
   getPart,
+  PartAdvancedContext,
 } from "../part";
 import { CancelFn, execute, Debugger, ExecuteEnv } from "../execute";
 import { DepGraph, isDefined, noop, okeys, OMap, randomInt, values } from "../common";
@@ -60,7 +61,8 @@ export const connect = (
   parentInsId: string = "root",
   mainState: OMap<PartState> = { bob: new Map() },
   onBubbleError: (err: any) => void = noop,
-  env: ExecuteEnv = {}
+  env: ExecuteEnv = {},
+  extraContext: Record<string, any> = {}
 ): NativePart => {
   const { id: maybeId, connections, instances } = part;
 
@@ -300,11 +302,11 @@ export const connect = (
             partsRepo: repo,
             _debugger,
             insId: instance.id,
-            extraContext: {},
+            extraContext,
             mainState,
             parentInsId,
             onBubbleError,
-            env
+            env,
           });
           cancelFns.push(cancel);
         });

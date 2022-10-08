@@ -7,25 +7,10 @@
 declare module '@flyde/runtime' {
 
     // generated flow typings
-    /**
-    * @deprecated Path "src/pages/playground/Bob1.flyde"" is corrupt. Please fix it."mainId" is missing.    */
-    export function executeFlow(path: 'Bob1.flyde', args: never): never;
-    /**
-    * @deprecated Path "src/pages/playground/_flows/ApisCombination.flyde"" is corrupt. Please fix it."mainId" is missing.    */
-    export function executeFlow(path: 'ApisCombination.flyde', args: never): never;
-    /**
-    * @deprecated Path "src/pages/playground/_flows/debounce-throttle.flyde"" is corrupt. Please fix it."mainId" is missing.    */
-    export function executeFlow(path: 'debounce-throttle.flyde', args: never): never;
-    /**
-    * @deprecated Path "src/pages/playground/_flows/fibonacci.flyde"" is corrupt. Please fix it."mainId" is missing.    */
-    export function executeFlow(path: 'fibonacci.flyde', args: never): never;
-    /**
-    * @deprecated Path "src/pages/playground/_flows/hello-world.flyde"" is corrupt. Please fix it."mainId" is missing.    */
-    export function executeFlow(path: 'hello-world.flyde', args: never): never;
-    /**
-    * @deprecated Path "src/pages/playground/_flows/react-counter/react-counter.flyde"" is corrupt. Please fix it."mainId" is missing.    */
-    export function executeFlow(path: 'react-counter.flyde', args: never): never;
-
-    // repeating static function typings.. TODO - find a way to avoid needing this
-    export const expose: (func: Function, name: string, inputs?: string[]) => void;
+    export function executeFlow(path: 'Bob1.flyde', args: {}): Promise<any>;
+    export function executeFlow(path: 'ApisCombination.flyde', args: {}): Promise<any>;
+    export function executeFlow(path: 'debounce-throttle.flyde', args: {}): Promise<any>;
+    export function executeFlow(path: 'fibonacci.flyde', args: {}): Promise<any>;
+    export function executeFlow(path: 'hello-world.flyde', args: {}): Promise<any>;
+    export function executeFlow(path: 'react-counter.flyde', args: {}): Promise<any>;
 }

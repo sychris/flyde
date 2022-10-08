@@ -20,6 +20,7 @@ export type PartAdvancedContext = {
   state: PartState;
   onCleanup: (cb: Function) => void;
   onError: (e: any) => void;
+  context: Record<string, any>;
 };
 
 export type PartFn = (
@@ -41,11 +42,14 @@ export type CustomPartViewFn = (
     }
   | false;
 
+
+
+  
 export interface BasePart {
   id: string;
   description?: string;
-  inputs: OMap<InputPin>;
-  outputs: OMap<OutputPin>;
+  inputs: Record<string, InputPin>;
+  outputs: Record<string, OutputPin>;
 
   namespace?: string;
 

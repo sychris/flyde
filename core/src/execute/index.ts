@@ -141,6 +141,7 @@ const executeNative = (data: NativeExecutionData) => {
     onError,
     onBubbleError,
     env,
+    extraContext
   } = data;
   const { fn } = part;
 
@@ -184,7 +185,7 @@ const executeNative = (data: NativeExecutionData) => {
 
     onInputsStateChange({ inputs: obj, insId: fullInsId });
   };
-
+  
   const advPartContext: PartAdvancedContext = {
     execute: innerExec,
     insId,
@@ -193,6 +194,7 @@ const executeNative = (data: NativeExecutionData) => {
     onError: (err: any) => {
       onError(err);
     },
+    context: extraContext
   };
 
   let processing = false;
@@ -285,7 +287,7 @@ const executeNative = (data: NativeExecutionData) => {
                 onProcessing({ processing, insId: fullInsId });
 
                 cleanState();
-                if (partCleanupFn && !part.outputs.jsx) {
+                if (partCleanupFn) {
                   partCleanupFn();
                   partCleanupFn = undefined;
                 } else {
@@ -365,7 +367,12 @@ const executeNative = (data: NativeExecutionData) => {
     (key, value) => {
       debug(`Got input %s - value is [%o]`, key, value);
       reportInputStateChange();
-      maybeRunPart({ key, value });
+
+      try {
+        maybeRunPart({ key, value });
+      } catch (e) {
+        onError(e);
+      }
     }
   );
 
@@ -390,7 +397,7 @@ export type ExecuteParams = {
   insId?: string;
   parentInsId?: string;
   mainState?: OMap<PartState>;
-  onBubbleError?: (err: any) => void;
+  onBubbleError?: <Err extends PartError>(err: Err) => void;
   env?: ExecuteEnv;
   extraContext?: Record<string, any>;
 }
@@ -406,7 +413,7 @@ export const execute: ExecuteFn = ({
   extraContext = {},
   mainState = {},
   parentInsId = "root",
-  onBubbleError = noop,
+  onBubbleError = noop, // (err) => { throw err},
   env = {}
 }) => {
   const toCancel: Function[] = [];
@@ -416,19 +423,16 @@ export const execute: ExecuteFn = ({
   const codePartExtraContext = { ...extraContext, ENV: env };
 
   const processedRepo = customRepoToPartRepo(partsRepo, codePartExtraContext);
-
-  console.log({part});
   
-
   const onError = (err: unknown) => {
     // this means "catch the error"
     if (outputs[ERROR_PIN_ID]) {
       outputs[ERROR_PIN_ID].next(err);
     } else {
-      const error = err instanceof Error ? err : new Error(`Raw error: ${err.toString()}`);
+      const error = err instanceof Error ? err : new Error(`Raw error: ${err.toString()}`);      
       error.message = `error in child instance ${insId}: ${error.message}`;
       (error as any).insId = insId;
-      onBubbleError(error);
+      onBubbleError(error as PartError);
 
       if (_debugger.onError) {
         const err: PartError = error as any;
@@ -440,7 +444,7 @@ export const execute: ExecuteFn = ({
 
   const processPart = (part: Part): NativePart => {
     if (isGroupedPart(part)) {
-      return connect(part, processedRepo, _debugger, `${parentInsId}.${insId}`, mainState, onError, env);
+      return connect(part, processedRepo, _debugger, `${parentInsId}.${insId}`, mainState, onError, env, extraContext);
     } else if (isCodePart(part)) {
       return codePartToNative(part, codePartExtraContext);
     } else {
@@ -522,6 +526,7 @@ export const execute: ExecuteFn = ({
     onError,
     onBubbleError,
     env,
+    extraContext
   });
 
   return () => {

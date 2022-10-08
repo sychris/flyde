@@ -14,7 +14,7 @@ module.exports = function (w) {
       type: "node",
     },
     setup: () => {
-      global.vm2 = require("vm2");
+      // setup code here
     },
   };
 };

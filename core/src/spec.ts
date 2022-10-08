@@ -1576,6 +1576,10 @@ describe("main ", () => {
       assert.equal(s.callCount < 5, true);
     });
 
+  });
+
+  describe('extra context', () => {
+
     it("passes external context forward when running code comps", async () => {
       const bobber = (n: number) => n + 42;
       const part: CodePart = {
@@ -1595,7 +1599,31 @@ describe("main ", () => {
       assert.equal(s.callCount, 1);
       assert.equal(s.lastCall.args[0], 54);
     });
-  });
+
+    it("passes external context forward when running native comps", async () => {
+      const bobber = (n: number) => n + 42;
+      const part: NativePart = {
+        id: "tester",
+        inputs: {},
+        outputs: {
+          r: partInput("number"),
+        },
+        fn: (i, o, adv) => {
+          o.r.next(adv.context.bobber(12));
+        }
+      }
+      const r = dynamicOutput();
+      const s = spy();
+      r.subscribe(s);
+      execute({part: part, inputs: {}, outputs: { r }, partsRepo: testRepo, extraContext: { bobber }});
+      assert.equal(s.callCount, 1);
+      assert.equal(s.lastCall.args[0], 54);
+    });
+    
+    it("passes external context forward to grouped parts", async () => {
+      // TODO - write test
+    });
+  })
 
   describe("const values", () => {
     it("supports const values on main execution", () => {
@@ -2479,7 +2507,7 @@ describe("main ", () => {
   });
 
   describe("error handling", () => {
-    const badPart = conciseNativePart({
+    const errorReportingPart = conciseNativePart({
       id: "bad",
       inputs: ["a"],
       outputs: ["r"],
@@ -2492,7 +2520,7 @@ describe("main ", () => {
       const s = spy();
       const a = dynamicPartInput();
 
-      execute({part: badPart, inputs: { a }, outputs: {}, partsRepo: testRepo, onBubbleError: s, insId: "someIns"});
+      execute({part: errorReportingPart, inputs: { a }, outputs: {}, partsRepo: testRepo, onBubbleError: s, insId: "someIns"});
 
       assert.equal(s.callCount, 0);
 
@@ -2509,7 +2537,7 @@ describe("main ", () => {
       const a = dynamicPartInput();
 
       const p2 = {
-        ...badPart,
+        ...errorReportingPart,
         fn: () => {
           throw new Error("blaft");
         },
@@ -2531,7 +2559,7 @@ describe("main ", () => {
       const a = dynamicPartInput();
 
       const p2 = {
-        ...badPart,
+        ...errorReportingPart,
         id: "partPart2",
         fn: () => {
           throw new Error("blaft");
@@ -2570,11 +2598,11 @@ describe("main ", () => {
         id: "badWrap",
         inputs: ["a"],
         outputs: ["r"],
-        instances: [partInstance("i1", badPart.id)],
+        instances: [partInstance("i1", errorReportingPart.id)],
         connections: [["a", "i1.a"]],
       });
 
-      execute({part: badWrapper, inputs: { a }, outputs: {}, partsRepo: testRepoWith(badPart), _debugger: {onError: s}, insId: "someIns"});
+      execute({part: badWrapper, inputs: { a }, outputs: {}, partsRepo: testRepoWith(errorReportingPart), _debugger: {onError: s}, insId: "someIns"});
 
       assert.equal(s.callCount, 0);
 
@@ -2602,14 +2630,14 @@ describe("main ", () => {
         id: "badWrap",
         inputs: ["a"],
         outputs: ["r"],
-        instances: [partInstance("i1", badPart.id)],
+        instances: [partInstance("i1", errorReportingPart.id)],
         connections: [
           ["a", "i1.a"],
           [`i1.${ERROR_PIN_ID}`, "r"],
         ],
       });
 
-      execute({part: badWrapper, inputs:{ a }, outputs: { r }, partsRepo: testRepoWith(badPart), _debugger: {onError: s1}, insId: "someIns"});
+      execute({part: badWrapper, inputs:{ a }, outputs: { r }, partsRepo: testRepoWith(errorReportingPart), _debugger: {onError: s1}, insId: "someIns"});
 
       assert.equal(s1.callCount, 0);
 
@@ -2629,7 +2657,7 @@ describe("main ", () => {
       const errPin = dynamicOutput();
       errPin.subscribe(s2);
 
-      execute({part: badPart, inputs: { a }, outputs: { [ERROR_PIN_ID]: errPin }, partsRepo: testRepo, onBubbleError: s1, insId: "someIns"});
+      execute({part: errorReportingPart, inputs: { a }, outputs: { [ERROR_PIN_ID]: errPin }, partsRepo: testRepo, onBubbleError: s1, insId: "someIns"});
 
       assert.equal(s1.callCount, 0);
       assert.equal(s2.callCount, 0);

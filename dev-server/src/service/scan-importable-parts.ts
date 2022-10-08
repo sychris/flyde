@@ -72,7 +72,10 @@ export const scanImportableParts = async (rootPath: string, filename: string) =>
       // const flowContents = readFileSync(file.fullPath, "utf8");
       const {main} = resolveFlow(file.fullPath, "definition");
 
-      const relativePath = relative(dirname(fileRoot), file.fullPath);
+      const relativePath = relative(join(fileRoot, '..'), file.fullPath);
+
+      console.log({relativePath, fileRoot, file: file.fullPath});
+      
 
       return { ...acc, [relativePath]: {[main.id]: main} };
     }, {});

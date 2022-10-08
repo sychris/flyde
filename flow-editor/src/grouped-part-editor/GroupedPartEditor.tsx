@@ -561,8 +561,8 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
 
     const onStartDragging = React.useCallback(
       (ins: PartInstance, event: React.MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
+        // event.preventDefault();
+        // event.stopPropagation();
         setDraggingId(ins.id);
         onChange({ ...part }, metaChange("drag-start"));
       },

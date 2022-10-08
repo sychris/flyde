@@ -234,12 +234,7 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
         .then((imps) => {
           return Object.entries(imps).reduce<any[]>((acc, [module, partsMap]) => {
             const parts = values(partsMap);
-
-            const importsFromModule = (flow.imports || {})[module] || [];
             const partAndModule = parts
-              .filter(part => {
-                return !importsFromModule.find(imp => imp === part.id);
-              })
               .map((part) => ({ module, part }));
             return acc.concat(partAndModule);
           }, [])
@@ -248,18 +243,13 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
 
       return [...importables];
     },
-    [ports, flow.imports, props.integratedSource]
+    [ports, props.integratedSource]
   );
 
   const onImportPart = React.useCallback(
     ({ part: importedPart, module }: ImportablePart) => {
 
       const existingModuleImports = (flow.imports || {})[module] || [];
-      if (existingModuleImports.includes(importedPart.id)) {
-        toastMsg(`Part with name ${importedPart.id} already exists in this project`, "danger");
-        return;
-      }
-
       const finalPos = vAdd({ x: 0, y: 0 }, editorState.boardData.lastMousePos);
       const newPartIns = createNewPartInstance(importedPart, 0, finalPos, repo);
 
@@ -270,8 +260,11 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (prop
 
         const imports = draft.imports || {};
         const modImports = imports[module] || [];
+
+        if (!existingModuleImports.includes(importedPart.id)) {
+          modImports.push(importedPart.id);
+        }
       
-        modImports.push(importedPart.id);
         imports[module] = modImports;
         draft.imports = imports;
       });

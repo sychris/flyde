@@ -33,7 +33,7 @@ export type ResolveMode = "implementation" | "definition" | "bundle";
 
 const getRefPartIds = (part: GroupedPart): string[] => {
   const refPartIds = part.instances.filter(isRefPartInstance).map((ins) => ins.partId);
-  const inlineParts = part.instances.filter(isInlinePartInstance).map(ins => ins.part);
+  const inlineParts = part.instances.filter(isInlinePartInstance).map((ins) => ins.part);
 
   const idsFromInline = inlineParts.reduce((acc, part) => {
     if (isGroupedPart(part)) {
@@ -43,7 +43,7 @@ const getRefPartIds = (part: GroupedPart): string[] => {
   }, []);
 
   return _.uniq([...refPartIds, ...idsFromInline]);
-}
+};
 
 const _resolveFlow = (
   fullFlowPath: string,
@@ -54,19 +54,14 @@ const _resolveFlow = (
 
   const part = flow.part;
 
-  const tempRepo: CustomPartRepo = {
-    [part.id]: part,
-  };
-
   const imports = flow.imports;
 
-  const inverseImports = Object.entries(imports)
-    .reduce((acc, curr) => {
-      const [module, parts] = curr;
-      
-      const obj = parts.reduce((acc, curr) => ({...acc, [curr as string]: module}), {});
-      return {...acc, ...obj};
-    }, {});  
+  const inverseImports = Object.entries(imports).reduce((acc, curr) => {
+    const [module, parts] = curr;
+
+    const obj = parts.reduce((acc, curr) => ({ ...acc, [curr as string]: module }), {});
+    return { ...acc, ...obj };
+  }, {});
 
   const getLocalOrExternalPaths = (importPath: string) => {
     const fullImportPath = join(fullFlowPath, "..", importPath);
@@ -79,12 +74,11 @@ const _resolveFlow = (
   };
 
   if (isGroupedPart(part)) {
-    const refPartIds = getRefPartIds(part)
+    const refPartIds = getRefPartIds(part);
 
-    let deps: ResolvedFlydeFlow['dependencies'] = {};
+    let deps: ResolvedFlydeFlow["dependencies"] = {};
 
     for (const refPartId of refPartIds) {
-
       if (refPartId === part.id) {
         // recursive call
         continue;
@@ -98,19 +92,19 @@ const _resolveFlow = (
       }
 
       const paths = getLocalOrExternalPaths(importPath);
-      
-      const {flow, path} = paths
+
+      const { flow, path } = paths
         .map((path) => {
           const contents = readFileSync(path, "utf-8");
+          return { flow: deserializeFlow(contents, path), path };
           try {
-            return { flow: deserializeFlow(contents, path), path };
           } catch (e) {
             console.error(e);
-            
-            return null
+
+            return null;
           }
         })
-        .filter(obj => !!obj)
+        .filter((obj) => !!obj)
         .find((obj) => obj.flow.part.id === refPartId);
 
       if (!flow) {
@@ -120,15 +114,16 @@ const _resolveFlow = (
       }
 
       const resolvedImport = resolveFlow(path, mode, originalFlowPath);
-      
+
       const namespacedImport = namespaceFlowImports(resolvedImport, `${refPartId}__`);
 
       deps = {
         ...deps,
         ...namespacedImport.dependencies,
         [refPartId]: {
-          ...namespacedImport.main, importPath: path
-        }
+          ...namespacedImport.main,
+          importPath: path,
+        },
       };
 
       /* 
@@ -136,14 +131,14 @@ const _resolveFlow = (
         TODO - check if this is really required
       */
 
-     const originalFlowFolder = dirname(originalFlowPath);
+      const originalFlowFolder = dirname(originalFlowPath);
       deps = _.mapValues(deps, (val: ImportedPart, key) => {
         const part = val as NativePart;
-        if (typeof part.fn === 'function' && mode === 'bundle') {
+        if (typeof part.fn === "function" && mode === "bundle") {
           const requirePath = relative(originalFlowFolder, val.importPath);
-          
+
           part.fn = `__BUNDLE_FN:[[${requirePath}]]` as any;
-          return {...val, part}
+          return { ...val, part };
         }
         return val;
       });

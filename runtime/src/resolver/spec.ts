@@ -256,5 +256,18 @@ describe("resolver", () => {
     assert.equal(val, 2 + 1);
   });
 
+  describe('typescript', () => {
+    it('runs code parts written in TS', async () => {
+      const data = resolveFlow(getFixturePath("a-imports-ts-part-from-b/a.flyde"));
+      const part = data.main;
+  
+      const repo = data.dependencies as PartRepo;
+      
+      const val = await simplifiedExecute(part, repo, { n: 2 });
+      
+      assert.equal(val, 1);
+    });
+  });
+
 
 });

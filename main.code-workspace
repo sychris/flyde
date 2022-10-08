@@ -26,6 +26,9 @@
 		},
 		{
 			"path": "../flyde-vscode"
+		},
+		{
+			"path": "examples/discord-tasks-manager"
 		}
 	],
 	"settings": {

@@ -27,7 +27,7 @@ export const scanFolderStructure = (path: string, root: string = path, maxDepth 
                     fullPath: filePath,
                     relativePath: relative(root, filePath),
                     isFlyde: file.endsWith('.flyde'),
-                    isFlydeCode: file.endsWith('.flyde.js')
+                    isFlydeCode: file.endsWith('.flyde.js') || file.endsWith('.flyde.ts')
                 });
             }
         }
