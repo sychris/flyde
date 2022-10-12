@@ -5,6 +5,20 @@ $font-family: Nunito, sans-serif;
 
 $shadow-a: 0px 0px 10px 2px rgba(48, 48, 48, 0.15);
 
+$amethyst: #9b5de5ff;
+$magenta-crayola: #f15bb5ff;
+$minion-yellow: #fee440ff;
+$capri: #00bbf9ff;
+$sea-green-crayola: #00f5d4ff;
+
+/* SCSS HEX */
+$uranian-blue: #ade1ffff;
+$pale-pink: #ffd6dbff;
+$pale-purple-puntone: #eddfefff;
+$aero-blue: #c1ebdbff;
+$tea-green: #dff2baff;
+
+
 
 @mixin base-part($bg-color: white) {
     color: #000000;
@@ -16,11 +30,16 @@ $shadow-a: 0px 0px 10px 2px rgba(48, 48, 48, 0.15);
     font-size: 20px;
     font-weight: 600;
     text-align: center;
-    padding: 4px 15px 3px;
+    padding: 8px 15px 6px;
     transition: background-color ease-in-out 0.1s, box-shadow ease-in-out 0.2s;
-    max-width: 600px;
+    max-width: 400px;
     white-space: nowrap;
     overflow: hidden;
+
+    // display: -webkit-box;
+    // -webkit-box-orient: vertical;
+    // -webkit-line-clamp: 3;
+    // overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
 

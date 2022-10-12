@@ -21,6 +21,17 @@
     stroke: #6c6c6c;
     // stroke-dasharray: 8;
     // animation: dashdash 1s linear infinite;
+
+    cursor: pointer;
+
+    &.hidden{
+      stroke: transparent;
+      &.parent-selected {
+        stroke-dasharray: 8;
+        stroke: #6c6c6c;
+      }
+    }
+
   }
   
   .connection[data-runtime='active'] {

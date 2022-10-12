@@ -36,6 +36,7 @@ export type ConnectionData = {
   from: ConnectionNode;
   to: ConnectionNode;
   delayed?: boolean;
+  hidden?: boolean;
 };
 
 export type ExternalConnectionNode = {

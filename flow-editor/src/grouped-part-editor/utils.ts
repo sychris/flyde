@@ -452,7 +452,7 @@ export const centerBoardPosOnTarget = (target: Pos, vpSize: Size, newZoom: numbe
 }
 
 const FIT_VIEWPORT_MIN_ZOOM = 0.3;
-const FIT_VIEWPORT_MAX_ZOOM = 1.5;
+const FIT_VIEWPORT_MAX_ZOOM = 1.2;
 
 export const fitViewPortToPart = (part: GroupedPart, repo: PartDefRepo, vpSize: Size): ViewPort => {
   const { size, center } = getEffectivePartDimensions(part, repo);

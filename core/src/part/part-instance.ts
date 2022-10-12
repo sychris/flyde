@@ -1,4 +1,4 @@
-import { InputPinsConfig, Part, PartDefinition, Pos } from "..";
+import { InputPinsConfig, Part, PartDefinition, PartStyle, Pos } from "..";
 
 
 export interface PartInstanceConfig {
@@ -6,6 +6,7 @@ export interface PartInstanceConfig {
   visibleInputs?: string[];
   visibleOutputs?: string[];
   displayName?: string;
+  style?: PartStyle;
 }
 
 export interface RefPartInstance extends PartInstanceConfig{

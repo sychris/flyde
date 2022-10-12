@@ -6,8 +6,8 @@ imports:
 part:
   instances:
     - pos:
-        x: 675.1110580444335
-        y: 367.3388706970215
+        x: 560.8748977661132
+        y: 337.4179188537598
       id: Debounce-194-d108
       inputConfig:
         ms:
@@ -17,8 +17,8 @@ part:
         - i
       partId: Debounce
     - pos:
-        x: 310.59608947753907
-        y: 293.4767009353638
+        x: 249.37758361816407
+        y: 298.85844150543215
       id: Throttle-652
       inputConfig:
         threshold:
@@ -26,8 +26,8 @@ part:
           value: 4000
       partId: Throttle
     - pos:
-        x: 378.7415020751953
-        y: 512.8180014038086
+        x: 330.4056408691406
+        y: 608.0996481323242
       id: Inline-value-Value was thro-555
       inputConfig: {}
       part:
@@ -45,8 +45,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: -98.51334350585938
-        y: 516.9917474365234
+        x: -118.86081665039063
+        y: 545.4167886352539
       id: Inline-value-Throttle out-817
       inputConfig: {}
       part:
@@ -67,8 +67,8 @@ part:
         completionOutputs:
           - r
     - pos:
-        x: 659.0957330322266
-        y: 569.2628442382812
+        x: 659.2261499023438
+        y: 606.5682794189453
       id: Inline-value-Debounce out-720
       inputConfig: {}
       part:

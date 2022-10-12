@@ -4,8 +4,8 @@ imports:
 part:
   instances:
     - pos:
-        x: 285.0211181640625
-        y: 155.20301014184952
+        x: 278.7706298828125
+        y: 254.744506418705
       id: ins1
       inputConfig: {}
       part:
@@ -61,9 +61,12 @@ part:
             x: 850
             y: 0
         customViewCode: Your Logic Here 🕺🏼
+      style:
+        size: large
+        color: "#9b5de5"
     - pos:
-        x: 770.2893768310547
-        y: 334.28515510559083
+        x: 621.8704467773438
+        y: 280.0825412750244
       id: Id-72
       inputConfig: {}
       partId: Id
@@ -147,11 +150,11 @@ part:
       x: 450
       y: 0
     r1:
-      x: 650
-      y: 0
+      x: 563.3918913207393
+      y: 7.810340876540417
     r2:
-      x: 850
-      y: 0
+      x: 732.090545657635
+      y: -3.1867370862667372
   outputsPosition:
     r3:
       x: 111

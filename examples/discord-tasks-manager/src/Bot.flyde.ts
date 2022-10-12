@@ -1,18 +1,19 @@
-import { GroupedPart, NativePart, partInput, partOutput } from "@flyde/core";
+import { NativePart, partOutput } from "@flyde/core";
 import { Client } from "eris";
-import { createTasksService } from "./tasks";
-
-const servicePromise = createTasksService();
 
 const part: NativePart = {
   id: "Discord Bot",
   inputs: {},
+  defaultStyle: {
+    icon: ['fab', 'discord'],
+    color: '#7289da',
+    size: 'large'
+  },
   outputs: {
     interaction: partOutput(),
     message: partOutput()
   },
   fn: (inputs, outputs, adv) => {
-    console.log('BOB', 72);
     const bot: Client = adv?.context.bot;
 
     bot.on("error", async (e) => {

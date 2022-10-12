@@ -39,5 +39,9 @@ export const createInlineCodePart = ({ code, customView, partId, type }: InlineC
     dataBuilderSource,
     templateType: type,
     completionOutputs: ["r"],
+    defaultStyle: {
+      size: 'small',
+      icon: 'code'
+    }
   });
 };

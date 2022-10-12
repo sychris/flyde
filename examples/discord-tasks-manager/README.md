@@ -4,7 +4,7 @@ A discord bot that manages a to-do list. Built using:
 - *Flyde* ✨
 - Typescript
 - Eris
-- [LokiJS](https://github.com/techfort/LokiJS) for persistency
+- [LokiJS](https://github.com/techfort/LokiJS) for persistence
 
 
 ## Prerequisites
@@ -14,7 +14,7 @@ A discord bot that manages a to-do list. Built using:
 
 
 ## Running locally
-1. Create a new Discord bot and fetch it's token. Check [this link](https://www.toptal.com/chatbot/how-to-make-a-discord-bot) for instructions
+1. Create a new Discord bot and fetch its token. Check [this link](https://www.toptal.com/chatbot/how-to-make-a-discord-bot) for instructions
 2. Add your bot to a Discord server
 3. Add a ".env" file with this line "BOT_TOKEN=XXX" and replace XXX with your token
 4. `yarn install`

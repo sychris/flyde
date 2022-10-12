@@ -35,9 +35,19 @@ import { AppToaster, toastMsg } from "../toaster";
 
 import { FlydeFlowChangeType, functionalChange } from "./flyde-flow-change-type";
 import { Omnibar, OmniBarCmd, OmniBarCmdType } from "./omnibar/Omnibar";
+
 import { usePorts } from "./ports";
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fab } from '@fortawesome/free-brands-svg-icons';
+import {fas} from '@fortawesome/free-solid-svg-icons';
+
 export * from './ports';
+
+
+
+library.add(fab, fas)
+
 
 export type FlowEditorState = {
   flow: FlydeFlow;

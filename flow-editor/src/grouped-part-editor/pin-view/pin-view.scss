@@ -11,7 +11,7 @@ $MINIMIZED_WIRE_LENGTH: 6px;
   
   .pin-inner {
     border-radius: 10px;
-    font-size: 11px;
+    // font-size: 11px;
     padding-left: 5px;
     padding-right: 5px;
     background: #fff2d9;
@@ -73,7 +73,7 @@ $MINIMIZED_WIRE_LENGTH: 6px;
     cursor: pointer;
     // transition: box-shadow 0.3s ease-out;
     will-change: border, box-shadow;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 600;
     padding: 2px 4px 0px 4px;
 

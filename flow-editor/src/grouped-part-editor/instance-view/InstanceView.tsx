@@ -1,4 +1,5 @@
 import * as React from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   entries,
   pickFirst,
@@ -7,10 +8,16 @@ import {
   partInput,
   keys,
   isInlinePartInstance,
-  GroupedPart,
   InlinePartInstance,
+  randomInt,
+  pickRandom,
+  PartStyle,
 } from "@flyde/core";
 import classNames from "classnames";
+
+// import { fab } from '@fortawesome/free-brands-svg-icons'
+
+
 
 // ;
 import { PinView } from "../pin-view/PinView";
@@ -29,15 +36,14 @@ import { calcPartContent } from "./utils";
 import { BasePartView } from "../base-part-view";
 import { isStaticInputPinConfig } from "@flyde/core";
 
-import { debounce, noop, size } from "lodash";
+import { debounce } from "lodash";
 import { getInstanceDomId } from "../dom-ids";
 import { HistoryPayload } from "@flyde/remote-debugger";
-import { toastMsg } from "../../toaster";
 import { ClosestPinData, GroupedPartEditor, GroupedPartEditorProps } from "../GroupedPartEditor";
 import { usePrompt } from "../..";
-import { ContextMenu, IMenuItemProps, Menu, MenuItem } from "@blueprintjs/core";
-import { Resizable } from "react-resizable";
-import { useDebounce } from "use-debounce";
+import { ContextMenu, IMenuItemProps, Menu, MenuDivider, MenuItem } from "@blueprintjs/core";
+import ReactDOM from "react-dom";
+import { PartStyleMenu } from "./PartStyleMenu";
 
 export const PIECE_HORIZONTAL_PADDING = 25;
 export const PIECE_CHAR_WIDTH = 11;
@@ -139,10 +145,16 @@ export interface InstanceViewProps {
 
   forceShowMinimized?: PinType | "both";
 
+  isConnectedInstanceSelected: boolean;
+
   inlineGroupProps?: GroupedPartEditorProps;
   onCloseInlineEditor: () => void;
 
   onExtractInlinePart: (instance: InlinePartInstance) => Promise<void>;
+  
+  inlineEditorPortalDomNode: HTMLElement;
+
+  onChangeStyle: (instance: PartInstance, style: PartStyle) => void;
 }
 
 export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewInner(props) {
@@ -150,8 +162,6 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
     selected,
     selectedInput,
     selectedOutput,
-    connectionsPerInput,
-    connectionsPerOutput,
     closestPin,
     dragged,
     onTogglePinLog,
@@ -164,7 +174,6 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
     instance,
     viewPort,
     part,
-    partDefRepo,
     onPinClick,
     onPinDblClick,
     onDragStart,
@@ -179,7 +188,10 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
     onConvertConstToEnv,
     inlineGroupProps,
     onUngroup,
-    onExtractInlinePart
+    onExtractInlinePart,
+    isConnectedInstanceSelected,
+    inlineEditorPortalDomNode,
+    onChangeStyle
   } = props;
 
   const { id } = instance;
@@ -188,7 +200,36 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
 
   const [inlineEditorSize, setInlineEditorSize] = React.useState({w: 800, h: 600});
 
+  const theme = React.useMemo(() => {
+    const icons = [['fab', 'discord'], ['fab', 'slack'], 'bug', 'cube'];
+    const color = randomInt(6, 1);
+    const icon = pickRandom(icons);
+    const size = randomInt(3, 1);
+
+    return {icon, color, size, variation: randomInt(5, 1)};
+    
+  }, []);
+
   const inlineEditorRef = React.useRef();
+
+  const style = instance.style || part.defaultStyle || {};
+  const size = style.size || 'regular';
+
+  const connectedInputs = React.useMemo(() => {
+    return new Map(
+      connections
+        .filter(({ to }) => to.insId === id)
+        .map(({ to, hidden }) => ([to.pinId, hidden]))
+    )
+  }, [connections, id]);
+
+  const connectedOutputs = React.useMemo(() => {
+    return new Map(
+      connections
+        .filter(({ from }) => from.insId === id)
+        .map(({ from, hidden }) => ([from.pinId, hidden]))
+    )
+  }, [connections, id]);
 
   const _prompt = usePrompt();
 
@@ -288,11 +329,11 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
   os.push([ERROR_PIN_ID, partOutput("error")]);
 
   const inputsToRender = is.filter(([k]) => {
-    return _visibleInputs.includes(k);
+    return _visibleInputs.includes(k) || ((selected || isConnectedInstanceSelected) && connectedInputs.has(k));
   });
 
   const outputsToRender = os.filter(([k]) => {
-    return _visibleOutputs.includes(k);
+    return _visibleOutputs.includes(k) || ((selected || isConnectedInstanceSelected) && connectedOutputs.has(k));
   });
 
   const cm = classNames("ins-view", {
@@ -310,15 +351,8 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
   const innerCms = classNames({
     selected,
     dragged,
-    closest: closestPin && closestPin.ins.id === instance.id,
-  });
-
-  const connectedInputs = new Set(
-    connections.filter(({ to }) => to.insId === id).map(({ to }) => to.pinId)
-  );
-  const connectedOutputs = new Set(
-    connections.filter(({ from }) => from.insId === id).map(({ from }) => from.pinId)
-  );
+    closest: closestPin && closestPin.ins.id === instance.id
+  }, `size-${size}`);
 
   const optionalInputs = new Set(
     entries(part.inputs)
@@ -455,16 +489,20 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
     );
   };
 
+  const _onChangeStyle = React.useCallback((style: PartStyle) => {
+    onChangeStyle(instance, style);
+  }, [instance, onChangeStyle]);
+
   const getContextMenu = React.useCallback(() => {
     const inputMenuItems = inputKeys.map((k) => {
       const isVisible = _visibleInputs.includes(k);
-      const isConnected = connectedInputs.has(k);
+      const isConnectedAndNotHidden = connectedInputs.has(k) && connectedInputs.get(k) !== true;
   
       const pinName = k === TRIGGER_PIN_ID ? "Trigger Pin" : k;
   
       return {
         text: isVisible
-          ? isConnected
+          ? isConnectedAndNotHidden
             ? `Hide input "${pinName}" (disconnect first)`
             : `Hide input "${pinName}"`
           : `Show input "${pinName}"`,
@@ -473,7 +511,7 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
             instance,
             isVisible ? _visibleInputs.filter((i) => i !== k) : [..._visibleInputs, k]
           ),
-        disabled: isConnected && isVisible,
+        disabled: isConnectedAndNotHidden && isVisible ,
       };
     });
   
@@ -510,12 +548,15 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
     ];
     return (
       <Menu>
+        <MenuItem text='Style'>
+          <PartStyleMenu style={style} onChange={_onChangeStyle}/>
+        </MenuItem>
         {contextMenuItems.map((item) => (
           <MenuItem {...item} />
         ))}
       </Menu>
     );
-  }, [_onChangeVisibleInputs, _onChangeVisibleOutputs, _visibleInputs, _visibleOutputs, connectedInputs, connectedOutputs, inputKeys, instance, onChangeVisibleInputs, onChangeVisibleOutputs, onExtractInlinePart, onUngroup, outputKeys]);
+  }, [inputKeys, outputKeys, instance, _onChangeVisibleInputs, _onChangeVisibleOutputs, style, _onChangeStyle, _visibleInputs, connectedInputs, onChangeVisibleInputs, _visibleOutputs, connectedOutputs, onChangeVisibleOutputs, onUngroup, onExtractInlinePart]);
 
   const showMenu = React.useCallback(
     (e: React.MouseEvent) => {
@@ -541,30 +582,37 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
     debounceMaybeCenterInline();
   }, [debounceMaybeCenterInline] );
 
+  const styleVarProp = {
+    '--part-color': style.color
+  } as React.CSSProperties;
+
   const renderContent = () => {
     if (inlineGroupProps) {
       return (
-        <Resizable width={inlineEditorSize.w} height={inlineEditorSize.h} onResize={onResizeInline} handle={<span className='no-drag react-resizable-handle react-resizable-handle-se'/>}>
+        // ReactDOM.createPortal((<Resizable width={inlineEditorSize.w} height={inlineEditorSize.h} onResize={onResizeInline} handle={<span className='no-drag react-resizable-handle react-resizable-handle-se'/>}>
+          ReactDOM.createPortal(
           <div
-            className="inline-group-editor-container"
-            style={{ width: `${inlineEditorSize.w}px`, height: `${inlineEditorSize.h}px` }}
+            className="inline-group-editor-container no-drag"
+            // style={{ width: `${inlineEditorSize.w}px`, height: `${inlineEditorSize.h}px` }}
           >
             <header>
               {content} <button onClick={props.onCloseInlineEditor}>close</button>
             </header>
             <GroupedPartEditor {...props.inlineGroupProps} className="no-drag" ref={inlineEditorRef}/>
           </div>
-        </Resizable>
+        , inlineEditorPortalDomNode)
+        // </Resizable>), inlineEditorPortalDomNode)
       );
     } else {
       return (
         <div
-          className={classNames("ins-view-inner", innerCms)}
+          className={classNames("ins-view-inner", innerCms, `size-${theme.size}`)}
           onClick={_onSelect} 
           onDoubleClick={onDblClick}
           onContextMenu={showMenu}
+          style={styleVarProp}
         >
-          {content}
+          {style.icon ? <FontAwesomeIcon icon={style.icon as any} /> : null } {content}
         </div>
       );
     }

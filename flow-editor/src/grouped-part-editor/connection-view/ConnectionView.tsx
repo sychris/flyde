@@ -23,6 +23,7 @@ import { calcBezierPath } from "./bezier";
 import { useSsr } from 'usehooks-ts'
 import { renderedPosToLogicalPos, ViewPort, vMul } from "../..";
 import { vDiv } from "../../physics";
+import { ContextMenu, Menu, MenuItem } from "@blueprintjs/core";
 
 
 export interface BaseConnectionViewProps {
@@ -40,11 +41,15 @@ export interface BaseConnectionViewProps {
 export interface ConnectionViewProps extends BaseConnectionViewProps {
   connections: ConnectionData[];
   futureConnection?: {connection: ConnectionData, type: "future-add" | "future-remove"};
+  selectedInstances: string[];
+  toggleHidden: (connection: ConnectionData) => void;
 }
 
 export interface ConnectionItemViewProps extends BaseConnectionViewProps {
   connection: ConnectionData;
   type: 'regular' | 'future-add' | 'future-remove';
+  toggleHidden: (connection: ConnectionData) => void;
+  parentSelected: boolean;
 }
 
 const calcStartPos = (props: ConnectionItemViewProps): Pos => {
@@ -72,7 +77,7 @@ const calcTargetPos = (props: ConnectionItemViewProps): Pos => {
 export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) => {
   const { isBrowser } = useSsr();
 
-  const { connection, part, repo, instances, type, viewPort } = props;
+  const { connection, part, repo, instances, type, viewPort, toggleHidden, parentSelected } = props;
   const {from } = connection;
 
   const fromInstance = isInternalConnectionNode(from) && instances.find((i) => i.id === from.insId);
@@ -93,7 +98,7 @@ export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) =
   const {x: x1, y: y1} = vDiv(startPos, props.parentVp.zoom);
   const {x: x2, y: y2} = vDiv(endPos, props.parentVp.zoom);
 
-  const cm = classNames("connection", { delayed }, type);
+  const cm = classNames("connection", { delayed, hidden: connection.hidden, 'parent-selected': parentSelected }, type);
 
   const bob = calcBezierPath({
     sourceX: x1,
@@ -109,9 +114,22 @@ export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) =
   const middleX = (x1 + x2) / 2; 
   const middleY = (y1 + y2) / 2;
 
+  const showMenu = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const menu = (<Menu>
+        <MenuItem text={connection.hidden ? 'Show connection' : 'Hide connection'} onClick={() => toggleHidden(connection)}/>
+    </Menu>);
+      ContextMenu.show(menu, { left: e.pageX, top: e.pageY });
+    },
+    [connection, toggleHidden]
+  );
+
+
 
   return (<React.Fragment>
-      <path d={bob} className={cm} style={{strokeWidth, strokeDasharray}}/>
+      <path d={bob} className={cm} style={{strokeWidth, strokeDasharray}} onContextMenu={showMenu}/>
       {type  === 'future-add' ? <text className='label' x={middleX} y={middleY} font-size="12px">Add connection</text> : null }
       {type  === 'future-remove' ? <text className='label' x={middleX} y={middleY} font-size="12">Remove connection</text> : null }
     </React.Fragment>
@@ -120,7 +138,7 @@ export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) =
 
 export const ConnectionView: React.FC<ConnectionViewProps> = (props) => {
 
-  const { viewPort, futureConnection } = props;
+  const { viewPort, futureConnection, toggleHidden, selectedInstances } = props;
 
   const [renderTrigger, setRenderTrigger] = React.useState(0);
 
@@ -161,13 +179,14 @@ export const ConnectionView: React.FC<ConnectionViewProps> = (props) => {
   }, [requestRerender, renderTrigger])
 
   const connectionPaths = props.connections.map(conn => {
-    return <SingleConnectionView {...props} connection={conn} type='regular'/>
+    const parentSelected = selectedInstances.includes(conn.from.insId) || selectedInstances.includes(conn.to.insId);
+    return <SingleConnectionView {...props} connection={conn} type='regular' parentSelected={parentSelected}/>
   });
 
 
   if (futureConnection) {
     connectionPaths.push(
-      <SingleConnectionView {...props} connection={futureConnection.connection} type={futureConnection.type}/>
+      <SingleConnectionView {...props} connection={futureConnection.connection} type={futureConnection.type} toggleHidden={toggleHidden} parentSelected={false}/>
     )
   }
 

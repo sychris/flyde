@@ -9,7 +9,7 @@ module.exports = {
   },
   outputs: { r: { type: "any" }, else: { type: "any" } },
   customViewCode:
-    "<% if (isDefined(inputs.compare)) { %>Equals <%- inputs.compare %> <% } else { %> Equals <% } %>",
+    `<% if (isDefined(inputs.compare)) { %>Equals "<%- inputs.compare %>" <% } else { %> Equals <% } %>`,
   completionOutputs: ["r", "else"],
   fn: function (inputs, outputs, adv) {
     const { val, compare, transform } = inputs;

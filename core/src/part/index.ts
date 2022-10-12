@@ -6,7 +6,6 @@ import { ConnectionData } from "../connect";
 import { Pos, PartDefRepo, PartRepo } from "..";
 import { isInlinePartInstance, PartInstance } from "./part-instance";
 import { InputPin, InputPinMap, OutputPin, OutputPinMap, PartInput, PartInputs } from "./part-pins";
-import { ResolvedFlydeFlowDefinition } from "../flow-schema";
 
 export * from "./part-instance";
 export * from "./part-pins";
@@ -41,10 +40,18 @@ export type CustomPartViewFn = (
       hiddenOutputs?: string[];
     }
   | false;
-
-
-
   
+
+export type PartStyleSize = 'small' | 'regular' | 'large';
+export type PartTypeIcon = string | [string, string];
+
+export interface PartStyle {
+  icon?: PartTypeIcon;
+  size?: PartStyleSize;
+  color?: string | [string, string];
+}
+
+
 export interface BasePart {
   id: string;
   description?: string;
@@ -57,6 +64,8 @@ export interface BasePart {
   reactiveInputs?: string[];
 
   customViewCode?: string;
+
+  defaultStyle?: PartStyle;
 }
 
 export interface NativePart extends BasePart {
