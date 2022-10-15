@@ -23,13 +23,14 @@
   "workspaces": [
     "core",
     "flow-editor",
-    "runtime",
     "dev-server",
     "stdlib",
     "website",
     "examples/*",
     "editor",
-    "remote-debugger"
+    "remote-debugger",
+    "resolver",
+    "runtime"
   ],
   "packageManager": "yarn@3.2.0",
   "devDependencies": {
@@ -46,6 +47,7 @@
           "dev-server",
           "core",
           "flow-editor",
+          "resolver",
           "runtime",
           "remote-debugger"
         ]

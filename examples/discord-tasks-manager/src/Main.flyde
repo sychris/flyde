@@ -18,24 +18,23 @@ imports:
 part:
   instances:
     - pos:
-        x: -405.4586364746094
-        y: -889.568900756836
+        x: -557.5451843261719
+        y: -873.0248333740235
       id: cl918rngj00074666es8w7c41
       inputConfig: {}
       partId: Discord Bot
     - pos:
-        x: -274.6351391601561
-        y: -295.31110961914055
+        x: -242.7564770507811
+        y: -312.3191052246093
       id: Add Task-676
       inputConfig: {}
       partId: Add Task
       style:
         size: regular
-        icon: rocket
         color: "#f15bb5"
     - pos:
-        x: -350.5228442382813
-        y: -50.764983062744136
+        x: -325.1449755859376
+        y: -173.33627212524414
       id: Inline-value-inputs.interact17
       inputConfig: {}
       part:
@@ -58,9 +57,16 @@ part:
         defaultStyle:
           size: small
           icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "300"
+      style:
+        size: small
+        icon: code
+        color: "#f15bb5"
     - pos:
-        x: -526.0134629821777
-        y: -560.8221346282959
+        x: -528.6424913024902
+        y: -563.3962923431396
       id: Tasks Command Router-ins
       inputConfig: {}
       part:
@@ -170,9 +176,6 @@ part:
           - add
       style:
         size: regular
-        icon:
-          - fab
-          - github
         color: "#fee440"
     - pos:
         x: -578.688310546875
@@ -259,10 +262,10 @@ part:
           - tasks
           - other
       style:
-        size: large
+        size: regular
     - pos:
-        x: -737.0487841796876
-        y: -235.2718800354004
+        x: -760.1337451171876
+        y: -258.2449024963379
       id: cl935owgw002046664zlvwaum
       inputConfig: {}
       part:
@@ -286,9 +289,12 @@ part:
         defaultStyle:
           size: small
           icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "300"
     - pos:
-        x: -295.7528253173829
-        y: 59.09825584411618
+        x: -295.2616143798829
+        y: -60.57020118713382
       id: Create Message-ins
       inputConfig: {}
       visibleInputs:
@@ -350,9 +356,11 @@ part:
             to:
               insId: cl9337the00014666v6s9fbqy
               pinId: interaction
+      style:
+        color: "#00f5d4"
     - pos:
-        x: -680.1726251220704
-        y: -107.32685401916507
+        x: -661.1897149658204
+        y: -157.64039161682132
       id: cl935tkuj000g46665ec7pbyf
       inputConfig: {}
       visibleInputs:
@@ -414,6 +422,8 @@ part:
             to:
               insId: cl9337the00014666v6s9fbqy
               pinId: interaction
+      style:
+        color: "#00f5d4"
     - pos:
         x: -332.56988525390625
         y: -405.06505615234374
@@ -623,8 +633,8 @@ part:
       style:
         size: small
     - pos:
-        x: -94.67639633178715
-        y: -696.4202001571655
+        x: -140.7728929138184
+        y: -713.102695274353
       id: Ping Pong Handler-ins
       inputConfig: {}
       part:
@@ -736,6 +746,9 @@ part:
               insId: Dot-213
               pinId: obj
         completionOutputs: []
+      style:
+        icon: table-tennis-paddle-ball
+        color: "#00bbf9"
   connections:
     - from:
         insId: Add Task-676
@@ -839,6 +852,18 @@ part:
     gg:
       x: -205.69758969263015
       y: -899.1652450176554
+    bb:
+      x: -532.14
+      y: -717.72
+    test:
+      x: -610.42
+      y: -767.77
+    ttt:
+      x: -623.25
+      y: -740.82
+    ggxcgfdg:
+      x: -623.25
+      y: -740.82
   outputsPosition:
     task:
       x: 139.71624555740541

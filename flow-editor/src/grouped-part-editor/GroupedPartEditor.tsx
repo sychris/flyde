@@ -1396,7 +1396,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
             />
             <MenuDivider/>
             <MenuItem text='Default Style'>
-              <PartStyleMenu style={part.defaultStyle} onChange={onChangeDefaultStyle}/>
+              <PartStyleMenu style={part.defaultStyle} onChange={onChangeDefaultStyle} promptFn={_prompt}/>
             </MenuItem>
           </Menu>
         );
@@ -1771,6 +1771,13 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
       onChange(val, functionalChange('toggle connection hidden'));
     }, [onChange, part]);
 
+    const removeConnection = React.useCallback((connection: ConnectionData) => {
+      const val = produce(part, draft => {
+        draft.connections = draft.connections.filter(conn => !connectionDataEquals(conn, connection));
+      })
+      onChange(val, functionalChange('remove connection'));
+    }, [onChange, part]);
+
     try {
       return (
         <div className={classNames('grouped-part-editor', props.className)} data-id={part.id} onContextMenu={showContextMenu}>
@@ -1810,6 +1817,7 @@ export const GroupedPartEditor: React.FC<GroupedPartEditorProps & { ref?: any }>
               parentVp={parentViewport}
               selectedInstances={selected}
               toggleHidden={toggleConnectionHidden}
+              removeConnection={removeConnection}
             />
             {renderPartInputs()}
             {instances.map((ins) => (

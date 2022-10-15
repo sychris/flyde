@@ -49,6 +49,7 @@ export interface PartStyle {
   icon?: PartTypeIcon;
   size?: PartStyleSize;
   color?: string | [string, string];
+  cssOverride?: Record<string, string>;
 }
 
 

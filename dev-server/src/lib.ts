@@ -20,14 +20,17 @@ export const initFlydeDevServer = (options: InitFlydeDevServerOptions) => {
   runDevServer(Number(options.port), root, options.editorStaticsRoot);
   console.log("running dev server on", options.port, "root", root);
 
-  // setupFlowsWatcher(root, (flows) => {
-  //   const flowsArr = Array.from(flows.entries()).map(([k, v]) => ({
-  //     relativePath: k,
-  //     flow: v,
-  //     fileName: k.split("/").pop(),
-  //   }));
-  //   const typings = generateTypings(flowsArr);
+  setupFlowsWatcher(root, (flows) => {
+    const flowsArr = Array.from(flows.entries()).map(([k, v]) => ({
+      relativePath: k,
+      flow: v,
+      fileName: k.split("/").pop(),
+    }));
 
-  //   writeFileSync(join(root, TYPINGS_TARGET), typings);
-  // });
+    console.log(flowsArr);
+    
+    const typings = generateTypings(flowsArr);
+
+    writeFileSync(join(root, TYPINGS_TARGET), typings);
+  });
 };

@@ -64,12 +64,6 @@ part:
       style:
         size: large
         color: "#9b5de5"
-    - pos:
-        x: 621.8704467773438
-        y: 280.0825412750244
-      id: Id-72
-      inputConfig: {}
-      partId: Id
   connections:
     - from:
         insId: __this
@@ -107,12 +101,6 @@ part:
       to:
         insId: __this
         pinId: r4
-    - from:
-        insId: __this
-        pinId: r1
-      to:
-        insId: Id-72
-        pinId: v
   id: Bob1
   inputs:
     a:

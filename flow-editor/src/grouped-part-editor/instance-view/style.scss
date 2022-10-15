@@ -161,38 +161,6 @@ $half-of-pin-height: 16px;
       }
     }
   }
-
-
-  &[data-part-id="Pick"],
-  &[data-part-id="Dot"] {
-  
-    .ins-view-inner {
-      @include custom-part-color(#f2fdff);
-
-      font-size: 18px;
-      
-      padding: 2px 8px;
-      line-height: 20px;
-    }
-  }
-
-  // &[data-part-id^="Inline Code"],
-  // &[data-part-id^="Inline-value"] {  
-  //   .ins-view-inner {
-  //     @include custom-part-color(#f7f7f7);
-  //     font-size: 18px;
-  //     padding: 2px 8px;
-  //     line-height: 20px;
-  //     font-weight: 400;
-  //     font-family: monospace;
-  //   }
-
-  // }
-      // background
-    // .ins-view-inner {
-      // background: #007EC6;
-      // color: white;
-    // }
 }
 
 

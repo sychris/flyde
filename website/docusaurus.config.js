@@ -14,7 +14,7 @@ const FixWebpack5Plugin = () => ({
             test: /\.flyde$/,
             use: [
               {
-                loader: "@flyde/runtime/webpack-loader",
+                loader: "@flyde/resolver/webpack-loader",
                 options: {
                   /* ... */
                 },
@@ -108,7 +108,7 @@ const config = {
           ],
         },
         gtag: {
-          trackingID: 'G-RCVXXHJXZ6',
+          trackingID: "G-RCVXXHJXZ6",
           anonymizeIP: true,
         },
       }),

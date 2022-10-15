@@ -1,11 +1,12 @@
 import { MenuDivider, MenuItem } from '@blueprintjs/core';
 import { Part, PartStyle } from '@flyde/core';
 import React from 'react';
-import { usePrompt } from '../../../flow-editor/ports';
+import { PromptFn, usePrompt } from '../../../flow-editor/ports';
 
 export interface PartStyleMenuProps {
 	style: PartStyle | undefined;
 	onChange: (style: PartStyle) => void;
+	promptFn: PromptFn;
 }
 
 const defaultStyle: PartStyle = {size: 'regular'};
@@ -14,7 +15,7 @@ export const PartStyleMenu: React.FC<PartStyleMenuProps> = (props) => {
 
 	const style = _style || defaultStyle;
 
-	const _prompt = usePrompt();
+	const _prompt = props.promptFn;
 	const _onChangeStyleProp = <T extends keyof PartStyle>(prop: T, val: PartStyle[T]) => {
 		onChange({...style, [prop]: val});
 	}

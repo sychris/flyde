@@ -21,7 +21,8 @@ const inputConfig = z.discriminatedUnion("mode", [
 const partStyle = z.object({
   size: z.optional(z.enum(['small', 'regular', 'large'])),
   icon: z.optional(z.any()),
-  color: z.optional(z.string())
+  color: z.optional(z.string()),
+  cssOverride: z.optional(z.record(z.string()))
 });
 
 const instance = z.object({

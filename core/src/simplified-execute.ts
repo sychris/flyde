@@ -1,8 +1,7 @@
-import { dynamicOutput, execute, keys, Part, PartRepo, staticPartInput } from "@flyde/core";
-import { createDebugger } from "./create-debugger";
+import { Part, PartRepo, dynamicOutput, keys, staticPartInput } from ".";
+import { execute, ExecuteParams } from "./execute";
 
-export const simplifiedExecute = async (partToRun: Part, repo: PartRepo, inputs: Record<string, any>, extraContext: any = {}) => {
-   (global as any).vm2 = require("vm2");
+export const simplifiedExecute = async (partToRun: Part, repo: PartRepo, inputs: Record<string, any>, otherParams: Partial<ExecuteParams> = {}) => {
    try {
     const output = dynamicOutput();
     const outputName = keys(partToRun.outputs)[0]; 
@@ -14,7 +13,6 @@ export const simplifiedExecute = async (partToRun: Part, repo: PartRepo, inputs:
       };
     }, {});
 
-    const _debugger = await createDebugger();
     return new Promise((res, rej) => {
       output.subscribe((data) => {
         res(data);
@@ -24,9 +22,8 @@ export const simplifiedExecute = async (partToRun: Part, repo: PartRepo, inputs:
         inputs: _inputs,
         outputs: { [outputName]: output },
         partsRepo: repo,
-        _debugger,
-        extraContext,
-        onBubbleError: rej
+        onBubbleError: rej,
+        ...otherParams
       });
     });
   } catch (e) {

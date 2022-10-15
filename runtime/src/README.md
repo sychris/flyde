@@ -1,8 +1,7 @@
-# Flyde Resolver
+# Flyde Runtime
 
-Resolves .flyde files and their imports into a resolved flow that contains all information required for it to be executed.
+Designed to be used together with Flyde's VSCode extension.
 
-It resolves all imports, recursively, until reaching leaf flows (either code flows or visual flows with no imports).
+Combines `@flyde/resolve` and `@flyde/core` into a single function that receives a flow's path (relative to the project's root) and returns a type-safe function that runs it.
 
-The resolved flow will include all imported parts, namespaced by the part required them.
-
+`TODO - code example`

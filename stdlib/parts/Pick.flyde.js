@@ -2,6 +2,9 @@ const isDefined = (obj) => typeof obj !== "undefined";
 
 module.exports = {
   id: "Pick",
+  defaultStyle: {
+    size: 'small'
+  },
   inputs: { obj: { mode: "required", type: "any" }, key: { mode: "required", type: "any" } },
   outputs: { r: { type: "any" }, e: { type: "any" } },
   customViewCode: '<% if (inputs.key) { %> Pick "<%- inputs.key %>" <% } else { %> Pick <% } %>',

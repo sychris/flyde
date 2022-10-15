@@ -5227,7 +5227,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@flyde/core@^1.0.12, @flyde/core@workspace:core":
+"@flyde/core@^1.0.0, @flyde/core@^1.0.12, @flyde/core@workspace:core":
   version: 0.0.0-use.local
   resolution: "@flyde/core@workspace:core"
   dependencies:
@@ -5258,7 +5258,8 @@ __metadata:
   dependencies:
     "@flyde/core": ^1.0.12
     "@flyde/editor": ^1.0.6
-    "@flyde/runtime": ^1.0.7
+    "@flyde/resolver": ^1.0.0
+    "@flyde/runtime": ^1.0.0
     "@types/args": ^5.0.0
     "@types/cuid": ^1.3.0
     "@types/express": ^4.16.1
@@ -5393,7 +5394,6 @@ __metadata:
   resolution: "@flyde/invoices-example@workspace:examples/invoices-example"
   dependencies:
     "@flyde/dev-server": ^1.0.10
-    "@flyde/runtime": ^1.0.2
     "@flyde/stdlib": ^1.0.1
     "@types/cuid": ^1.3.0
     "@types/express": ^4.16.1
@@ -5428,9 +5428,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@flyde/runtime@^1.0.0, @flyde/runtime@^1.0.2, @flyde/runtime@^1.0.7, @flyde/runtime@workspace:^, @flyde/runtime@workspace:runtime":
+"@flyde/resolver@^1.0.0, @flyde/resolver@workspace:resolver":
   version: 0.0.0-use.local
-  resolution: "@flyde/runtime@workspace:runtime"
+  resolution: "@flyde/resolver@workspace:resolver"
   dependencies:
     "@flyde/core": ^1.0.12
     "@types/cuid": ^1.3.0
@@ -5454,13 +5454,39 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@flyde/stdlib@^1.0.0, @flyde/stdlib@^1.0.1, @flyde/stdlib@workspace:^, @flyde/stdlib@workspace:stdlib":
+"@flyde/runtime@^1.0.0, @flyde/runtime@workspace:runtime":
+  version: 0.0.0-use.local
+  resolution: "@flyde/runtime@workspace:runtime"
+  dependencies:
+    "@flyde/core": ^1.0.12
+    "@flyde/resolver": ^1.0.0
+    "@types/cuid": ^1.3.0
+    "@types/node": ^11.10.5
+    axios: ^0.19.2
+    body-parser: ^1.19.0
+    callsite: ^1.0.0
+    chai: ^4.3.6
+    concurrently: ^5.2.0
+    cuid: ^2.1.8
+    find-root: ^1.1.0
+    glob: ^8.0.3
+    module-from-string: ^3.3.0
+    require-from-string: ^2.0.2
+    resolve-from: ^5.0.0
+    sinon: ^14.0.0
+    ts-node: ^10.9.1
+    ts-node-dev: ^1.0.0-pre.32
+    typescript: ^4.0.0
+    yaml: ^2.1.1
+    zod: ^3.17.10
+  languageName: unknown
+  linkType: soft
+
+"@flyde/stdlib@^1.0.0, @flyde/stdlib@^1.0.1, @flyde/stdlib@workspace:stdlib":
   version: 0.0.0-use.local
   resolution: "@flyde/stdlib@workspace:stdlib"
   dependencies:
     "@flyde/core": ^1.0.12
-    "@flyde/dev-server": ^1.0.15
-    "@flyde/runtime": ^1.0.7
     axios: ^0.27.2
     concurrently: ^7.3.0
     ts-node-dev: ^1.0.0-pre.32
@@ -13392,8 +13418,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "discord-tasks-manager@workspace:examples/discord-tasks-manager"
   dependencies:
-    "@flyde/runtime": "workspace:^"
-    "@flyde/stdlib": "workspace:^"
+    "@flyde/core": ^1.0.0
+    "@flyde/resolver": ^1.0.0
+    "@flyde/runtime": ^1.0.0
+    "@flyde/stdlib": ^1.0.0
     "@types/lokijs": ^1.5.7
     body-parser: ^1.20.1
     dotenv: ^16.0.3
@@ -15330,6 +15358,13 @@ __metadata:
   version: 1.0.4
   resolution: "find-git-root@npm:1.0.4"
   checksum: 07fd9ffd78b13e60e437823b368a599fff4e5b69bfeb842ceb323c4d7a06c4c412d9e7230a6fbbba586bfe39a6023413f2d160a57148cbdb61e77638f8bab439
+  languageName: node
+  linkType: hard
+
+"find-root@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "find-root@npm:1.1.0"
+  checksum: b2a59fe4b6c932eef36c45a048ae8f93c85640212ebe8363164814990ee20f154197505965f3f4f102efc33bfb1cbc26fd17c4a2fc739ebc51b886b137cbefaf
   languageName: node
   linkType: hard
 
@@ -29406,7 +29441,7 @@ __metadata:
     "@docusaurus/plugin-google-gtag": ^2.1.0
     "@docusaurus/preset-classic": 2.0.1
     "@flyde/dev-server": ^1.0.0
-    "@flyde/runtime": ^1.0.0
+    "@flyde/resolver": ^1.0.0
     "@flyde/stdlib": ^1.0.0
     "@mdx-js/react": ^1.6.22
     "@tsconfig/docusaurus": ^1.0.5

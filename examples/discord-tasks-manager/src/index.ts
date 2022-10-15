@@ -2,7 +2,7 @@ require("dotenv").config();
 
 import path from 'path';
 
-import { resolveFlow } from "@flyde/runtime";
+import { loadFlow } from "@flyde/runtime";
 import eris, {  } from "eris";
 import { initCommands } from "./commands";
 
@@ -16,20 +16,9 @@ assert(process.env.BOT_TOKEN, `BOT_TOKEN env variable missing. Please add a ".en
 // Create a Client instance with our bot token.
 const bot = new eris.Client(process.env.BOT_TOKEN);
 (async () => {
-  const flow = resolveFlow(path.join(__dirname, 'Main.flyde'), 'implementation') as ResolvedFlydeRuntimeFlow;
-  const inputs = {};
+  const execute = loadFlow('src/Main.flyde');
   
-  execute({
-    part: flow.main,
-    partsRepo: flow.dependencies,
-    _debugger: await createDebugger(),
-    inputs,
-    outputs: {},
-    extraContext: {
-      bot
-    },
-    onBubbleError: (err) => {throw err;}
-  });
+  execute({}, {extraContext: {bot}});
   
   bot.on("ready", async () => {
     await initCommands(bot);

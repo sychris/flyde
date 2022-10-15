@@ -12,7 +12,10 @@ import {
 
 
 export * from "./connect";
+
 export * from "./execute";
+export * from './simplified-execute';
+
 export * from "./part";
 
 export * from './part/get-part-with-dependencies';

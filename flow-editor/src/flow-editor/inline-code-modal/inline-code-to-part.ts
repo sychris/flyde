@@ -41,7 +41,11 @@ export const createInlineCodePart = ({ code, customView, partId, type }: InlineC
     completionOutputs: ["r"],
     defaultStyle: {
       size: 'small',
-      icon: 'code'
+      icon: 'code',
+      cssOverride: {
+        fontFamily: 'monospace',
+        fontWeight: '300'
+      }
     }
   });
 };

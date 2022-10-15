@@ -49,6 +49,8 @@ $tea-green: #dff2baff;
     &.selected {
         background: $selection-color;
         color: $selection-text-color;
+
+        transition: background-color ease-in-out 0.05s;
     }
 
     &:hover:not(.selected) {

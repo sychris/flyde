@@ -1,5 +1,8 @@
 module.exports = {
   id: "Dot",
+  defaultStyle: {
+    size: 'small'
+  },
   inputs: { obj: { mode: "required", type: "any" }, key: { mode: "required", type: "any" } },
   outputs: { value: { type: "any" } },
   customViewCode: "<% if (inputs.key) { %> .<%- inputs.key %> <% } else { %> Dot <% } %>",

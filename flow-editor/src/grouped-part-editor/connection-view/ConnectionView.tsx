@@ -6,7 +6,6 @@ import {
   PartDefRepo,
   getPartDef,
   PartInstance,
-  ConnectionNode,
   isInternalConnectionNode,
   isExternalConnectionNode,
   ConnectionData,
@@ -21,7 +20,7 @@ import { Size } from "../../utils";
 import { calcBezierPath } from "./bezier";
 
 import { useSsr } from 'usehooks-ts'
-import { renderedPosToLogicalPos, ViewPort, vMul } from "../..";
+import { ViewPort } from "../..";
 import { vDiv } from "../../physics";
 import { ContextMenu, Menu, MenuItem } from "@blueprintjs/core";
 
@@ -43,12 +42,14 @@ export interface ConnectionViewProps extends BaseConnectionViewProps {
   futureConnection?: {connection: ConnectionData, type: "future-add" | "future-remove"};
   selectedInstances: string[];
   toggleHidden: (connection: ConnectionData) => void;
+  removeConnection: (connection: ConnectionData) => void;
 }
 
 export interface ConnectionItemViewProps extends BaseConnectionViewProps {
   connection: ConnectionData;
   type: 'regular' | 'future-add' | 'future-remove';
   toggleHidden: (connection: ConnectionData) => void;
+  removeConnection: (connection: ConnectionData) => void;
   parentSelected: boolean;
 }
 
@@ -77,7 +78,7 @@ const calcTargetPos = (props: ConnectionItemViewProps): Pos => {
 export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) => {
   const { isBrowser } = useSsr();
 
-  const { connection, part, repo, instances, type, viewPort, toggleHidden, parentSelected } = props;
+  const { connection, part, repo, instances, type, viewPort, toggleHidden, parentSelected, removeConnection } = props;
   const {from } = connection;
 
   const fromInstance = isInternalConnectionNode(from) && instances.find((i) => i.id === from.insId);
@@ -120,10 +121,11 @@ export const SingleConnectionView: React.FC<ConnectionItemViewProps> = (props) =
       e.stopPropagation();
       const menu = (<Menu>
         <MenuItem text={connection.hidden ? 'Show connection' : 'Hide connection'} onClick={() => toggleHidden(connection)}/>
+        <MenuItem text='Remove connection' onClick={() => removeConnection(connection)}/>
     </Menu>);
       ContextMenu.show(menu, { left: e.pageX, top: e.pageY });
     },
-    [connection, toggleHidden]
+    [connection, removeConnection, toggleHidden]
   );
 
 

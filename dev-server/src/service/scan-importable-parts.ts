@@ -1,5 +1,5 @@
 import { dirname, join, relative } from "path";
-import { deserializeFlow, resolveFlow, resolveImportablePaths } from "@flyde/runtime";
+import { deserializeFlow, resolveFlow, resolveImportablePaths } from "@flyde/resolver";
 
 import * as pkgUp from "pkg-up";
 import { CustomPart, PartDefinition, PartDefRepo } from "@flyde/core";
@@ -21,13 +21,12 @@ export const getFlydeDependencies = async (rootPath: string) => {
 };
 
 export const resolveDependentPackages = async (rootPath: string, flydeDependencies: string[]) => {
-  
   return flydeDependencies.reduce<Record<string, PartDefRepo>>((acc, dep) => {
     const paths = resolveImportablePaths(rootPath, dep);
 
     const parts = paths.reduce((acc, filePath) => {
       try {
-        const {main} = resolveFlow(filePath, "definition");
+        const { main } = resolveFlow(filePath, "definition");
         return { ...acc, [main.id]: main };
       } catch (e) {
         console.error(`Skipping corrupt flow at ${filePath}, error: ${e}`);
@@ -65,19 +64,17 @@ export const scanImportableParts = async (rootPath: string, filename: string) =>
 
   const depsParts = await resolveDependentPackages(rootPath, depsNames);
 
-
   const localParts = localFiles
     .filter((file) => !file.relativePath.endsWith(filename))
     .reduce<Record<string, PartDefRepo>>((acc, file) => {
       // const flowContents = readFileSync(file.fullPath, "utf8");
-      const {main} = resolveFlow(file.fullPath, "definition");
+      const { main } = resolveFlow(file.fullPath, "definition");
 
-      const relativePath = relative(join(fileRoot, '..'), file.fullPath);
+      const relativePath = relative(join(fileRoot, ".."), file.fullPath);
 
-      console.log({relativePath, fileRoot, file: file.fullPath});
-      
+      console.log({ relativePath, fileRoot, file: file.fullPath });
 
-      return { ...acc, [relativePath]: {[main.id]: main} };
+      return { ...acc, [relativePath]: { [main.id]: main } };
     }, {});
 
   return { ...depsParts, ...localParts };

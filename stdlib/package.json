@@ -26,8 +26,6 @@
     "license": "ISC",
     "dependencies": {
         "@flyde/core": "^1.0.12",
-        "@flyde/dev-server": "^1.0.15",
-        "@flyde/runtime": "^1.0.7",
         "axios": "^0.27.2"
     },
     "devDependencies": {

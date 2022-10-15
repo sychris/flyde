@@ -8,7 +8,7 @@ import {
   resolveDependentPackages,
   scanImportableParts,
 } from "./service/scan-importable-parts";
-import { resolveFlow } from "@flyde/runtime";
+import { resolveFlow } from "@flyde/resolver";
 import { join } from "path";
 
 import { entries } from "@flyde/core";

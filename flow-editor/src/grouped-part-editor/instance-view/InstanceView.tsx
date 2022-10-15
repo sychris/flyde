@@ -549,14 +549,14 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
     return (
       <Menu>
         <MenuItem text='Style'>
-          <PartStyleMenu style={style} onChange={_onChangeStyle}/>
+          <PartStyleMenu style={style} onChange={_onChangeStyle} promptFn={_prompt}/>
         </MenuItem>
         {contextMenuItems.map((item) => (
           <MenuItem {...item} />
         ))}
       </Menu>
     );
-  }, [inputKeys, outputKeys, instance, _onChangeVisibleInputs, _onChangeVisibleOutputs, style, _onChangeStyle, _visibleInputs, connectedInputs, onChangeVisibleInputs, _visibleOutputs, connectedOutputs, onChangeVisibleOutputs, onUngroup, onExtractInlinePart]);
+  }, [inputKeys, outputKeys, instance, _onChangeVisibleInputs, _onChangeVisibleOutputs, style, _onChangeStyle, _prompt, _visibleInputs, connectedInputs, onChangeVisibleInputs, _visibleOutputs, connectedOutputs, onChangeVisibleOutputs, onUngroup, onExtractInlinePart]);
 
   const showMenu = React.useCallback(
     (e: React.MouseEvent) => {
@@ -583,7 +583,8 @@ export const InstanceView: React.FC<InstanceViewProps> = function InstanceViewIn
   }, [debounceMaybeCenterInline] );
 
   const styleVarProp = {
-    '--part-color': style.color
+    '--part-color': style.color,
+    ...(style.cssOverride || {})
   } as React.CSSProperties;
 
   const renderContent = () => {
