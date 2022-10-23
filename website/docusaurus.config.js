@@ -14,7 +14,7 @@ const FixWebpack5Plugin = () => ({
             test: /\.flyde$/,
             use: [
               {
-                loader: "@flyde/resolver/webpack-loader",
+                loader: "@flyde/runtime/webpack-loader",
                 options: {
                   /* ... */
                 },
@@ -54,8 +54,8 @@ const FixWebpack5Plugin = () => ({
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Flyde",
-  tagline: "Visual Programming for the Web",
+  title: "Visual Programming Inside VSCode",
+  tagline: "Flyde is a flow-based, visual programming tool that fully integrates with the tools you love",
   url: "https://www.flyde.dev",
   baseUrl: "/",
   onBrokenLinks: "warn",

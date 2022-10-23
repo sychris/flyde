@@ -1,20 +1,20 @@
-import { ExecuteParams, ResolvedFlydeRuntimeFlow, simplifiedExecute } from "@flyde/core";
+import { ExecuteParams, FlydeFlow, noop, ResolvedFlydeRuntimeFlow, simplifiedExecute } from "@flyde/core";
 import { resolveFlow } from "@flyde/resolver";
 
 import  * as findRoot from 'find-root';
 import { join } from "path";
+import { createDebugger } from "./create-debugger";
 import { getCallPath } from "./get-call-path";
 
 
 export type LoadedFlowExecuteFn<Inputs> = (
   inputs: Inputs,
-  extraParams?: Partial<ExecuteParams>
-) => void;
+  extraParams?: Partial<ExecuteParams & {onOutputs?: (key: string, data: any) => void}>
+) => Promise<unknown>;
 
 
 const calcImplicitRoot = () => {
   const callPath = getCallPath();
-  console.log({callPath});
   return findRoot(callPath);
 }
 
@@ -28,5 +28,9 @@ export const loadFlow = <Inputs>(relativePath: string, root?: string): LoadedFlo
     throw new Error("No Main part found");
   }
 
-  return (inputs, params) => simplifiedExecute(main, resFlow.dependencies, inputs, params);
+  return async (inputs, params = {}) => {
+    const { onOutputs, ...otherParams} = params;
+    const _debugger = await createDebugger();
+    return simplifiedExecute(main, resFlow.dependencies, inputs, onOutputs || noop, {_debugger: _debugger, ...otherParams});
+  };
 };

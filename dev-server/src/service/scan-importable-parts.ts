@@ -72,8 +72,6 @@ export const scanImportableParts = async (rootPath: string, filename: string) =>
 
       const relativePath = relative(join(fileRoot, ".."), file.fullPath);
 
-      console.log({ relativePath, fileRoot, file: file.fullPath });
-
       return { ...acc, [relativePath]: { [main.id]: main } };
     }, {});
 

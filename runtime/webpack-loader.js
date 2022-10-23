@@ -1,5 +1,6 @@
 const { readFileSync } = require("fs");
-const { resolveFlow, deserializeFlow } = require("./dist");
+const { resolveFlow, deserializeFlow } = require("@flyde/resolver");
+
 
 module.exports = async function loader() {
 

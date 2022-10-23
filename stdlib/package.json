@@ -18,8 +18,6 @@
         "echo": "echo 'no watch'",
         "build": "echo 'no build'",
         "prod": "node dist/index.js",
-        "start": "concurrently 'flyde --port=8383'",
-        "dev": "yarn run start",
         "__publish": "npm version patch && npm publish"
     },
     "author": "Flyde",

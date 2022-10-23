@@ -12,7 +12,6 @@ import {
   randomInt,
 } from "@flyde/core";
 
-import { dataShaper } from "@flyde/core/dist/common/data-shaper";
 import { serializeError } from "serialize-error";
 import { io } from "socket.io-client";
 import {
@@ -38,7 +37,7 @@ export type RuntimeDebuggerClient = {
   emitInputsStateChange: (value: InputsStateChangeData) => void;
   emitPartError: (value: PartError) => void;
 
-  emitChangeAwk: ({ hash: string }) => void;
+  emitChangeAwk: () => void;
   emitChangeError: (error: Error) => void;
   emitRuntimeReady: () => void;
   // emitIsAlive: ({time: number, hash: string}) => void;

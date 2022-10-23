@@ -19,7 +19,7 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'Collaborate with Ease',
+    title: 'Everyone Can Understand and Collaborate',
     Svg: require('@site/static/img/undraw_collab.svg').default,
     description: (
       <>

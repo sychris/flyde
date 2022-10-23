@@ -26,7 +26,6 @@
     "dev-server",
     "stdlib",
     "website",
-    "examples/*",
     "editor",
     "remote-debugger",
     "resolver",

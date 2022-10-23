@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 
 import { CancelFn, InnerExecuteFn } from "../execute";
 import { ConnectionData } from "../connect";
-import { Pos, PartDefRepo, PartRepo } from "..";
+import { Pos, PartDefRepo, PartRepo, partInput, partOutput } from "..";
 import { isInlinePartInstance, PartInstance } from "./part-instance";
 import { InputPin, InputPinMap, OutputPin, OutputPinMap, PartInput, PartInputs } from "./part-pins";
 
@@ -40,9 +40,8 @@ export type CustomPartViewFn = (
       hiddenOutputs?: string[];
     }
   | false;
-  
 
-export type PartStyleSize = 'small' | 'regular' | 'large';
+export type PartStyleSize = "small" | "regular" | "large";
 export type PartTypeIcon = string | [string, string];
 
 export interface PartStyle {
@@ -51,7 +50,6 @@ export interface PartStyle {
   color?: string | [string, string];
   cssOverride?: Record<string, string>;
 }
-
 
 export interface BasePart {
   id: string;
@@ -79,7 +77,6 @@ export enum CodePartTemplateTypeInline {
   FUNCTION = "function",
 }
 
-
 export type CodePartType = "file-reference" | "inline";
 
 export interface CodePart extends BasePart {
@@ -98,7 +95,7 @@ export interface GroupedPart extends BasePart {
 
 export type Part = NativePart | CustomPart;
 
-export type ImportablePart = {module: string, part: BasePart};
+export type ImportablePart = { module: string; part: BasePart };
 
 export type CustomPart = GroupedPart | CodePart;
 
@@ -108,7 +105,7 @@ export type PartDefinition = CustomPart | NativePartDefinition;
 
 export type PartModuleMetaData = {
   imported?: boolean;
-}
+};
 
 export type PartDefinitionWithModuleMetaData = PartDefinition & PartModuleMetaData;
 
@@ -205,8 +202,7 @@ export const getStaticValue = (value: any, repo: PartDefRepo, calleeId: string) 
 };
 
 export const getPart = (idOrIns: string | PartInstance, repo: PartRepo): Part => {
-
-  if (typeof idOrIns !== 'string' && isInlinePartInstance(idOrIns)) {
+  if (typeof idOrIns !== "string" && isInlinePartInstance(idOrIns)) {
     return idOrIns.part;
   }
   const id = typeof idOrIns === "string" ? idOrIns : idOrIns.partId;
@@ -218,7 +214,7 @@ export const getPart = (idOrIns: string | PartInstance, repo: PartRepo): Part =>
 };
 
 export const getPartDef = (idOrIns: string | PartInstance, repo: PartDefRepo): PartDefinition => {
-  if (typeof idOrIns !== 'string' && isInlinePartInstance(idOrIns)) {
+  if (typeof idOrIns !== "string" && isInlinePartInstance(idOrIns)) {
     return idOrIns.part;
   }
   const id = typeof idOrIns === "string" ? idOrIns : idOrIns.partId;
@@ -228,4 +224,36 @@ export const getPartDef = (idOrIns: string | PartInstance, repo: PartDefRepo): P
     throw new Error(`Part with id ${id} not found`);
   }
   return part;
+};
+
+export type NativeFromFunctionParams = {
+  id: string;
+  fn: Function;
+  inputNames: string[];
+  outputName: string;
+  defaultStyle?: PartStyle;
+};
+
+export const nativeFromFunction = ({
+  id,
+  fn,
+  inputNames,
+  outputName,
+  defaultStyle,
+}: NativeFromFunctionParams): NativePart => {
+  return {
+    id,
+    inputs: inputNames.reduce((acc, k) => ({ ...acc, [k]: partInput("any") }), {}),
+    outputs: { [outputName]: partOutput() },
+    fn: (inputs, outputs) => {
+      const args = inputNames.map((name) => inputs[name]);
+      const output = outputs[outputName];
+      const result = fn(...args);
+
+      // https://stackoverflow.com/a/27746324/1418407
+      Promise.resolve(result).then((val) => output.next(val));
+    },
+    completionOutputs: [outputName],
+    defaultStyle,
+  };
 };

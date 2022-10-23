@@ -133,6 +133,7 @@ export const PlaygroundTemplate: React.FC<PlaygroundTemplateProps> = (props) => 
     onRequestHistory: historyPlayer.requestHistory,
     hideTemplatingTips: true,
     onImportPart: noop,
+    onExtractInlinePart: noop as any,
   };
 
   useEffect(() => {
