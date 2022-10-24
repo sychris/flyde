@@ -6,7 +6,7 @@ const {onError} = adv;
 mongoDb.collection('__KVStore').findOne({id: key})
     .then((doc) => {
         if (doc === null) {
-            if (isDefined(defaultValue)) {
+            if (typeof defaultValue !== 'undefined') {
                 ok.next(defaultValue);
             } else {
                 onError(new Error('Key not found and no default value'));

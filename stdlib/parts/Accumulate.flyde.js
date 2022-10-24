@@ -10,7 +10,7 @@ if (count !== state.get("count")) {
     state.set("count", count);
 }
 
-if (isDefined(val)) {
+if (typeof val !== 'undefined') {
     list.push(val);
 }
 

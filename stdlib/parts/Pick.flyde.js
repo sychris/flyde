@@ -31,7 +31,7 @@ module.exports = {
     let o = { ...obj };
     for (let p of path) {
       const key = matches[p] || p;
-      if (o && isDefined(o[key]) && o[key] !== null) {
+      if (o && typeof o[key] !== 'undefined' && o[key] !== null) {
         o = o[key];
       } else {
         e.next(obj);

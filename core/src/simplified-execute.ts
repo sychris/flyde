@@ -6,7 +6,7 @@ export const simplifiedExecute = async (
   partToRun: Part,
   repo: PartRepo,
   inputs: Record<string, any>,
-  onOutput: (key: string, data: any) => void,
+  onOutput?: (key: string, data: any) => void,
   otherParams: Partial<ExecuteParams> = {}
 ) => {
   const outputKeys = keys(partToRun.outputs);

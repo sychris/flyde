@@ -24,7 +24,8 @@
     "license": "ISC",
     "dependencies": {
         "@flyde/core": "^1.0.12",
-        "axios": "^0.27.2"
+        "axios": "^0.27.2",
+        "pubsub-js": "^1.9.4"
     },
     "devDependencies": {
         "concurrently": "^7.3.0",

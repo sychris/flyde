@@ -3,7 +3,7 @@ const {key} = inputs;
 const {r, err} = outputs;
 
 const val = state.get(key);
-if (isDefined(val)) {
+if (typeof val !== 'undefined') {
     r.next(val);
 } else {
     err.next(key);

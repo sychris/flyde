@@ -4,7 +4,7 @@ const {state} = adv;
 
 
 let list = state.get("list") || [];
-if (isDefined(item)) {
+if (typeof item !== 'undefined') {
   list.push(item);
   state.set("list", list);
 

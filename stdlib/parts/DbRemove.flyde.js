@@ -2,7 +2,7 @@ module.exports = {"id":"DbRemove","inputs":{"query":{"mode":"required","type":"a
 const {query, options} = inputs;
 const {onError} = adv;
 
-db.remove(query, isDefined(options) ? options : {})
+db.remove(query, typeof options !== 'undefined' ? options : {})
 .then((num) => outputs.ok.next(num))
 .catch((err) => {
     outputs.err.next(err)

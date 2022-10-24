@@ -1,10 +1,7 @@
 import {
-  CustomPartRepo,
   isGroupedPart,
   ResolvedFlydeFlow,
   isRefPartInstance,
-  FlydeFlow,
-  isNativePart,
   NativePart,
   ImportedPart,
   GroupedPart,
@@ -16,18 +13,6 @@ import { dirname, join, relative } from "path";
 import { deserializeFlow } from "../serdes/deserialize";
 import { resolveImportablePaths } from "./resolve-importable-paths";
 import { namespaceFlowImports } from "./namespace-flow-imports/namespace-flow-imports";
-
-/*
-Resolving algorithm:
-1. Read and deserialize file
-2. Fetch all imports
-  - for each module, resolve all imported parts
-    - for each imported part, recursively namespace it's dependencies
-    - return all parts required for it to run
-3. Combine flow parts and imported parts to a single repo
-4. Process all parts
-
-*/
 
 export type ResolveMode = "implementation" | "definition" | "bundle";
 
@@ -97,12 +82,6 @@ const _resolveFlow = (
         .map((path) => {
           const contents = readFileSync(path, "utf-8");
           return { flow: deserializeFlow(contents, path), path };
-          try {
-          } catch (e) {
-            console.error(e);
-
-            return null;
-          }
         })
         .filter((obj) => !!obj)
         .find((obj) => obj.flow.part.id === refPartId);

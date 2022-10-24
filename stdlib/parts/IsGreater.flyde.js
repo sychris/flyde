@@ -3,9 +3,9 @@ module.exports = {"id":"IsGreater","inputs":{"n1":{"mode":"required","type":"any
 
       
 if (n1 > n2) {
-      outputs.true.next(isDefined(transform) ? transform : n1);
+      outputs.true.next(typeof transform !== 'undefined' ? transform : n1);
 } else {
-      outputs.false.next(isDefined(transform) ? transform : n2);
+      outputs.false.next(typeof transform !== 'undefined' ? transform : n2);
 }
 // magic here
        }}

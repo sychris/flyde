@@ -10,11 +10,11 @@ if (count !== state.get("count")) {
     state.set("count", count);
 }
 
-if (isDefined(allow)) {
+if (typeof allow !== 'undefined') {
     allowedList.push(allow);
 }
 
-if (isDefined(filter)) {
+if (typeof filter !== 'undefined') {
     filterList.push(filter);
 }
 

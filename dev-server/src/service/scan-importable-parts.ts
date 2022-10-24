@@ -57,9 +57,12 @@ const getLocalFlydeFiles = (rootPath: string) => {
 };
 
 export const scanImportableParts = async (rootPath: string, filename: string) => {
+
+  
   const fileRoot = join(rootPath, filename);
 
   const localFiles = getLocalFlydeFiles(rootPath);
+  
   const depsNames = await getFlydeDependencies(rootPath);
 
   const depsParts = await resolveDependentPackages(rootPath, depsNames);
@@ -68,6 +71,7 @@ export const scanImportableParts = async (rootPath: string, filename: string) =>
     .filter((file) => !file.relativePath.endsWith(filename))
     .reduce<Record<string, PartDefRepo>>((acc, file) => {
       // const flowContents = readFileSync(file.fullPath, "utf8");
+
       const { main } = resolveFlow(file.fullPath, "definition");
 
       const relativePath = relative(join(fileRoot, ".."), file.fullPath);
