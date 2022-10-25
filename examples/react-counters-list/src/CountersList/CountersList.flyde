@@ -20,30 +20,32 @@ imports:
 part:
   instances:
     - pos:
-        x: 7.98069702148436
-        y: -235.2448222351074
+        x: -18.84346069335939
+        y: -121.53852340698239
       id: Subscribe-922
       inputConfig:
         key:
           mode: static
           value: values
       partId: Subscribe
+      style:
+        size: small
     - pos:
-        x: 571.3724627685547
-        y: 505.96069787979127
+        x: 267.08017303466795
+        y: 470.34846185684205
       id: value-464
       inputConfig: {}
       part:
-        id: Inline-value-[-1,42,0]
+        id: "Inline-value-[4, 8, 15, 16, "
         inputs: {}
         outputs:
           r:
             type: any
             delayed: false
             optional: false
-        fnCode: outputs.r.next(([-1,42,0]))
-        customViewCode: "[-1,42,0]"
-        dataBuilderSource: Wy0xLDQyLDBd
+        fnCode: outputs.r.next(([4, 8, 15, 16, 23, 42]))
+        customViewCode: "[4, 8, 15, 16, 23, 42]"
+        dataBuilderSource: WzQsIDgsIDE1LCAxNiwgMjMsIDQyXQ==
         templateType: value
         completionOutputs:
           - r
@@ -54,20 +56,24 @@ part:
             fontFamily: monospace
             fontWeight: "300"
     - pos:
-        x: 331.9845843505859
-        y: 727.9953343963623
+        x: 140.72340728759764
+        y: 683.8112676239014
       id: Publish-806
       inputConfig:
         key:
           mode: static
           value: values
       partId: Publish
+      style:
+        size: small
     - pos:
         x: -176.51234863281252
         y: -10.621599731445315
       id: SpreadList-386
       inputConfig: {}
       partId: SpreadList
+      style:
+        color: "#9b5de5"
     - pos:
         x: -217.24702636718752
         y: 375.4634265136719
@@ -77,11 +83,16 @@ part:
         - count
         - val
       partId: Accumulate
+      style:
+        color: "#9b5de5"
     - pos:
         x: -92.84986114501953
         y: 154.18505942404272
       id: IndexedCounter-ins
       inputConfig: {}
+      visibleInputs:
+        - index
+        - value
       part:
         id: IndexedCounter
         inputs:
@@ -411,9 +422,12 @@ part:
             to:
               insId: cl9n77e3g00124666kcquy0k0
               pinId: key
+      style:
+        size: large
+        color: "#f15bb5"
     - pos:
-        x: 48.07379150390625
-        y: 308.0271348571777
+        x: 4.3748016357421875
+        y: 311.14535232543943
       id: cl9n7di8k000e4666bwkr6hmc
       inputConfig:
         values:
@@ -450,8 +464,8 @@ part:
             fontFamily: monospace
             fontWeight: "300"
     - pos:
-        x: -197.08247314453126
-        y: 649.7072856140137
+        x: -127.01887451171876
+        y: 644.0976359558106
       id: ListFrom2-841
       inputConfig:
         item1:
@@ -459,20 +473,26 @@ part:
         item2:
           mode: sticky
       partId: ListFrom2
+      style:
+        size: small
     - pos:
-        x: -18.243588867187498
-        y: 439.72338516235357
+        x: -19.970456542968748
+        y: 384.83860809326177
       id: Button-524
       inputConfig:
         children:
           mode: static
           value: Add counter
       partId: Button
+      style:
+        color: "#00f5d4"
     - pos:
-        x: 101.0497509765625
-        y: 577.8081042480469
+        x: 37.39548461914063
+        y: 569.1734301757813
       id: cl9n7hd4i001946665d10kzk4
-      inputConfig: {}
+      inputConfig:
+        vals:
+          mode: sticky
       visibleInputs:
         - vals
         - __trigger
@@ -601,8 +621,8 @@ part:
   inputsPosition: {}
   outputsPosition:
     jsx:
-      x: -125.19337897703565
-      y: 798.1679685101157
+      x: -20.01286687859823
+      y: 803.7775855695791
     value:
       x: 323.79731210874564
       y: 736.2677321934808

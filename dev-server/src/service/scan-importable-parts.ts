@@ -1,11 +1,10 @@
-import { dirname, join, relative } from "path";
-import { deserializeFlow, resolveFlow, resolveImportablePaths } from "@flyde/resolver";
+import { join, relative } from "path";
+import { resolveFlow, resolveImportablePaths } from "@flyde/resolver";
 
 import * as pkgUp from "pkg-up";
-import { CustomPart, PartDefinition, PartDefRepo } from "@flyde/core";
+import { PartDefRepo } from "@flyde/core";
 import { scanFolderStructure } from "./scan-folders-structure";
 import { FlydeFile } from "../fs-helper/shared";
-import { readFileSync } from "fs";
 
 const FLYDE_STDLIB_PATTERN = /^\@flyde\/stdlib/;
 const FLYDE_LIBRARY = /^flyde[-_](.*)/;

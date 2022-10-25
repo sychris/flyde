@@ -29,7 +29,8 @@
     "editor",
     "remote-debugger",
     "resolver",
-    "runtime"
+    "runtime",
+    "!examples/*"
   ],
   "packageManager": "yarn@3.2.0",
   "devDependencies": {

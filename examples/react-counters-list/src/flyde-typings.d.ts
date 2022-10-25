@@ -7,6 +7,5 @@ import { loadFlow, LoadedFlowExecuteFn } from '@flyde/runtime'
 declare module '@flyde/runtime' {
 
     // generated flow typings
-    export function loadFlow(path: 'src/CountersList/CountersList copy.flyde'): LoadedFlowExecuteFn<{}>;
     export function loadFlow(path: 'src/CountersList/CountersList.flyde'): LoadedFlowExecuteFn<{}>;
 }
