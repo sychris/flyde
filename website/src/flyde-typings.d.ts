@@ -7,9 +7,8 @@ import { loadFlow, LoadedFlowExecuteFn } from '@flyde/runtime'
 declare module '@flyde/runtime' {
 
     // generated flow typings
-    export function loadFlow(path: 'src/pages/playground/Bob1.flyde'): LoadedFlowExecuteFn<{a: any, b: any, c: any, r1: any, r2: any}>;
     export function loadFlow(path: 'src/pages/playground/_flows/ApisCombination.flyde'): LoadedFlowExecuteFn<{}>;
-    export function loadFlow(path: 'src/pages/playground/_flows/debounce-throttle.flyde'): LoadedFlowExecuteFn<{value: any}>;
+    export function loadFlow(path: 'src/pages/playground/_flows/debounce-throttle.flyde'): LoadedFlowExecuteFn<{threshold: any}>;
     export function loadFlow(path: 'src/pages/playground/_flows/fibonacci.flyde'): LoadedFlowExecuteFn<{n: any}>;
     export function loadFlow(path: 'src/pages/playground/_flows/hello-world.flyde'): LoadedFlowExecuteFn<{}>;
     export function loadFlow(path: 'src/pages/playground/_flows/react-counter/react-counter.flyde'): LoadedFlowExecuteFn<{}>;

@@ -8,8 +8,8 @@ imports:
 part:
   instances:
     - pos:
-        x: -709.5165551757813
-        y: 301.875126953125
+        x: -699.7832788085938
+        y: 290.22256958007813
       id: Inline-value-Hello from ${i76
       inputConfig: {}
       part:
@@ -37,9 +37,21 @@ part:
         templateType: value
         completionOutputs:
           - r
+        defaultStyle:
+          size: small
+          icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "500"
+      style:
+        size: regular
+        icon: code
+        cssOverride:
+          fontFamily: monospace
+          fontWeight: "500"
     - pos:
-        x: -502.12631530761723
-        y: -191.3363592457771
+        x: -586.805941772461
+        y: -218.61628173112865
       id: Get User's Country-ins
       inputConfig: {}
       part:
@@ -108,9 +120,12 @@ part:
               pinId: r
         completionOutputs:
           - r
+      style:
+        size: large
+        color: "#f15bb5"
     - pos:
-        x: -559.0820300292969
-        y: -54.197872226238246
+        x: -635.9743029785157
+        y: -85.37110525846481
       id: Get Country Name And Capital-ins
       inputConfig: {}
       visibleOutputs:
@@ -216,9 +231,12 @@ part:
               pinId: capital
         completionOutputs:
           - name+capital
+      style:
+        size: large
+        color: "#9b5de5"
     - pos:
-        x: -300.45332397460936
-        y: 176.0636276245117
+        x: -315.0525061035156
+        y: 175.11625518798826
       id: Format Number-ins
       inputConfig: {}
       part:
@@ -284,9 +302,12 @@ part:
               pinId: string
         completionOutputs:
           - string
+      style:
+        size: regular
+        color: "#fee440"
     - pos:
-        x: -330.89166015625
-        y: 76.59865539550782
+        x: -338.7064794921875
+        y: 59.078727416992194
       id: cl8x5r4qp00074666lb382z1c
       inputConfig: {}
       part:
@@ -381,6 +402,9 @@ part:
               insId: __this
         completionOutputs:
           - value
+      style:
+        size: large
+        color: "#00bbf9"
   connections:
     - from:
         insId: Inline-value-Hello from ${i76

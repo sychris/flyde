@@ -6,8 +6,8 @@ imports:
 part:
   instances:
     - pos:
-        x: 560.8748977661132
-        y: 337.4179188537598
+        x: 564.2311294555664
+        y: 353.080333404541
       id: Debounce-194-d108
       inputConfig:
         ms:
@@ -16,18 +16,24 @@ part:
       visibleInputs:
         - i
       partId: Debounce
+      style:
+        size: large
+        color: "#f15bb5"
     - pos:
-        x: 249.37758361816407
-        y: 298.85844150543215
+        x: 278.2552195739746
+        y: 344.8639384841919
       id: Throttle-652
       inputConfig:
         threshold:
           mode: static
           value: 4000
       partId: Throttle
+      style:
+        size: large
+        color: "#fee440"
     - pos:
-        x: 330.4056408691406
-        y: 608.0996481323242
+        x: 375.39898803710935
+        y: 498.85297454833983
       id: Inline-value-Value was thro-555
       inputConfig: {}
       part:
@@ -44,9 +50,21 @@ part:
         templateType: value
         completionOutputs:
           - r
+        defaultStyle:
+          size: small
+          icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "300"
+      style:
+        size: regular
+        icon: code
+        cssOverride:
+          fontFamily: monospace
+          fontWeight: "300"
     - pos:
-        x: -118.86081665039063
-        y: 545.4167886352539
+        x: 50.283386535644524
+        y: 575.9333444213867
       id: Inline-value-Throttle out-817
       inputConfig: {}
       part:
@@ -66,9 +84,21 @@ part:
         templateType: value
         completionOutputs:
           - r
+        defaultStyle:
+          size: small
+          icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "300"
+      style:
+        size: regular
+        icon: code
+        cssOverride:
+          fontFamily: monospace
+          fontWeight: "300"
     - pos:
-        x: 659.2261499023438
-        y: 606.5682794189453
+        x: 638.5763772583008
+        y: 559.9217034912109
       id: Inline-value-Debounce out-720
       inputConfig: {}
       part:
@@ -88,16 +118,28 @@ part:
         templateType: value
         completionOutputs:
           - r
+        defaultStyle:
+          size: small
+          icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "300"
+      style:
+        size: regular
+        icon: code
+        cssOverride:
+          fontFamily: monospace
+          fontWeight: "300"
   connections:
     - from:
         insId: __this
-        pinId: value
+        pinId: threshold
       to:
         insId: Throttle-652
         pinId: value
     - from:
         insId: __this
-        pinId: value
+        pinId: threshold
       to:
         insId: Debounce-194-d108
         pinId: i
@@ -139,7 +181,7 @@ part:
         pinId: result
   id: Main
   inputs:
-    value:
+    threshold:
       mode: required
       type: any
   outputs:
@@ -147,14 +189,17 @@ part:
       type: any
   inputsPosition:
     value:
-      x: 557.2304746217809
-      y: 135.19220059669954
+      x: 478.848314936081
+      y: 129.00413662180574
     ggg:
       x: 8.112505244875974
       y: 489.6946435546802
     rr:
       x: 319.4
       y: 268.6
+    threshold:
+      x: 485.56077831498897
+      y: 225.21610416222086
   outputsPosition:
     result:
       x: 533.2714674326223

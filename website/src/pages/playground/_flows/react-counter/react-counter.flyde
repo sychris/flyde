@@ -13,19 +13,22 @@ imports:
 part:
   instances:
     - pos:
-        x: -112.55849853515622
-        y: 264.69233886718746
+        x: -115.26095214843747
+        y: 226.5338534545898
       id: Button-410
       inputConfig:
         children:
           mode: static
-          value: "-"
+          value: +
       visibleInputs:
         - children
       partId: Button
+      style:
+        size: large
+        color: "#00bbf9"
     - pos:
-        x: -327.28067871093754
-        y: 264.196854095459
+        x: -329.9831323242188
+        y: 226.03836868286135
       id: Span-677
       inputConfig:
         children:
@@ -33,9 +36,12 @@ part:
       visibleInputs:
         - children
       partId: Span
+      style:
+        size: large
+        color: "#9b5de5"
     - pos:
-        x: -347.506982421875
-        y: 450.8367645263672
+        x: -350.2094360351563
+        y: 412.6782791137695
       id: ListFrom3-404
       inputConfig:
         item1:
@@ -45,20 +51,25 @@ part:
         item2:
           mode: queue
       partId: ListFrom3
+      style:
+        size: small
     - pos:
-        x: -515.2419702148437
-        y: 266.9907855224609
+        x: -516.944423828125
+        y: 228.83230010986324
       id: Button-410-d44
       inputConfig:
         children:
           mode: static
-          value: +
+          value: "-"
       visibleInputs:
         - children
       partId: Button
+      style:
+        size: large
+        color: "#00bbf9"
     - pos:
-        x: -90.45
-        y: 472.37
+        x: -42.589892578125
+        y: 414.4257174682617
       id: Publish-107
       inputConfig:
         key:
@@ -72,6 +83,8 @@ part:
         - value
         - __trigger
       partId: Publish
+      style:
+        color: "#00bbf9"
     - pos:
         x: -201.807001953125
         y: -187.86253479003906
@@ -81,6 +94,8 @@ part:
           mode: static
           value: inc
       partId: Subscribe
+      style:
+        color: "#00f5d4"
     - pos:
         x: -272.72882080078125
         y: -9.603830566406259
@@ -97,10 +112,15 @@ part:
         key:
           mode: static
           value: value
+        initial:
+          mode: static
+          value: 0
       partId: Subscribe
+      style:
+        color: "#00f5d4"
     - pos:
-        x: -611.178251953125
-        y: 457.5495947265625
+        x: -676.053251953125
+        y: 420.80437835693357
       id: Publish-441
       inputConfig:
         key:
@@ -114,21 +134,11 @@ part:
         - value
         - __trigger
       partId: Publish
+      style:
+        color: "#00bbf9"
     - pos:
-        x: -599.5746044921875
-        y: -143.15812744140624
-      id: Publish-817
-      inputConfig:
-        key:
-          mode: static
-          value: value
-        value:
-          mode: static
-          value: 0
-      partId: Publish
-    - pos:
-        x: -61.70970581054689
-        y: 109.43610321044923
+        x: -122.10039184570314
+        y: 113.89903961181642
       id: Publish-817-d15
       inputConfig:
         key:
@@ -139,9 +149,11 @@ part:
       visibleInputs:
         - value
       partId: Publish
+      style:
+        color: "#00bbf9"
     - pos:
-        x: -398.734365234375
-        y: 154.64188507080075
+        x: -393.0812890625
+        y: 110.83120086669919
       id: Inline-value-Value is ${inp-308
       inputConfig: {}
       part:
@@ -161,9 +173,15 @@ part:
         templateType: value
         completionOutputs:
           - r
+        defaultStyle:
+          size: small
+          icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "300"
     - pos:
-        x: -421.03473388671875
-        y: 7.897886352539103
+        x: -416.83026611328125
+        y: 12.137357788085978
       id: Inline-value-0-783
       inputConfig: {}
       part:
@@ -180,6 +198,12 @@ part:
         templateType: value
         completionOutputs:
           - r
+        defaultStyle:
+          size: small
+          icon: code
+          cssOverride:
+            fontFamily: monospace
+            fontWeight: "300"
   connections:
     - from:
         insId: Span-677
@@ -261,7 +285,7 @@ part:
   inputsPosition: {}
   outputsPosition:
     jsx:
-      x: -295.8926095883459
-      y: 614.1729968489325
+      x: -283.81852447487364
+      y: 588.5155366362267
   completionOutputs:
     - result

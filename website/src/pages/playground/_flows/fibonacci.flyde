@@ -9,17 +9,21 @@ imports:
 part:
   instances:
     - pos:
-        x: -254.73343750000004
-        y: -83.60570770263672
+        x: -186.8057641601563
+        y: -66.9137826538086
       id: Equals-364
       inputConfig:
         compare:
           mode: static
           value: 0
+      visibleInputs:
+        - val
       partId: Equals
+      style:
+        size: regular
     - pos:
-        x: -66.21451660156251
-        y: 21.080251159667966
+        x: -72.88431640625001
+        y: 33.32936614990234
       id: Equals-364-d95
       inputConfig:
         compare:
@@ -27,7 +31,6 @@ part:
           value: 1
       visibleInputs:
         - val
-        - compare
       partId: Equals
     - pos:
         x: 29.675939941406256
@@ -35,6 +38,8 @@ part:
       id: Add-539
       inputConfig: {}
       partId: Add
+      style:
+        color: "#fee440"
     - pos:
         x: -34.96145751953125
         y: 161.11758544921872
@@ -45,8 +50,9 @@ part:
           value: 1
       visibleInputs:
         - n1
-        - n2
       partId: Subtract
+      style:
+        color: "#f15bb5"
     - pos:
         x: 109.47726318359378
         y: 158.06905105590818
@@ -57,8 +63,9 @@ part:
           value: 2
       visibleInputs:
         - n1
-        - n2
       partId: Subtract
+      style:
+        color: "#f15bb5"
     - pos:
         x: -49.93635498046875
         y: 267.77435180664065
@@ -148,11 +155,14 @@ part:
       type: any
   inputsPosition:
     n:
-      x: -205.84801890123222
-      y: -182.4127543301569
+      x: -147.94243817117712
+      y: -143.4378851898441
   outputsPosition:
     result:
       x: -135.1549331794976
       y: 533.2568633719678
   completionOutputs:
     - result
+  defaultStyle:
+    size: large
+    color: "#00bbf9"

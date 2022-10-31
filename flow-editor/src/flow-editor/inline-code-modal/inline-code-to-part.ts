@@ -44,7 +44,7 @@ export const createInlineCodePart = ({ code, customView, partId, type }: InlineC
       icon: 'code',
       cssOverride: {
         fontFamily: 'monospace',
-        fontWeight: '300'
+        fontWeight: '500'
       }
     }
   });
