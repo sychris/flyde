@@ -1,6 +1,6 @@
 {
   "name": "@flyde/flow-editor",
-  "version": "1.0.10",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -18,8 +18,8 @@
     "@blueprintjs/core": "^3.11.0",
     "@blueprintjs/popover2": "^0.3.1",
     "@blueprintjs/select": "^3.5.0",
-    "@flyde/core": "^1.0.12",
-    "@flyde/remote-debugger": "^1.0.6",
+    "@flyde/core": "^0.0.1",
+    "@flyde/remote-debugger": "^0.0.1",
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-brands-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",

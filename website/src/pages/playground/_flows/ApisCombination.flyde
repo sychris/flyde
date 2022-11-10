@@ -235,8 +235,8 @@ part:
         size: large
         color: "#9b5de5"
     - pos:
-        x: -315.0525061035156
-        y: 175.11625518798826
+        x: -264.4149328613281
+        y: 175.11608734130857
       id: Format Number-ins
       inputConfig: {}
       part:
@@ -306,8 +306,8 @@ part:
         size: regular
         color: "#fee440"
     - pos:
-        x: -338.7064794921875
-        y: 59.078727416992194
+        x: -319.75787109375
+        y: 32.73055236816407
       id: cl8x5r4qp00074666lb382z1c
       inputConfig: {}
       part:
