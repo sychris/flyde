@@ -1,17 +1,15 @@
-import {
-  OMap,
-  OMapF,
-  entries,
-  isDefined,
-  testDataCreator,
-  noop,
-  Pos,
-} from "../common";
+import { OMap, OMapF, entries, testDataCreator, noop, Pos } from "../common";
 import { Subject } from "rxjs";
 
 import { CancelFn, InnerExecuteFn } from "../execute";
 import { ConnectionData } from "../connect";
-import { isInlineNodeInstance, NodeInstance } from "./node-instance";
+import {
+  isInlineNodeInstance,
+  NodeInstance,
+  RefNodeInstance,
+  ResolvedMacroNodeInstance,
+  ResolvedNodeInstance,
+} from "./node-instance";
 import {
   InputPin,
   InputPinMap,
@@ -21,6 +19,7 @@ import {
   nodeOutput,
 } from "./node-pins";
 import { ImportedNode } from "../flow-schema";
+import { MacroNodeDefinition } from "./macro-node";
 
 export type NodesCollection = OMap<Node>;
 
@@ -70,14 +69,16 @@ export interface NodeStyle {
   cssOverride?: Record<string, string>;
 }
 
-/**
- * Extended by {@link VisualNode}, {@link CodeNode} and {@link InlineValueNode}
- */
-export interface BaseNode {
+export interface NodeMetadata {
   /**
    * Node's unique id. {@link VisualNode.instances }  refer use this to refer to the correct node
    */
   id: string;
+
+  /**
+   * A human readable name for the node. Used in the visual editor.
+   */
+  displayName?: string;
   /**
    * Is displayed in the visual editor and used to search for nodes.
    */
@@ -86,6 +87,22 @@ export interface BaseNode {
    * A list of keywords that can be used to search for the node. Useful for node that users might search using different words.
    */
   searchKeywords?: string[];
+  /**
+   * TBD
+   */
+  namespace?: string;
+
+  /**
+   * All instances of this node will inherit the default style if it is supplied.
+   * See {@link NodeStyle} for the full options supported
+   */
+  defaultStyle?: NodeStyle;
+}
+
+/**
+ * Extended by {@link VisualNode}, {@link CodeNode} and {@link InlineValueNode}
+ */
+export interface BaseNode extends NodeMetadata {
   /**
    * A pin on a node that receives data. Each node can have zero or more input pins.
    *
@@ -111,10 +128,7 @@ export interface BaseNode {
    * ```
    */
   outputs: Record<string, OutputPin>;
-  /**
-   * TBD
-   */
-  namespace?: string;
+
   /**
    * Instructs Flyde that the node is in "explicit completion" mode and describes which outputs trigger the node's completion. Receives a list of outputs that should trigger an explicit completion of the node when they emit a value. Any of the listed outputs will trigger a completion (i.e. completionOutput[0] `OR` completionOutput[1])
    * Leave empty for implicit completion. This should work best for 99% of the case.
@@ -133,31 +147,6 @@ export interface BaseNode {
    * @deprecated - TBD
    */
   reactiveInputs?: string[];
-  /**
-   * Supply a custom string template (in [Handlebars](https://https://handlebarsjs.com/) format) to control how an instance of this node will be rendered in the visual editor.
-   * The template has access to static values, making it possible to expose valuable information in the instance itself:
-   * @example
-   * A "Delay" node has 2 inputs: value and a time. In many cases, the `time` input will be provided statically.
-   * It can be convenient to show the time input in the instance itself so it shows "Delay 500ms" instead of "Delay" (in the case 500 is the static value of `time`)
-   *
-   * ```
-   * {
-   *   ...,
-   *   customViewCode: `{{#if inputs.time}}
-  Delay {{inputs.time}} ms
-{{else}}
-  Delay
-{{/if}}`
-   * }
-   * ```
-   *
-   */
-  customViewCode?: string;
-  /**
-   * All instances of this node will inherit the default style if it is supplied.
-   * See {@link NodeStyle} for the full options supported
-   */
-  defaultStyle?: NodeStyle;
 }
 
 export interface CodeNode extends BaseNode {
@@ -171,25 +160,9 @@ export interface CodeNode extends BaseNode {
    * @deprecated use {@link CodeNode['run']} instead
    */
   fn?: RunNodeFunction;
-  customView?: CustomNodeViewFn;
 }
 
-export enum InlineValueNodeType {
-  VALUE = "value",
-  FUNCTION = "function",
-}
-
-/**
- * InlineValueNode is used by the editor to create inline values and function.
- * @deprecated will turn into a "Macro Node" as soon as that is developed
- */
-
-export interface InlineValueNode extends BaseNode {
-  runFnRawCode: string;
-  fnCode?: string;
-  dataBuilderSource?: string; // quick solution for "Data builder iteration"
-  templateType?: InlineValueNodeType;
-}
+export * from "./macro-node";
 
 /**
  * A visual node is what makes Flyde special. It represents a node created visually in the editor.
@@ -211,6 +184,10 @@ export interface VisualNode extends BaseNode {
   customView?: CustomNodeViewFn;
 }
 
+export interface ResolvedVisualNode extends VisualNode {
+  instances: ResolvedNodeInstance[];
+}
+
 export type Node = CodeNode | CustomNode;
 
 export type ImportableSource = {
@@ -219,11 +196,12 @@ export type ImportableSource = {
   implicit?: boolean;
 };
 
-export type CustomNode = VisualNode | InlineValueNode;
+export type CustomNode = VisualNode;
 
 export type CodeNodeDefinition = Omit<CodeNode, "run">;
 
 export type NodeDefinition = CustomNode | CodeNodeDefinition;
+export type NodeOrMacroDefinition = NodeDefinition | MacroNodeDefinition<any>;
 
 export type NodeModuleMetaData = {
   imported?: boolean;
@@ -240,14 +218,29 @@ export const isCodeNode = (p: Node | NodeDefinition | any): p is CodeNode => {
   return isBaseNode(p) && typeof (p as CodeNode).run === "function";
 };
 
-export const isVisualNode = (p: Node | NodeDefinition): p is VisualNode => {
-  return !!(p as VisualNode).instances;
+export const extractMetadata: <N extends NodeMetadata>(
+  node: N
+) => NodeMetadata = (node) => {
+  const {
+    id,
+    displayName,
+    description,
+    namespace,
+    defaultStyle,
+    searchKeywords,
+  } = node;
+  return {
+    id,
+    displayName,
+    description,
+    namespace,
+    defaultStyle,
+    searchKeywords,
+  };
 };
 
-export const isInlineValueNode = (
-  p: Node | NodeDefinition | undefined
-): p is InlineValueNode => {
-  return isDefined(p) && isDefined((p as InlineValueNode).runFnRawCode);
+export const isVisualNode = (p: Node | NodeDefinition): p is VisualNode => {
+  return !!(p as VisualNode).instances;
 };
 
 export const visualNode = testDataCreator<VisualNode>({
@@ -265,13 +258,6 @@ export const codeNode = testDataCreator<CodeNode>({
   inputs: {},
   outputs: {},
   run: noop as any,
-});
-
-export const inlineValueNode = testDataCreator<InlineValueNode>({
-  id: "node",
-  inputs: {},
-  outputs: {},
-  runFnRawCode: "",
 });
 
 export type SimplifiedNodeParams = {
@@ -303,42 +289,22 @@ export const fromSimplified = ({
   };
 };
 
-export const maybeGetStaticValueNodeId = (value: string) => {
-  const maybeNodeMatch =
-    typeof value === "string" && value.match(/^__node\:(.*)/);
-  if (maybeNodeMatch) {
-    const nodeId = maybeNodeMatch[1];
-    return nodeId;
-  }
-  return null;
-};
-export const getStaticValue = (
-  value: any,
-  resolvedDeps: NodesDefCollection,
-  calleeId: string
-) => {
-  const maybeNodeId = maybeGetStaticValueNodeId(value);
-  if (maybeNodeId) {
-    const node = resolvedDeps[maybeNodeId];
-    if (!node) {
-      throw new Error(
-        `Instance ${calleeId} referrer to a node reference ${maybeNodeId} that does not exist`
-      );
-    }
-    return node;
-  } else {
-    return value;
-  }
-};
-
 export const getNode = (
   idOrIns: string | NodeInstance,
   resolvedNodes: NodesCollection
 ): Node => {
-  if (typeof idOrIns !== "string" && isInlineNodeInstance(idOrIns)) {
-    return idOrIns.node;
+  const isOrInsResolved = idOrIns as string | ResolvedNodeInstance; // ugly type hack to avoid fixing the whole Resolved instances cases caused by macros. TODO: fix this by refactoring all places to use "ResolvedNodeInstance"
+  if (
+    typeof isOrInsResolved !== "string" &&
+    isInlineNodeInstance(isOrInsResolved)
+  ) {
+    return isOrInsResolved.node;
   }
-  const id = typeof idOrIns === "string" ? idOrIns : idOrIns.nodeId;
+  const id =
+    typeof isOrInsResolved === "string"
+      ? isOrInsResolved
+      : isOrInsResolved.nodeId;
+
   const node = resolvedNodes[id];
   if (!node) {
     throw new Error(`Node with id ${id} not found`);
@@ -353,7 +319,10 @@ export const getNodeDef = (
   if (typeof idOrIns !== "string" && isInlineNodeInstance(idOrIns)) {
     return idOrIns.node;
   }
-  const id = typeof idOrIns === "string" ? idOrIns : idOrIns.nodeId;
+  const id =
+    typeof idOrIns === "string"
+      ? idOrIns
+      : (idOrIns as RefNodeInstance | ResolvedMacroNodeInstance).nodeId;
   const node = resolvedNodes[id];
   if (!node) {
     console.error(`Node with id ${id} not found`);

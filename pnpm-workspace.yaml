@@ -8,4 +8,6 @@ packages:
   - "remote-debugger"
   - "resolver"
   - "runtime"
+  - "playground"
+  - "vscode-extension"
   - "!examples/*"

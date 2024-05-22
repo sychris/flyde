@@ -4,6 +4,9 @@ import "./App.scss";
 import {
   FlydeFlow,
   ImportableSource,
+  isInlineNodeInstance,
+  isMacroNodeInstance,
+  NodeLibraryData,
   ResolvedDependenciesDefinitions,
 } from "@flyde/core";
 
@@ -29,7 +32,7 @@ import { FlowEditor } from "@flyde/flow-editor"; // ../../common/flow-editor/Flo
 import { useDebouncedCallback } from "use-debounce";
 
 import { IntegratedFlowSideMenu } from "./side-menu";
-import { isInlineValueNode, NodeDefinition } from "@flyde/core";
+import { NodeDefinition } from "@flyde/core";
 
 import { AppToaster } from "@flyde/flow-editor"; // ../../common/toaster
 
@@ -76,12 +79,23 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (
 
   const lastChangeReason = React.useRef("");
 
+  const [libraryData, setLibraryData] = React.useState<NodeLibraryData>({
+    groups: [],
+  });
+
+  useEffect(() => {
+    ports.getLibraryData().then((data) => {
+      setLibraryData(data);
+    });
+  }, [ports]);
+
   const [editorState, setEditorState] = React.useState<FlowEditorState>({
     flow: initialFlow,
     boardData: {
       viewPort: defaultViewPort,
       lastMousePos: { x: 0, y: 0 },
-      selected: [],
+      selectedInstances: [],
+      selectedConnections: [],
     },
   });
 
@@ -121,6 +135,34 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (
       }
     });
   }, [editorState.flow, ports]);
+
+  const lastInstancesMacroData = React.useRef<any>([]);
+
+  useEffect(() => {
+    // syncs macro data from instances to the resolved deps
+    const insMacroDatas = flow.node.instances.flatMap((ins) => {
+      if (isMacroNodeInstance(ins)) {
+        return ins.macroData;
+      } else if (isInlineNodeInstance(ins)) {
+        // hack so this covers also inline nodes, probably inefficient (such as everything in this section)
+        return ins.node;
+      } else {
+        return [];
+      }
+    });
+
+    if (!_.isEqual(insMacroDatas, lastInstancesMacroData.current)) {
+      lastInstancesMacroData.current = insMacroDatas;
+      ports
+        .resolveDeps({
+          flow: editorState.flow,
+          relativePath: props.integratedSource,
+        })
+        .then((deps) => {
+          setCurrentResolvedDeps(deps);
+        });
+    }
+  }, [editorState.flow, flow.node.instances, ports, props.integratedSource]);
 
   const connectToRemoteDebugger = React.useCallback(
     (url: string) => {
@@ -178,22 +220,32 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (
 
   const onChangeState = React.useCallback(
     (changedState: FlowEditorState, type: FlydeFlowChangeType) => {
-      console.log("onChangeState", type, changedState);
       lastChangeReason.current = type.message;
       setEditorState(changedState);
       debouncedSaveFile(changedState.flow, props.integratedSource);
     },
-    [props.integratedSource, debouncedSaveFile]
+    [debouncedSaveFile, props.integratedSource]
   );
 
   const onChangeFlow = React.useCallback(
-    (changedFlow: FlydeFlow, type: FlydeFlowChangeType) => {
+    async (changedFlow: FlydeFlow, type: FlydeFlowChangeType) => {
       console.log("onChangeFlow", type);
       lastChangeReason.current = type.message;
       setEditorState((state) => ({ ...state, flow: changedFlow }));
-      debouncedSaveFile(changedFlow, props.integratedSource);
+      if (type.message.includes("macro")) {
+        await ports.setFlow({
+          absPath: props.integratedSource,
+          flow: changedFlow,
+        });
+        const deps = await ports.resolveDeps({
+          relativePath: props.integratedSource,
+        });
+        setCurrentResolvedDeps(deps);
+      } else {
+        debouncedSaveFile(changedFlow, props.integratedSource);
+      }
     },
-    [props.integratedSource, debouncedSaveFile]
+    [ports, props.integratedSource, debouncedSaveFile]
   );
 
   React.useEffect(() => {
@@ -223,11 +275,8 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (
     if (newNodeIns) {
       const valueChanged = produce(flow, (draft) => {
         const node = draft.node;
-        if (isInlineValueNode(node)) {
-          AppToaster.show({ message: "cannot add node to code node" });
-        } else {
-          node.instances.push(newNodeIns);
-        }
+
+        node.instances.push(newNodeIns);
       });
       onChangeFlow(valueChanged, functionalChange("add-item"));
     }
@@ -349,8 +398,9 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (
       resolvedDependencies: currentResolvedDeps,
       onImportNode,
       onRequestImportables: queryImportables,
+      libraryData,
     }),
-    [currentResolvedDeps, onImportNode, queryImportables]
+    [currentResolvedDeps, onImportNode, queryImportables, libraryData]
   );
 
   return (
@@ -374,10 +424,10 @@ export const IntegratedFlowManager: React.FC<IntegratedFlowManagerProps> = (
           <div className={classNames("stage-wrapper", { running: false })}>
             <DebuggerContextProvider value={debuggerContextValue}>
               <FlowEditor
+                darkMode={bootstrapData?.darkMode}
                 key={props.integratedSource}
                 state={editorState}
                 onChangeEditorState={setEditorState}
-                hideTemplatingTips={false}
                 onExtractInlineNode={onExtractInlineNode}
                 ref={boardRef}
               />

@@ -1,11 +1,11 @@
 {
   "name": "@flyde/resolver",
-  "version": "0.4.7",
+  "version": "0.4.60",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "test": ":",
+    "test": "mocha src/**/*.spec.ts --require ts-node/register",
     "dev": "tsc -p . -w --incremental",
     "build": "rm -rf dist && tsc -p .",
     "prod": "node dist/index.js",
@@ -30,6 +30,7 @@
     "glob": "^8.1.0",
     "lodash": "^4.17.21",
     "module-from-string": "^3.3.0",
+    "pkg-up": "^3.1.0",
     "require-from-string": "^2.0.2",
     "require-reload": "^0.2.2",
     "resolve-from": "^5.0.0",

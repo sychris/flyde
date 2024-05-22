@@ -16,6 +16,7 @@ import { usePrompt } from "../../flow-editor/ports";
 import { calcHistoryContent, useHistoryHelpers } from "../pin-view/helpers";
 import { getInputName } from "@flyde/core";
 import { getPinDomId } from "../dom-ids";
+import { useDarkMode } from "../../flow-editor/DarkModeContext";
 
 export interface NodeIoViewProps {
   id: string;
@@ -91,12 +92,7 @@ export const NodeIoView: React.FC<NodeIoViewProps> = React.memo(
     };
 
     const onDragMove = (event: any, data: any) => {
-      const currPos = props.pos;
-      const dx = (data.x - currPos.x) / viewPort.zoom;
-      const dy = (data.y - currPos.y) / viewPort.zoom;
-      const newX = currPos.x + dx;
-      const newY = currPos.y + dy;
-      props.onDragMove(type, id, event, { ...data, x: newX, y: newY });
+      props.onDragMove(type, id, event, { x: data.x, y: data.y });
     };
 
     const _prompt = usePrompt();
@@ -229,9 +225,11 @@ export const NodeIoView: React.FC<NodeIoViewProps> = React.memo(
       [id, onMouseDown, type]
     );
 
+    const dark = useDarkMode();
+
     return (
       <BaseNodeView
-        className={classNames(`node-io-view`, type)}
+        className={classNames(`node-io-view`, type, { dark })}
         pos={pos}
         onDragEnd={onDragEnd}
         onDragStart={onDragStart}
@@ -239,30 +237,36 @@ export const NodeIoView: React.FC<NodeIoViewProps> = React.memo(
         viewPort={viewPort}
       >
         <React.Fragment>
-          <ContextMenu
-            onMouseEnter={refreshHistory}
-            onMouseOut={resetHistory}
-            onMouseUp={_onMouseUp}
-            onMouseDown={_onMouseDown}
-            data-tip=""
-            data-html={true}
-            data-for={id + props.currentInsId}
-            className={classNames("node-io-view-inner", { closest, selected })}
-            id={getPinDomId({
-              fullInsIdPath: fullInsIdPath(
-                props.currentInsId,
-                props.ancestorInsIds
-              ),
-              pinId: id,
-              pinType: type,
-              isMain: true,
-            })}
-            onClick={_onClick}
-            onDoubleClick={onDblClickInner}
-            content={getContextMenu()}
-          >
-            <Tooltip content={calcTooltipContent()}>{id}</Tooltip>
-          </ContextMenu>
+          <Tooltip content={calcTooltipContent()}>
+            <ContextMenu
+              onMouseEnter={refreshHistory}
+              onMouseOut={resetHistory}
+              onMouseUp={_onMouseUp}
+              onMouseDown={_onMouseDown}
+              data-tip=""
+              data-html={true}
+              data-for={id + props.currentInsId}
+              className={classNames("node-io-view-inner", {
+                closest,
+                selected,
+                dark,
+              })}
+              id={getPinDomId({
+                fullInsIdPath: fullInsIdPath(
+                  props.currentInsId,
+                  props.ancestorInsIds
+                ),
+                pinId: id,
+                pinType: type,
+                isMain: true,
+              })}
+              onClick={_onClick}
+              onDoubleClick={onDblClickInner}
+              content={getContextMenu()}
+            >
+              {id}
+            </ContextMenu>
+          </Tooltip>
         </React.Fragment>
       </BaseNodeView>
     );

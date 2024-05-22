@@ -41,9 +41,7 @@ const groupAndTables = entries.map(([ns, nodes]) => {
             ([name, obj]) =>
               `<div><strong>${name}</strong>: ${obj.description} (${
                 obj.mode ?? "required"
-              }) ${
-                obj.defaultValue ? `Default value - ${obj.defaultValue}` : ""
-              }</div>`
+              })</div>`
           )
           .join("") || "*None*",
         Object.entries(node.outputs)
@@ -66,6 +64,6 @@ const groupAndTables = entries.map(([ns, nodes]) => {
     { groups: groupAndTables }
   );
 
-  writeFileSync("docs/StdLib/index.md", contents);
-  console.log(`Done writing docs/StdLib/index.md`);
+  writeFileSync("docs/Reference/StdLib/index.md", contents);
+  console.log(`Done writing docs/Reference/StdLib/index.md`);
 })();

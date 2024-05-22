@@ -9,20 +9,22 @@ import {
   VisualNode,
   NodeInstance,
   NodesDefCollection,
-  NodeDefinition,
   isExternalConnectionNode,
-  getNodeDef,
   PinType,
   nodeInstance,
   queueInputPinConfig,
   InputMode,
   inlineNodeInstance,
-  staticInputPinConfig,
   intersectRect,
   Rect,
   calcCenter,
   fullInsIdPath,
   InputPinConfig,
+  NodeDefinition,
+  isMacroNodeDefinition,
+  macroNodeInstance,
+  MacroNodeDefinition,
+  createInsId,
 } from "@flyde/core";
 import { calcPinPosition } from "./connection-view/calc-pin-position";
 import { Size } from "../utils";
@@ -42,6 +44,7 @@ import { vSub, vAdd, vMul, vDiv } from "../physics";
 import { getLeafInstancesOfSelection } from "./node-graph-utils";
 import { getVisibleInputs, getVisibleOutputs } from "./instance-view";
 import { safelyGetNodeDef } from "../flow-editor/getNodeDef";
+import { ConnectionData } from "@flyde/core";
 
 export const emptyObj = {}; // for immutability
 export const emptyList = []; // for immutability
@@ -265,15 +268,49 @@ export const createNewNodeInstance = (
   }
 
   const inputsConfig = entries(node.inputs).reduce((acc, [k, v]) => {
-    // if (v.)
-    if (v.defaultValue) {
-      acc[k] = staticInputPinConfig(v.defaultValue);
-    }
     return acc;
   }, {});
 
-  const ins = nodeInstance(createId(), node.id, inputsConfig, { x: 0, y: 0 });
+  const ins = isMacroNodeDefinition(node)
+    ? macroNodeInstance(
+        createInsId(node),
+        node.id,
+        node.defaultData,
+        inputsConfig,
+        {
+          x: 0,
+          y: 0,
+        }
+      )
+    : nodeInstance(createInsId(node), node.id, inputsConfig, { x: 0, y: 0 });
   const width = calcNodeWidth(ins, node);
+
+  const { x, y } = lastMousePos;
+  const pos = {
+    x: x - width / 2,
+    y: y + offset,
+  };
+
+  return { ...ins, pos };
+};
+
+export const createNewMacroNodeInstance = (
+  macro: MacroNodeDefinition<any>,
+  offset: number = -1 * NODE_HEIGHT * 1.5,
+  lastMousePos: Pos
+): NodeInstance => {
+  const ins = macroNodeInstance(
+    createId(),
+    macro.id,
+    macro.defaultData,
+    {},
+    {
+      x: 0,
+      y: 0,
+    }
+  );
+
+  const width = 100; // macro are resolved only after they are created, so we don't know their width yet
 
   const { x, y } = lastMousePos;
   const pos = {
@@ -529,19 +566,16 @@ export const centerBoardPosOnTarget = (
 const FIT_VIEWPORT_MIN_ZOOM = 0.3;
 const FIT_VIEWPORT_MAX_ZOOM = 1.2;
 
-export const fitViewPortToNode = (
-  node: VisualNode,
-  resolvedNodes: NodesDefCollection,
+export const fitViewPortToRect = (
+  rect: Rect,
   vpSize: Size,
   padding: [number, number] = [20, 150]
 ): ViewPort => {
-  const { size, center } = getEffectiveNodeDimensions(node, resolvedNodes);
-
   const horPadding = padding[0];
   const verPadding = padding[1];
 
-  const width = size.width + horPadding;
-  const height = size.height + verPadding;
+  const width = rect.w + horPadding;
+  const height = rect.h + verPadding;
 
   const widthFit = vpSize.width / width; // i.e 2 if viewPort is twice as large, 0.5 is viewPort is half
   const heightFit = vpSize.height / height;
@@ -553,13 +587,33 @@ export const fitViewPortToNode = (
 
   const zoom = clamp(FIT_VIEWPORT_MIN_ZOOM, FIT_VIEWPORT_MAX_ZOOM, idealZoom);
 
-  const vpX = center.x - vpSize.width / 2 / zoom;
-  const vpY = center.y - vpSize.height / 2 / zoom + 40; // TODO - find out why "+40" is needed
+  const vpX = rect.x - vpSize.width / 2 / zoom;
+  const vpY = rect.y - vpSize.height / 2 / zoom + 20; // TODO - find out why "+20" is needed
 
   return {
     zoom,
     pos: { x: vpX, y: vpY },
   };
+};
+
+export const fitViewPortToNode = (
+  node: VisualNode,
+  resolvedNodes: NodesDefCollection,
+  vpSize: Size,
+  padding: [number, number] = [20, 150]
+): ViewPort => {
+  const { size, center } = getEffectiveNodeDimensions(node, resolvedNodes);
+
+  return fitViewPortToRect(
+    {
+      x: center.x,
+      y: center.y,
+      w: size.width,
+      h: size.height,
+    },
+    vpSize,
+    padding
+  );
 };
 
 export const getMiddleOfViewPort = (vp: ViewPort, vpSize: Size) => {
@@ -606,7 +660,6 @@ export const getInstancesInRect = (
         w,
         h: NODE_HEIGHT * viewPort.zoom * parentVp.zoom,
       };
-      console.log(ins.id, rec2, "main", rect);
 
       return intersectRect(rect, rec2) || intersectRect(rec2, rect);
     })
@@ -711,4 +764,11 @@ export const handleChangeNodeInputType = (
     }
     input.mode = mode;
   });
+};
+export const getConnectionId = (connectionData: ConnectionData) => {
+  const { from, to } = connectionData;
+  const { insId: fromInsId, pinId: fromPinId } = from;
+  const { insId: toInsId, pinId: toPinId } = to;
+
+  return `${fromInsId}${fromPinId}${toInsId}${toPinId}`;
 };

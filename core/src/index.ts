@@ -4,33 +4,17 @@ import {
   CustomNode,
   VisualNode,
   InputPinsConfig,
-  maybeGetStaticValueNodeId,
   Node,
   NodeDefinition,
+  NodeOrMacroDefinition,
 } from "./node";
 
 export * from "./connect";
-
 export * from "./execute";
 export * from "./simplified-execute";
-
 export * from "./node";
-
 export * from "./node/get-node-with-dependencies";
-
-// export * from "./serdes";
-
-export * from "./inline-value-to-code-node";
-
-export * from "./web-project";
-
 export * from "./flow-schema";
-
-export type InputStaticValue = string | number | object | VisualNode;
-
-export const isStaticValueVisualNode = (val: InputStaticValue): boolean => {
-  return !!val && !!maybeGetStaticValueNodeId(`${val}`);
-};
 
 export interface InstanceViewData {
   id: string;
@@ -45,3 +29,12 @@ export type NodesCollection = OMap<Node>;
 export type NodesDefCollection = OMap<NodeDefinition>;
 
 export type CustomNodesCollection = OMap<CustomNode>;
+
+export interface NodeLibraryGroup {
+  title: string;
+  nodes: NodeOrMacroDefinition[];
+}
+
+export interface NodeLibraryData {
+  groups: NodeLibraryGroup[];
+}

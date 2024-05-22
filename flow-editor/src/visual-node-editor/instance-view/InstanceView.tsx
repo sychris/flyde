@@ -9,12 +9,12 @@ import {
   keys,
   isInlineNodeInstance,
   InlineNodeInstance,
-  randomInt,
-  pickRandom,
   NodeStyle,
   getNodeOutputs,
   getInputName,
   getOutputName,
+  NodeDefinition,
+  isMacroNodeInstance,
 } from "@flyde/core";
 import classNames from "classnames";
 
@@ -32,13 +32,11 @@ import {
 import {
   NodeInstance,
   isVisualNode,
-  NodeDefinition,
   PinType,
   getNodeInputs,
 } from "@flyde/core";
 import { calcNodeContent } from "./utils";
 import { BaseNodeView } from "../base-node-view";
-import { isStaticInputPinConfig } from "@flyde/core";
 
 import { getInstanceDomId } from "../dom-ids";
 import {
@@ -53,9 +51,12 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  Dialog,
+  Classes,
 } from "@blueprintjs/core";
-import ReactDOM from "react-dom";
+
 import { NodeStyleMenu } from "./NodeStyleMenu";
+import { useDarkMode } from "../../flow-editor/DarkModeContext";
 
 export const PIECE_HORIZONTAL_PADDING = 25;
 export const PIECE_CHAR_WIDTH = 11;
@@ -152,18 +153,12 @@ export interface InstanceViewProps {
   onInspectPin: (insId: string, pin: { id: string; type: PinType }) => void;
 
   onUngroup: (ins: NodeInstance) => void;
-  onDetachConstValue: (ins: NodeInstance, pinId: string) => void;
-  onCopyConstValue: (ins: NodeInstance, pinId: string) => void;
-  onPasteConstValue: (ins: NodeInstance, pinId: string) => void;
-  onConvertConstToEnv?: (ins: NodeInstance, pinId: string) => void;
 
   onChangeVisibleInputs: (ins: NodeInstance, inputs: string[]) => void;
   onChangeVisibleOutputs: (ins: NodeInstance, outputs: string[]) => void;
 
   onDeleteInstance: (ins: NodeInstance) => void;
   onSetDisplayName: (ins: NodeInstance, view: string | undefined) => void;
-
-  copiedConstValue?: any;
 
   displayMode?: true;
 
@@ -197,9 +192,6 @@ export const InstanceView: React.FC<InstanceViewProps> =
       dragged,
       onTogglePinLog,
       onTogglePinBreakpoint,
-      onDetachConstValue,
-      onCopyConstValue,
-      onPasteConstValue,
       displayMode,
       connections,
       instance,
@@ -215,13 +207,11 @@ export const InstanceView: React.FC<InstanceViewProps> =
       onDblClick: onDoubleClick,
       onChangeVisibleInputs,
       onChangeVisibleOutputs,
-      onConvertConstToEnv,
       inlineGroupProps,
       onUngroup,
       onExtractInlineNode,
       onGroupSelected,
       isConnectedInstanceSelected,
-      inlineEditorPortalDomNode,
       onChangeStyle,
       onDeleteInstance,
       onSetDisplayName,
@@ -229,25 +219,19 @@ export const InstanceView: React.FC<InstanceViewProps> =
       onPinMouseDown,
     } = props;
 
+    const dark = useDarkMode();
+
     const { id } = instance;
-
-    const theme = React.useMemo(() => {
-      const icons = [["fab", "discord"], ["fab", "slack"], "bug", "cube"];
-      const color = randomInt(6, 1);
-      const icon = pickRandom(icons);
-      const size = randomInt(3, 1);
-
-      return { icon, color, size, variation: randomInt(5, 1) };
-    }, []);
 
     const inlineEditorRef = React.useRef();
 
-    const style = React.useMemo(
-      () => instance.style || node.defaultStyle || {},
-      [node, instance]
-    );
-
-    const size = style.size || "regular";
+    const style = React.useMemo(() => {
+      return {
+        icon: instance.style?.icon ?? node.defaultStyle?.icon,
+        color: instance.style?.color ?? node.defaultStyle?.color,
+        size: instance.style?.size ?? node.defaultStyle?.color ?? "regular",
+      } as NodeStyle;
+    }, [node, instance]);
 
     const connectedInputs = React.useMemo(() => {
       return new Map(
@@ -316,21 +300,6 @@ export const InstanceView: React.FC<InstanceViewProps> =
     const _onToggleSticky = React.useCallback(
       (pinId: string) => onToggleSticky(instance, pinId),
       [instance, onToggleSticky]
-    );
-
-    const _onDetachConstValue = React.useCallback(
-      (pinId: string) => onDetachConstValue(instance, pinId),
-      [instance, onDetachConstValue]
-    );
-
-    const _onCopyConstValue = React.useCallback(
-      (pinId: string) => onCopyConstValue(instance, pinId),
-      [instance, onCopyConstValue]
-    );
-
-    const _onPasteConstValue = React.useCallback(
-      (pinId: string) => onPasteConstValue(instance, pinId),
-      [instance, onPasteConstValue]
     );
 
     const _onSelect = React.useCallback(
@@ -423,7 +392,7 @@ export const InstanceView: React.FC<InstanceViewProps> =
         dragged,
         closest: closestPin && closestPin.ins.id === instance.id,
       },
-      `size-${size}`
+      `size-${style.size}`
     );
 
     const optionalInputs = new Set(
@@ -450,13 +419,6 @@ export const InstanceView: React.FC<InstanceViewProps> =
     }
 
     const content = calcNodeContent(instance, node);
-
-    const getStaticValue = (k: string) => {
-      const config = instance.inputConfig[k];
-      if (isStaticInputPinConfig(config)) {
-        return config.value;
-      }
-    };
 
     const _onChangeVisibleInputs = React.useCallback(async () => {
       const inputs = okeys(node.inputs);
@@ -495,15 +457,6 @@ export const InstanceView: React.FC<InstanceViewProps> =
     const inputKeys = Object.keys(getNodeInputs(node));
     const outputKeys = Object.keys(getNodeOutputs(node));
 
-    const _onConvertConstToEnv = React.useCallback(
-      (pinId: string) => {
-        if (onConvertConstToEnv) {
-          onConvertConstToEnv(instance, pinId);
-        }
-      },
-      [instance, onConvertConstToEnv]
-    );
-
     const _onPinMouseUp = React.useCallback(
       (pinId: string, pinType: PinType) => {
         if (onPinMouseUp) {
@@ -537,10 +490,6 @@ export const InstanceView: React.FC<InstanceViewProps> =
               isSticky={stickyInputs[k]}
               minimized={selected ? false : inputsToRender.length === 1}
               onToggleSticky={_onToggleSticky}
-              onDetachConstValue={_onDetachConstValue}
-              onCopyConstValue={_onCopyConstValue}
-              onPasteConstValue={_onPasteConstValue}
-              copiedConstValue={props.copiedConstValue}
               selected={k === selectedInput}
               onClick={onInputClick}
               onDoubleClick={onInputDblClick}
@@ -552,11 +501,6 @@ export const InstanceView: React.FC<InstanceViewProps> =
               onToggleLogged={onTogglePinLog}
               onToggleBreakpoint={onTogglePinBreakpoint}
               onInspect={props.onInspectPin}
-              constValue={getStaticValue(k)}
-              // constValue={constInputs && constInputs.get(k) && (constInputs.get(k) as any).val}
-              onConvertConstToEnv={
-                props.onConvertConstToEnv ? _onConvertConstToEnv : undefined
-              }
               description={v.description}
               queuedValues={props.queuedInputsData[k] ?? 0}
               onMouseUp={_onPinMouseUp}
@@ -673,10 +617,12 @@ export const InstanceView: React.FC<InstanceViewProps> =
               },
             ]
           : []),
+
         { text: "Reorder inputs", onClick: _onChangeVisibleInputs },
         { text: "Reorder outputs", onClick: _onChangeVisibleOutputs },
         { text: `Set display name`, onClick: _onSetDisplayName },
         { text: "Group selected instances", onClick: onGroupSelected },
+
         {
           text: "Delete instance",
           intent: "danger",
@@ -685,6 +631,12 @@ export const InstanceView: React.FC<InstanceViewProps> =
       ];
       return (
         <Menu>
+          {isMacroNodeInstance(instance) ? (
+            <MenuItem
+              text="Change configuration"
+              onClick={(e) => onDblClick(e)}
+            />
+          ) : null}
           <MenuItem text="Style">
             <NodeStyleMenu
               style={style}
@@ -705,6 +657,7 @@ export const InstanceView: React.FC<InstanceViewProps> =
       _onChangeVisibleOutputs,
       _onSetDisplayName,
       _onDeleteInstance,
+      onDblClick,
       style,
       _onChangeStyle,
       _prompt,
@@ -730,32 +683,33 @@ export const InstanceView: React.FC<InstanceViewProps> =
       if (inlineGroupProps) {
         return (
           // ReactDOM.createPortal((<Resizable width={inlineEditorSize.w} height={inlineEditorSize.h} onResize={onResizeInline} handle={<span className='no-drag react-resizable-handle react-resizable-handle-se'/>}>
-          ReactDOM.createPortal(
-            <div
-              className="inline-group-editor-container no-drag"
-              // style={{ width: `${inlineEditorSize.w}px`, height: `${inlineEditorSize.h}px` }}
-            >
-              <header>
-                {content}{" "}
-                <button onClick={props.onCloseInlineEditor}>close</button>
-              </header>
+          <Dialog
+            isOpen={true}
+            onClose={props.onCloseInlineEditor}
+            className="inline-group-editor-container no-drag"
+            title={`Editing inline node ${content}`}
+
+            // style={{ width: `${inlineEditorSize.w}px`, height: `${inlineEditorSize.h}px` }}
+          >
+            <main className={classNames(Classes.DIALOG_BODY)} tabIndex={0}>
               <VisualNodeEditor
                 {...props.inlineGroupProps}
                 className="no-drag"
                 ref={inlineEditorRef}
               />
-            </div>,
-            inlineEditorPortalDomNode
-          )
-          // </Resizable>), inlineEditorPortalDomNode)
+            </main>
+          </Dialog>
         );
+
+        // </Resizable>), inlineEditorPortalDomNode)
       } else {
         return (
           <ContextMenu
             className={classNames(
               "ins-view-inner",
               innerCms,
-              `size-${theme.size}`
+              `size-${style.size}`,
+              { dark: dark }
             )}
             onClick={_onSelect}
             onDoubleClick={onDblClick}
@@ -764,10 +718,7 @@ export const InstanceView: React.FC<InstanceViewProps> =
           >
             <Tooltip content={node.description}>
               <React.Fragment>
-                {style.icon ? (
-                  <FontAwesomeIcon icon={style.icon as any} />
-                ) : null}{" "}
-                {content}
+                <InstanceIcon icon={style.icon as string} /> {content}
               </React.Fragment>
             </Tooltip>
           </ContextMenu>
@@ -797,3 +748,18 @@ export const InstanceView: React.FC<InstanceViewProps> =
       </div>
     );
   };
+
+export const InstanceIcon: React.FC<{ icon?: string }> = function InstanceIcon({
+  icon,
+}) {
+  if (typeof icon === "string" && icon.trim().startsWith("<")) {
+    return (
+      <span
+        className="svg-icon-container"
+        dangerouslySetInnerHTML={{ __html: icon }}
+      />
+    );
+  } else {
+    return <FontAwesomeIcon icon={icon as any} size="xs" />;
+  }
+};

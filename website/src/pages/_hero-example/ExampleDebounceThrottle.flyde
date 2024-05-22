@@ -1,0 +1,197 @@
+imports:
+  "@flyde/stdlib":
+    - Throttle
+    - Debounce
+    - InlineValue
+    - Interval
+    - Collect
+node:
+  instances:
+    - pos:
+        x: -884.2089672851562
+        y: -298.4133969348638
+      id: wj31gd73i5l111q999pv4kor
+      inputConfig: {}
+      visibleOutputs:
+        - unthrottledValue
+        - __error
+      nodeId: Throttle__wj31gd73i5l111q999pv4kor
+      macroId: Throttle
+      macroData:
+        delayMs:
+          value: 3000
+          mode: static
+      style:
+        size: regular
+    - pos:
+        x: -1090.1673413085937
+        y: -297.6969967883794
+      id: eaa2b80mmdusjvxi3fve0du1
+      inputConfig: {}
+      nodeId: Debounce__eaa2b80mmdusjvxi3fve0du1
+      macroId: Debounce
+      macroData:
+        delayMs:
+          value: 2000
+          mode: static
+    - pos:
+        x: -781.8923828125
+        y: -170.0860384469086
+      id: scs3pycv9lz28ykunbkqn9to
+      inputConfig: {}
+      nodeId: InlineValue__scs3pycv9lz28ykunbkqn9to
+      macroId: InlineValue
+      macroData:
+        type: string
+        value: ❌
+        label: '"❌"'
+      style:
+        size: small
+        icon: pen
+        color: "#f15bb5"
+    - pos:
+        x: -995.8424365234375
+        y: -168.312734375
+      id: ApisCombination-3k049q4
+      inputConfig: {}
+      nodeId: InlineValue__ApisCombination-3k049q4
+      macroId: InlineValue
+      macroData:
+        type: string
+        value: 🕐
+        label: '"🕐"'
+      style:
+        size: small
+        icon: pen
+    - pos:
+        x: -1005.08294921875
+        y: -397.30365435972453
+      id: ygnqzwi1stiki29lavj6wu2w
+      inputConfig: {}
+      nodeId: Interval__ygnqzwi1stiki29lavj6wu2w
+      macroId: Interval
+      macroData:
+        time:
+          value: 2500
+          mode: static
+        value:
+          value: ⭐️
+          mode: static
+    - pos:
+        x: -917.6480712890625
+        y: -90.7339411755601
+      id: lfrwwz35676vn1hb9ykzpewd
+      inputConfig: {}
+      nodeId: Collect__lfrwwz35676vn1hb9ykzpewd
+      macroId: Collect
+      macroData:
+        strategy: count
+        count:
+          mode: static
+          value: 3
+      style:
+        size: small
+    - pos:
+        x: -882.0670654296875
+        y: -168.18171105433046
+      id: DebounceThrottle-xy049dv
+      inputConfig: {}
+      nodeId: InlineValue__DebounceThrottle-xy049dv
+      macroId: InlineValue
+      macroData:
+        type: string
+        value: ✅
+        label: '"✅"'
+      style:
+        size: small
+        icon: pen
+  connections:
+    - from:
+        insId: wj31gd73i5l111q999pv4kor
+        pinId: __error
+      to:
+        insId: scs3pycv9lz28ykunbkqn9to
+        pinId: __trigger
+    - from:
+        insId: eaa2b80mmdusjvxi3fve0du1
+        pinId: debouncedValue
+      to:
+        insId: ApisCombination-3k049q4
+        pinId: __trigger
+    - from:
+        insId: ygnqzwi1stiki29lavj6wu2w
+        pinId: value
+      to:
+        insId: eaa2b80mmdusjvxi3fve0du1
+        pinId: value
+    - from:
+        insId: ygnqzwi1stiki29lavj6wu2w
+        pinId: value
+      to:
+        insId: wj31gd73i5l111q999pv4kor
+        pinId: value
+    - from:
+        insId: ApisCombination-3k049q4
+        pinId: value
+      to:
+        insId: lfrwwz35676vn1hb9ykzpewd
+        pinId: value
+    - from:
+        insId: scs3pycv9lz28ykunbkqn9to
+        pinId: value
+      to:
+        insId: lfrwwz35676vn1hb9ykzpewd
+        pinId: value
+    - from:
+        insId: lfrwwz35676vn1hb9ykzpewd
+        pinId: list
+      to:
+        insId: __this
+        pinId: output
+    - from:
+        insId: wj31gd73i5l111q999pv4kor
+        pinId: unthrottledValue
+      to:
+        insId: DebounceThrottle-xy049dv
+        pinId: __trigger
+    - from:
+        insId: DebounceThrottle-xy049dv
+        pinId: value
+      to:
+        insId: lfrwwz35676vn1hb9ykzpewd
+        pinId: value
+  id: DebounceThrottle
+  inputs: {}
+  outputs:
+    output:
+      type: any
+      optional: false
+      delayed: false
+  inputsPosition:
+    city:
+      x: -187.27285824815934
+      y: -14.13215209416181
+    Bob:
+      x: -464.39225613814307
+      y: -267.86263932413937
+  outputsPosition:
+    json:
+      x: -441.98276309426666
+      y: 480.38719404276554
+    na:
+      x: -441.98276309426666
+      y: 480.38719404276554
+    result:
+      x: -499.82438378976735
+      y: 706.7650396699393
+    output:
+      x: -874.7480636542145
+      y: 6.196668367520431
+    response:
+      x: -506.3386688159596
+      y: 488.67302443385125
+    Bob 42:
+      x: -736.217912287027
+      y: 209.40813992513762
+  completionOutputs:
+    - output

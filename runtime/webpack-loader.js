@@ -1,13 +1,13 @@
 const { readFileSync } = require("fs");
-const { resolveDependencies, deserializeFlow } = require("@flyde/resolver");
+const { resolveFlow, deserializeFlow } = require("@flyde/resolver");
 
-const { relative, dirname } = require("path");
+const { relative, dirname, join } = require("path");
 
 module.exports = async function loader() {
   const contents = readFileSync(this.resourcePath, "utf-8");
 
   const flow = await deserializeFlow(contents, this.resourcePath);
-  let dependencies = await resolveDependencies(
+  let { dependencies } = await resolveFlow(
     flow,
     "implementation",
     this.resourcePath
@@ -22,6 +22,8 @@ module.exports = async function loader() {
       } else {
         node.run = `___require('./${requirePath}').${node.source.export}.run___`;
       }
+      return { ...acc, [key]: node };
+    } else if (node.editorConfig) {
       return { ...acc, [key]: node };
     }
     return acc;

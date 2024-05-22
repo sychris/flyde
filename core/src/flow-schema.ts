@@ -1,14 +1,10 @@
 import { z } from "zod";
-import { VisualNode, NodeDefinition, Node } from "./node";
+import { VisualNode, NodeDefinition, Node, ResolvedVisualNode } from "./node";
 
 const importSchema = z.record(z.string(), z.string().or(z.array(z.string())));
 const position = z.strictObject({ x: z.number(), y: z.number() });
 
 const inputConfig = z.discriminatedUnion("mode", [
-  z.strictObject({
-    mode: z.literal("static"),
-    value: z.any(),
-  }),
   z.strictObject({
     mode: z.literal("queue"),
   }),
@@ -32,12 +28,21 @@ const instance = z
     visibleInputs: z.optional(z.array(z.string())),
     visibleOutputs: z.optional(z.array(z.string())),
     nodeId: z.optional(z.string()),
-    node: z.optional(z.any()),
+    node: z.optional(z.lazy(() => visualNode)),
+    macroId: z.optional(z.string()),
+    macroData: z.optional(z.any()),
     style: z.optional(nodeStyle),
   })
-  .refine((val) => val.node || val.nodeId, {
-    message: "Instance must have either an inline node or refer to a nodeId",
-  });
+  .refine(
+    (val) =>
+      val.node ||
+      val.nodeId ||
+      (val.macroId && typeof val.macroData !== "undefined"),
+    {
+      message:
+        "Instance must have either an inline node or refer to a nodeId, or be a macro instance",
+    }
+  );
 
 const inputPinSchema = z.union([
   z.string(),
@@ -64,9 +69,6 @@ const flydeBaseNode = z.object({
   outputs: z.record(z.string(), outputPinSchema),
   inputsPosition: z.optional(z.record(z.string(), position)),
   outputsPosition: z.optional(z.record(z.string(), position)),
-  customViewCode: z.optional(z.string()),
-  dataBuilderSource: z.optional(z.string()),
-  templateType: z.optional(z.string()),
   completionOutputs: z.optional(z.array(z.string())),
   reactiveInputs: z.optional(z.array(z.string())),
   defaultStyle: z.optional(nodeStyle),
@@ -116,14 +118,14 @@ export type ResolvedDependenciesDefinitions = Record<
 >;
 
 export type ResolvedFlydeFlowDefinition = {
-  main: VisualNode;
+  main: ResolvedVisualNode;
   dependencies: ResolvedDependenciesDefinitions;
 };
 
 export type ResolvedDependencies = Record<string, ImportedNode>;
 
 export type ResolvedFlydeRuntimeFlow = {
-  main: VisualNode;
+  main: ResolvedVisualNode;
   dependencies: ResolvedDependencies;
 };
 

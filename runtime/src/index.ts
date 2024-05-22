@@ -1,11 +1,10 @@
 import {
   ExecuteParams,
   FlydeFlow,
-  ImportedNode,
   ResolvedDependencies,
   simplifiedExecute,
 } from "@flyde/core";
-import { deserializeFlowByPath, resolveDependencies } from "@flyde/resolver";
+import { deserializeFlowByPath, resolveFlow } from "@flyde/resolver";
 import EventEmitter = require("events");
 
 import findRoot from "find-root";
@@ -23,7 +22,9 @@ export type PromiseWithEmitter<T> = Promise<T> & { on: EventEmitter["on"] };
 export type LoadedFlowExecuteFn<Inputs> = (
   inputs?: Inputs,
   extraParams?: Partial<
-    ExecuteParams & { onOutputs?: (key: string, data: any) => void }
+    ExecuteParams & { onOutputs?: (key: string, data: any) => void } & {
+      executionDelay?: number;
+    }
   >
 ) => {
   result: Promise<Record<string, any>>;
@@ -40,34 +41,27 @@ export function loadFlowFromContent<Inputs>(
   fullFlowPath: string,
   debuggerUrl: string
 ): LoadedFlowExecuteFn<Inputs> {
-  const deps = resolveDependencies(
-    flow,
-    "implementation",
-    fullFlowPath
-  ) as ResolvedDependencies;
-
-  const mainNode: ImportedNode = {
-    ...flow.node,
-    source: { path: fullFlowPath, export: "n/a" },
-  }; // TODO - fix the need for imported visual nodes to declare an export source.
-
-  deps[mainNode.id] = mainNode;
+  const resFlow = resolveFlow(flow, "implementation", fullFlowPath);
 
   return (inputs, params = {}) => {
-    const { onOutputs, ...otherParams } = params;
+    const { onOutputs, onCompleted, ...otherParams } = params;
     debugLogger("Executing flow %s", params);
 
     let destroy;
     const promise: any = new Promise(async (res, rej) => {
       const _debugger =
         otherParams._debugger ||
-        (await createDebugger(debuggerUrl, fullFlowPath));
+        (await createDebugger(
+          debuggerUrl,
+          fullFlowPath,
+          params.executionDelay
+        ));
 
       debugLogger("Using debugger %o", _debugger);
       destroy = await simplifiedExecute(
-        flow.node,
-        deps,
-        inputs || {},
+        resFlow.main,
+        resFlow.dependencies as ResolvedDependencies,
+        inputs ?? {},
         onOutputs,
         {
           _debugger: _debugger,
@@ -77,6 +71,9 @@ export function loadFlowFromContent<Inputs>(
                 await _debugger.destroy();
               }
               res(data);
+              if (onCompleted) {
+                onCompleted(data);
+              }
             })();
           },
           onBubbleError: (err) => {

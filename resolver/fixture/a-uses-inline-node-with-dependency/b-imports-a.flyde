@@ -1,0 +1,37 @@
+imports:
+  ./a.flyde:
+    - Add1Wrapper
+node:
+  instances:
+    - pos:
+        x: -12.66693115234375
+        y: 87.50454711914062
+      id: ins1
+      inputConfig: {}
+      nodeId: Add1Wrapper
+  connections:
+    - from:
+        insId: __this
+        pinId: n
+      to:
+        insId: ins1
+        pinId: n
+    - from:
+        insId: ins1
+        pinId: r
+      to:
+        insId: __this
+        pinId: r
+  id: Add1WrapperTwice
+  inputs:
+    n:
+      mode: required
+      type: number
+  outputs:
+    r:
+      type: number
+  inputsPosition: {}
+  outputsPosition:
+    r:
+      x: 14.165313720703125
+      y: 191.66661071777344

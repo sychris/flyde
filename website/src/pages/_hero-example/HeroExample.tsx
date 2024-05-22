@@ -1,108 +1,102 @@
-import { dynamicOutput, dynamicNodeInput, noop } from "@site/../core/dist";
 import { EmbeddedFlyde } from "@site/src/components/EmbeddedFlyde/EmbeddedFlyde";
-import React, { useRef } from "react";
+import React, { forwardRef, useMemo } from "react";
 
-import helloWorldExample from "./Hero.flyde";
+import { vs2015 } from "react-code-blocks";
 
-import { CodeBlock, dracula } from "react-code-blocks";
+const codeTheme = vs2015;
+
+const flowFileName = "Example.flyde";
+import clsx from "clsx";
 
 const code = `import {loadFlow} from '@flyde/runtime';
 
-const executeFlow = loadFlow('Greet.flyde');
+const executeFlow = loadFlow('${flowFileName}');
 const {result} = executeFlow();
 const {output} = await result;
 console.log(\`Output: \$\{output\}\`);`;
 
 import "./HeroExample.scss";
-import { Button } from "@blueprintjs/core";
-import Link from "@docusaurus/Link";
+import { Loader } from "@flyde/flow-editor";
+import { processMacroNodes } from "@site/src/components/EmbeddedFlyde/macroHelpers";
+import * as stdLibBrowser from "@flyde/stdlib/dist/all-browser";
+import { noop } from "@flyde/core";
+import { examples } from "../_examples";
 
-export const HeroExample: React.FC = () => {
+export const HeroExample: React.FC<{
+  example: (typeof examples)[0];
+  ref: any;
+  children?: React.ReactNode;
+  onChangeExample: (example: (typeof examples)[0]) => void;
+}> = forwardRef(function HeroExample(
+  { example, children, onChangeExample },
+  ref
+) {
+  const currentExample = example;
   const [logs, setLogs] = React.useState<any>([]);
 
-  const inputs = useRef({
-    __trigger: dynamicNodeInput(),
-  });
+  const flowProps = useMemo(() => {
+    const { newDeps, newNode } = processMacroNodes(
+      currentExample.flow.flow.node,
+      stdLibBrowser
+    );
 
-  const result = useRef(dynamicOutput());
-  const flowProps = {
-    flow: helloWorldExample.flow,
-    dependencies: helloWorldExample.dependencies,
-    inputs: inputs.current,
-    output: result.current,
-  };
+    return {
+      initialFlow: { ...currentExample.flow.flow, node: newNode },
+      dependencies: { ...currentExample.flow.dependencies, ...newDeps },
+    };
+  }, [currentExample]);
 
-  const [didRun, setDidRun] = React.useState(false);
+  const logsContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const onRunExample = () => {
-    setLogs(["› ts-node index.ts"]);
-    inputs.current.__trigger.subject.next("run");
-    setDidRun(true);
-  };
+  const onLogOutput = React.useCallback(
+    (output) => {
+      setLogs((logs) => [
+        ...logs,
+        `[${new Date().toLocaleTimeString()}] Output: ${output}`,
+      ]);
+
+      if (logsContainerRef.current) {
+        logsContainerRef.current.scrollTop =
+          logsContainerRef.current.scrollHeight;
+      }
+    },
+    [setLogs]
+  );
 
   return (
-    <div className="hero-example">
-      <div className="buttons-container">
-        <Link className="button button--secondary" to="/playground">
-          Online Playground
-        </Link>
-        <Button
-          className={`button button--success button${!didRun && " nudge"}`}
-          onClick={onRunExample}
-        >
-          Run Example 👇
-        </Button>
-        <Link
-          className="button button--primary"
-          href="https://marketplace.visualstudio.com/items?itemName=flyde.flyde-vscode"
-        >
-          VSCode Extension
-        </Link>
-        <span className="gh-stars-wrapper">
-          <iframe
-            className="gh-stars-frame"
-            src="https://ghbtns.com/github-btn.html?user=flydehq&amp;repo=flyde&amp;type=star&amp;count=true&amp;size=large"
-            width={160}
-            height={30}
-            title="GitHub Stars"
-          />
-        </span>
+    <div className="hero-example relative">
+      <div className="hero-example__tabs">
+        {examples.map((ex) => (
+          <div
+            onClick={() => onChangeExample(ex)}
+            className={clsx("file-tag", ex === example && "selected")}
+          >
+            {ex.fileName}
+          </div>
+        ))}
       </div>
-      <div className="flyde-hero-example-wrapper">
-        <div className="flow-wrapper">
-          <div className="file-tag">Greet.flyde</div>
-          <EmbeddedFlyde
-            flowProps={flowProps}
-            debugDelay={100}
-            onOutput={(output) => {
-              setLogs((logs) => [...logs, `Output: ${output}`]);
-            }}
-          />
+
+      <div className="flow-wrapper">
+        <div className="loader-wrapper">
+          <Loader />
         </div>
-        <div className="code-terminal-wrapper">
-          <div className="code-wrapper">
-            <div className="file-tag">index.ts</div>
-            <CodeBlock
-              className="code-example"
-              showLineNumbers={false}
-              text={code}
-              language="typescript"
-              theme={dracula}
-              codeBlock
-            />
-          </div>
-          <div className="terminal-wrapper">
-            <div className="file-tag">Terminal</div>
-            <div className="terminal-emulator">
-              {logs.length ? (
-                logs.map((log, i) => <div>{log}</div>)
-              ) : (
-                <em>Waiting for the example to run..</em>
-              )}
-            </div>
-          </div>
+        <EmbeddedFlyde
+          ref={ref}
+          flowProps={flowProps}
+          onLog={onLogOutput}
+          onCompleted={noop}
+        />
+        {children}
+      </div>
+      <div className="terminal-wrapper">
+        <div className="terminal-emulator" ref={logsContainerRef}>
+          {logs.length ? (
+            logs.map((log, i) => <div key={i}>{log}</div>)
+          ) : (
+            <em>Values sent to `output` will appear here once received.</em>
+          )}
         </div>
       </div>
     </div>
   );
-};
+});

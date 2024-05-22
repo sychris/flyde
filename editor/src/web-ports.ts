@@ -31,8 +31,10 @@ export const createWebPorts = ({
     setFlow: async ({ absPath, flow }) => {
       await devServerClient.saveFile(absPath, flow);
     },
-    resolveDeps: async ({ absPath }) => {
-      return devServerClient.resolveDefinitions(absPath);
+    resolveDeps: async ({ relativePath }) => {
+      return devServerClient
+        .resolveDefinitions(relativePath)
+        .then((f) => f.dependencies);
     },
     getImportables: async ({ rootFolder }) => {
       return devServerClient.getImportables(rootFolder);
@@ -60,6 +62,9 @@ export const createWebPorts = ({
     },
     hasOpenAiToken: async () => {
       return true;
+    },
+    getLibraryData: async () => {
+      return devServerClient.getLibraryData();
     },
   };
 };

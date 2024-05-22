@@ -1,15 +1,16 @@
 import express from "express";
+import cors from 'cors';
 import { createService } from "./service/service";
 
 import { setupRemoteDebuggerServer } from "@flyde/remote-debugger/dist/setup-server";
 import { createServer } from "http";
 import { scanImportableNodes } from "./service/scan-importable-nodes";
-import { deserializeFlow, resolveDependencies } from "@flyde/resolver";
+import { resolveFlowByPath } from "@flyde/resolver";
 import { join } from "path";
 
-import resolveFrom = require("resolve-from");
-import { readFileSync } from "fs";
 import { generateAndSaveNode } from "./service/generate-node-from-prompt";
+
+import { getLibraryData } from "./service/get-library-data";
 
 export const runDevServer = (
   port: number,
@@ -23,12 +24,9 @@ export const runDevServer = (
   const server = createServer(app);
 
   app.use(express.json());
+  app.use(cors())
 
   app.use((_, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    res.setHeader("Access-Control-Allow-Methods", "*");
-
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
@@ -68,7 +66,7 @@ export const runDevServer = (
     }
   });
 
-  app.get("/resolveDefinitions", async (req, res) => {
+  app.get("/resolveFlow", async (req, res) => {
     try {
       const { filename } = req.query as { filename: string };
       if (!filename) {
@@ -76,10 +74,10 @@ export const runDevServer = (
         return;
       }
 
-      const fullPath = resolveFrom(rootDir, filename);
-      const flow = deserializeFlow(readFileSync(fullPath, "utf-8"), fullPath);
-      const deps = await resolveDependencies(flow, "definition", fullPath);
-      res.send({ ...deps, [flow.node.id]: flow.node });
+      const fullPath = join(rootDir, filename);
+
+      const resolvedFlow = await resolveFlowByPath(fullPath, "definition");
+      res.send(resolvedFlow);
     } catch (e) {
       console.error(e);
       res.status(400).send(e);
@@ -100,6 +98,11 @@ export const runDevServer = (
     } catch (e) {
       res.status(400).send(e);
     }
+  });
+
+  app.get("/library", async (req, res) => {
+    const library = getLibraryData();
+    res.send(library);
   });
 
   setupRemoteDebuggerServer(

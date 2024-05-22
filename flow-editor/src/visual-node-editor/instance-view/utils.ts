@@ -1,15 +1,4 @@
-import {
-  okeys,
-  NodeInstance,
-  NodeDefinition,
-  Pos,
-  isStaticInputPinConfig,
-  StaticInputPinConfig,
-} from "@flyde/core";
-
-import Handlebars from "handlebars";
-
-import { isDefined } from "../../utils";
+import { okeys, NodeInstance, Pos, NodeDefinition } from "@flyde/core";
 
 import {
   MAX_INSTANCE_WIDTH,
@@ -29,25 +18,7 @@ export const calcNodeContent = (
     return instance.displayName;
   }
 
-  if (node.customViewCode) {
-    try {
-      const inputs = Object.entries(instance.inputConfig)
-        .filter(([, v]) => isStaticInputPinConfig(v))
-        .reduce(
-          (p, [k, v]) => ({ ...p, [k]: (v as StaticInputPinConfig).value }),
-          {}
-        );
-
-      const template = Handlebars.compile(node.customViewCode);
-
-      return template({ inputs }).trim();
-    } catch (e) {
-      console.error("Error with custom view", e);
-      return `Error in custom view [${node.id}]`;
-    }
-  }
-
-  return node.id;
+  return node.displayName ?? node.id;
 };
 
 export const calcNodeWidth = (instance: NodeInstance, node: NodeDefinition) => {

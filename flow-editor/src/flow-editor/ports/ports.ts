@@ -2,6 +2,8 @@ import { createContext, useContext } from "react";
 import {
   FlydeFlow,
   ImportableSource,
+  NodeLibraryData,
+  NodeLibraryGroup,
   ResolvedDependenciesDefinitions,
   noop,
 } from "@flyde/core";
@@ -26,8 +28,10 @@ export interface EditorPorts {
   setFlow: (dto: { absPath: string; flow: FlydeFlow }) => Promise<void>;
 
   resolveDeps: (dto: {
-    absPath: string;
+    relativePath: string;
+    flow?: FlydeFlow;
   }) => Promise<ResolvedDependenciesDefinitions>;
+
   getImportables: (dto: {
     rootFolder: string;
     flowPath: string;
@@ -42,7 +46,10 @@ export interface EditorPorts {
 
   onInstallRuntimeRequest: () => Promise<void>;
 
-  onRunFlow: (inputs: Record<string, any>) => Promise<FlowJob>;
+  onRunFlow: (
+    inputs: Record<string, any>,
+    executionDelay?: number
+  ) => Promise<FlowJob>;
   onStopFlow: () => Promise<void>;
 
   reportEvent: ReportEvent;
@@ -52,6 +59,7 @@ export interface EditorPorts {
   }) => Promise<{ importableNode: ImportableSource }>;
 
   hasOpenAiToken: () => Promise<boolean>;
+  getLibraryData: () => Promise<NodeLibraryData>;
 }
 
 const toastNotImplemented: any = (method: string) => async () => {
@@ -68,6 +76,7 @@ export const defaultPorts: EditorPorts = {
   readFlow: toastNotImplemented("readFlow"),
   setFlow: toastNotImplemented("setFlow"),
   resolveDeps: toastNotImplemented("resolveDeps"),
+
   getImportables: toastNotImplemented("getImportables"),
   onExternalFlowChange: toastNotImplemented("onExternalFlowChange"),
   onInstallRuntimeRequest: toastNotImplemented("onInstallRuntimeRequest"),
@@ -76,6 +85,7 @@ export const defaultPorts: EditorPorts = {
   reportEvent: noop,
   generateNodeFromPrompt: toastNotImplemented("generateNodeFromPrompt"),
   hasOpenAiToken: () => Promise.resolve(false),
+  getLibraryData: () => Promise.resolve({ groups: [] }),
 };
 
 export const PortsContext = createContext<EditorPorts>(defaultPorts);

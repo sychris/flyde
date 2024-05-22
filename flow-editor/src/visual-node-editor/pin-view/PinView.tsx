@@ -3,31 +3,22 @@ import classNames from "classnames";
 
 import { Menu, MenuItem, ContextMenu, Tooltip } from "@blueprintjs/core";
 
-import { isDefined, toString } from "../../utils";
-
 import {
   ERROR_PIN_ID,
   fullInsIdPath,
   getInputName,
   getOutputName,
-  isEnvValue,
   PinType,
 } from "@flyde/core";
 import { getPinDomId } from "../dom-ids";
-import { valuePreview } from "@flyde/remote-debugger";
 import { calcHistoryContent, useHistoryHelpers } from "./helpers";
+import { useDarkMode } from "../../flow-editor/DarkModeContext";
 export const PIN_HEIGHT = 23;
 
 export type InputPinViewProps = {
   type: "input";
   onToggleSticky: (id: string) => void;
-  onDetachConstValue: (id: string) => void;
-  onCopyConstValue: (id: string) => void;
-  onPasteConstValue: (id: string) => void;
-  onConvertConstToEnv?: (id: string) => void;
-  copiedConstValue?: any;
   isSticky: boolean;
-  constValue?: any;
   queueSize?: number;
   queuedValues: number;
 };
@@ -47,7 +38,6 @@ export type PinViewProps = {
   onDoubleClick?: (id: string, e?: React.MouseEvent) => void;
   onShiftClick?: (id: string, e?: React.MouseEvent) => void;
   onClick: (id: string, type: PinType, e?: React.MouseEvent) => void;
-  rotate?: true;
   isClosestToMouse: boolean;
   description?: string;
   onToggleLogged: (insId: string, pinId: string, type: PinType) => void;
@@ -72,7 +62,6 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
     selected,
     type,
     connected,
-    rotate,
     optional,
     currentInsId,
     isClosestToMouse,
@@ -87,6 +76,8 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
     type
   );
 
+  const dark = useDarkMode();
+
   const getContextMenu = () => {
     const inspectMenuItem = (
       <MenuItem
@@ -100,49 +91,15 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
       />
     );
     if (props.type === "input") {
-      const { onConvertConstToEnv } = props;
-      if (isDefined(maybeConstValue)) {
-        return (
-          <Menu>
-            <MenuItem
-              onClick={() => props.onDetachConstValue(props.id)}
-              text={"Detach value"}
-            />
-            <MenuItem
-              onClick={() => props.onCopyConstValue(props.id)}
-              text={"Copy value"}
-            />
-            {isDefined(props.copiedConstValue) ? (
-              <MenuItem
-                onClick={() => props.onPasteConstValue(props.id)}
-                text="Paste value"
-              />
-            ) : null}
-            {onConvertConstToEnv ? (
-              <MenuItem
-                onClick={() => onConvertConstToEnv(props.id)}
-                text="Convert to Env Var"
-              />
-            ) : null}
-          </Menu>
-        );
-      } else {
-        return (
-          <Menu>
-            <MenuItem
-              onClick={() => props.onToggleSticky(props.id)}
-              text={"Toggle sticky (square means sticky)"}
-            />
-            {inspectMenuItem}
-            {isDefined(props.copiedConstValue) ? (
-              <MenuItem
-                onClick={() => props.onPasteConstValue(props.id)}
-                text="Paste value"
-              />
-            ) : null}
-          </Menu>
-        );
-      }
+      return (
+        <Menu>
+          <MenuItem
+            onClick={() => props.onToggleSticky(props.id)}
+            text={"Toggle sticky (square means sticky)"}
+          />
+          {inspectMenuItem}
+        </Menu>
+      );
     } else {
       return (
         <Menu>
@@ -167,7 +124,7 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
 
   const calcClassNames = () => {
     if (props.type === "input") {
-      const { isSticky, constValue } = props;
+      const { isSticky } = props;
       return classNames(
         "pin",
         {
@@ -176,12 +133,10 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
           closest: isClosestToMouse,
           optional,
           connected,
-          rotate,
-          "const-value": isDefined(constValue),
-          "env-value": isDefined(constValue) && isEnvValue(constValue),
           // "is-logged": logged,
           // "is-breakpoint": breakpoint,
           minimized: props.minimized,
+          dark,
         },
         type
       );
@@ -192,23 +147,17 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
           selected,
           connected,
           closest: isClosestToMouse,
-          rotate,
           optional,
           // "is-logged": logged,
           // "has-value": isDefined(runtimeData.lastValues.length)
           minimized: props.minimized,
           "error-pin": id === ERROR_PIN_ID,
+          dark,
         },
-        type,
-        rotate
+        type
       );
     }
   };
-
-  const maybeConstValue =
-    props.type === "input" && isDefined(props.constValue)
-      ? props.constValue
-      : undefined;
 
   const calcTooltipContent = () => {
     const historyContent = calcHistoryContent(
@@ -229,19 +178,10 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
         </div>
         {maybeDescription}
         <hr />
-        {isDefined(maybeConstValue) ? (
-          <div>
-            Static value:{" "}
-            <strong>{valuePreview(maybeConstValue).substring(0, 200)}</strong>
-          </div>
-        ) : (
-          historyContent
-        )}
+        {historyContent}
       </div>
     );
   };
-
-  const tooltipDown = rotate && type === "input";
 
   const maybeStickyLabel = () => {
     if (props.type === "input" && props.isSticky) {
@@ -297,22 +237,14 @@ export const PinView: React.FC<PinViewProps> = React.memo(function PinView(
             pinType: type,
             isMain: false,
           })}
-          data-place={tooltipDown ? "bottom" : null}
           onDoubleClick={(e) =>
             props.onDoubleClick && props.onDoubleClick(id, e)
           }
-          className={`pin-inner`}
+          className={classNames(`pin-inner`, { dark })}
           onClick={onClick}
           content={getContextMenu()}
         >
-          {displayName}{" "}
-          {isDefined(maybeConstValue) ? (
-            <React.Fragment>
-              {":"}
-              <span className="value">{toString(maybeConstValue)}</span>
-            </React.Fragment>
-          ) : null}
-          {maybeStickyLabel()}
+          {displayName} {maybeStickyLabel()}
           {maybeQueueLabel()}
         </ContextMenu>
       </Tooltip>

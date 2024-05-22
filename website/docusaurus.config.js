@@ -55,7 +55,7 @@ const FixWebpack5Plugin = () => ({
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Coding, Simplified: Visual Programming with Flyde",
+  title: "Flyde | Visual Programming. For Developers.",
   tagline:
     "Experience the next level of abstraction in programming with Flyde's visual, flow-based approach and modular design",
   url: "https://www.flyde.dev",
@@ -66,7 +66,7 @@ const config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "flydehq", // Usually your GitHub org/user name.
+  organizationName: "flydelabs", // Usually your GitHub org/user name.
   projectName: "flyde", // Usually your resolvedNodes name.
   deploymentBranch: "website",
   trailingSlash: true,
@@ -79,21 +79,21 @@ const config = {
     locales: ["en"],
   },
   plugins: [
-    [
-      "docusaurus-plugin-typedoc",
-      // Plugin / TypeDoc options
-      {
-        entryPoints: ["../core/src/index.ts"],
-        tsconfig: "../core/tsconfig.json",
-        out: "api-reference",
-        watch: process.env.TYPEDOC_WATCH,
-        sidebar: {
-          position: 20,
-          categoryLabel: "API Reference",
-          fullNames: true,
-        },
-      },
-    ],
+    // [
+    //   "docusaurus-plugin-typedoc",
+    //   // Plugin / TypeDoc options
+    //   {
+    //     entryPoints: ["../core/src/index.ts"],
+    //     tsconfig: "../core/tsconfig.json",
+    //     out: "api-reference",
+    //     watch: process.env.TYPEDOC_WATCH,
+    //     sidebar: {
+    //       position: 20,
+    //       categoryLabel: "API Reference",
+    //       fullNames: true,
+    //     },
+    //   },
+    // ],
     "docusaurus-plugin-sass",
     "docusaurus-plugin-hotjar",
     // @ts-ignore
@@ -138,6 +138,8 @@ const config = {
     ({
       colorMode: {
         disableSwitch: true,
+        respectPrefersColorScheme: false,
+        defaultMode: "light",
       },
       navbar: {
         title: "Flyde",
@@ -150,17 +152,20 @@ const config = {
             to: "/docs",
             label: "Documentation",
           },
-          { to: "/blog", label: "Blog", position: "left" },
           {
             href: "https://marketplace.visualstudio.com/items?itemName=flyde.flyde-vscode",
             label: "VSCode Extension",
           },
           {
-            href: "https://github.com/FlydeHQ/flyde/tree/main/examples",
-            label: "Examples",
+            href: "https://play.flyde.dev",
+            label: "Online Playground",
           },
           {
-            href: "https://github.com/flydehq/flyde",
+            href: "https://www.trigg.dev?ref=flyde-header",
+            label: "Trigg",
+          },
+          {
+            href: "https://github.com/flydelabs/flyde",
             label: "GitHub",
             position: "right",
           },
@@ -170,11 +175,15 @@ const config = {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "Getting Started",
             items: [
               {
-                label: "Tutorial",
-                to: "/docs/tutorials/hello-world-with-flyde",
+                label: "Online Playground",
+                to: "https://play.flyde.dev",
+              },
+              {
+                label: "Documentation",
+                to: "/docs",
               },
             ],
           },
@@ -182,16 +191,16 @@ const config = {
             title: "Community",
             items: [
               {
-                label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/flyde",
-              },
-              {
                 label: "Discord",
-                href: "https://discord.gg/x7t4tjZQP8",
+                href: "https://www.flyde.dev/discord",
               },
               {
                 label: "Twitter",
-                href: "https://twitter.com/flydehq",
+                href: "https://twitter.com/FlydeLabs",
+              },
+              {
+                label: "Stack Overflow",
+                href: "https://stackoverflow.com/questions/tagged/flyde",
               },
             ],
           },
@@ -208,7 +217,20 @@ const config = {
               },
               {
                 label: "GitHub",
-                href: "https://github.com/flydehq/flyde",
+                href: "https://github.com/flydelabs/flyde",
+              },
+              {
+                label: "Trigg - Cloud-Managed Flyde for APIs",
+                href: "https://www.trigg.dev?ref=flyde-footer",
+              },
+            ],
+          },
+          {
+            title: "Contact",
+            items: [
+              {
+                label: "Email",
+                href: "mailto:hello@flyde.dev",
               },
             ],
           },
